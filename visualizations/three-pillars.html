@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 3 Piliers de l'Observabilite</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a2e;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+  .header{text-align:center;padding:2rem 1rem .5rem}
+  .header h1{font-size:2rem;color:#00d4ff;margin-bottom:.4rem}
+  .header .subtitle{color:#8899aa;font-size:1rem;font-style:italic}
+  .pillars-container{display:flex;justify-content:center;gap:2rem;padding:2rem 1rem;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+  .pillar{background:#16213e;border-radius:16px;width:320px;min-height:420px;position:relative;cursor:pointer;overflow:hidden;transition:transform .3s,box-shadow .3s;border:2px solid transparent;display:flex;flex-direction:column}
+  .pillar:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,212,255,.15);border-color:#00d4ff44}
+  .pillar.expanded{width:420px;min-height:520px}
+  .pillar-glow{position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0}
+  .pillar[data-type="logs"] .pillar-glow{background:linear-gradient(90deg,#22c55e,#16a34a)}
+  .pillar[data-type="metrics"] .pillar-glow{background:linear-gradient(90deg,#f59e0b,#d97706)}
+  .pillar[data-type="traces"] .pillar-glow{background:linear-gradient(90deg,#8b5cf6,#7c3aed)}
+  .pillar-icon{font-size:3rem;text-align:center;margin:1.5rem 0 .5rem}
+  .pillar-title{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:.3rem}
+  .pillar[data-type="logs"] .pillar-title{color:#22c55e}
+  .pillar[data-type="metrics"] .pillar-title{color:#f59e0b}
+  .pillar[data-type="traces"] .pillar-title{color:#8b5cf6}
+  .pillar-desc{text-align:center;color:#8899aa;font-size:.9rem;padding:0 1.2rem;margin-bottom:1rem}
+  .animation-area{flex:1;position:relative;margin:0 1rem 1rem;background:#0f1729;border-radius:10px;overflow:hidden;min-height:180px}
+  .pillar-details{max-height:0;overflow:hidden;transition:max-height .5s ease,padding .3s;padding:0 1.2rem;background:#0d1a30;border-radius:0 0 14px 14px}
+  .pillar.expanded .pillar-details{max-height:400px;padding:1rem 1.2rem}
+  .detail-section{margin-bottom:.8rem}
+  .detail-section h4{color:#4dabf7;font-size:.85rem;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.5px}
+  .detail-section p,.detail-section ul{color:#aab;font-size:.85rem;line-height:1.5}
+  .detail-section ul{list-style:none;padding:0}
+  .detail-section ul li::before{content:"▸ ";color:#00d4ff}
+  .legend{display:flex;justify-content:center;gap:2rem;padding:1rem;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:#8899aa}
+  .legend-dot{width:12px;height:12px;border-radius:50%}
+  .legend-dot.logs{background:#22c55e}
+  .legend-dot.metrics{background:#f59e0b}
+  .legend-dot.traces{background:#8b5cf6}
+  /* Log animation */
+  .log-line{position:absolute;left:8px;font-family:'Courier New',monospace;font-size:.65rem;color:#22c55e;white-space:nowrap;opacity:0;animation:logFall 3s linear forwards}
+  @keyframes logFall{0%{opacity:0;transform:translateY(-20px)}10%{opacity:.9}90%{opacity:.9}100%{opacity:0;transform:translateY(180px)}}
+  /* Metric animation */
+  .metric-canvas{width:100%;height:100%}
+  /* Trace dots */
+  .trace-dot{position:absolute;width:8px;height:8px;border-radius:50%;background:#8b5cf6}
+  .trace-line{position:absolute;height:2px;background:#8b5cf644}
+  @media(max-width:768px){.pillars-container{flex-direction:column;align-items:center}.pillar,.pillar.expanded{width:90%;max-width:400px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Les 3 Piliers de l'Observabilite</h1>
+  <p class="subtitle">Cliquez sur un pilier pour explorer ses details</p>
+</div>
+
+<div class="pillars-container">
+  <!-- LOGS -->
+  <div class="pillar" data-type="logs" onclick="togglePillar(this)">
+    <div class="pillar-glow"></div>
+    <div class="pillar-icon">📋</div>
+    <div class="pillar-title">Logs</div>
+    <div class="pillar-desc">Evenements textuels horodates decrivant ce qui s'est passe dans le systeme</div>
+    <div class="animation-area" id="logs-anim"></div>
+    <div class="pillar-details">
+      <div class="detail-section">
+        <h4>Ce que ca capture</h4>
+        <p>Evenements discrets, erreurs, informations de debug, requetes HTTP, changements d'etat</p>
+      </div>
+      <div class="detail-section">
+        <h4>Outils</h4>
+        <ul><li>Elasticsearch / OpenSearch</li><li>Loki (Grafana)</li><li>Fluentd / Fluent Bit</li><li>Datadog Logs</li></ul>
+      </div>
+      <div class="detail-section">
+        <h4>Exemple</h4>
+        <p style="font-family:monospace;font-size:.75rem;color:#22c55e;background:#0a0f1a;padding:.5rem;border-radius:6px">2026-03-09T10:23:45Z [ERROR] OrderService: Payment failed for order #4821 - timeout after 30s</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="pillar" data-type="metrics" onclick="togglePillar(this)">
+    <div class="pillar-glow"></div>
+    <div class="pillar-icon">📊</div>
+    <div class="pillar-title">Metriques</div>
+    <div class="pillar-desc">Mesures numeriques aggregees dans le temps pour surveiller les tendances</div>
+    <div class="animation-area" id="metrics-anim">
+      <canvas class="metric-canvas" id="metricsCanvas"></canvas>
+    </div>
+    <div class="pillar-details">
+      <div class="detail-section">
+        <h4>Ce que ca capture</h4>
+        <p>Valeurs numeriques: taux de requetes, latence, utilisation CPU/memoire, taux d'erreur</p>
+      </div>
+      <div class="detail-section">
+        <h4>Outils</h4>
+        <ul><li>Prometheus</li><li>Grafana</li><li>InfluxDB</li><li>Datadog Metrics</li></ul>
+      </div>
+      <div class="detail-section">
+        <h4>Exemple</h4>
+        <p style="font-family:monospace;font-size:.75rem;color:#f59e0b;background:#0a0f1a;padding:.5rem;border-radius:6px">http_requests_total{method="POST", status="500"} 142<br>http_request_duration_seconds{quantile="0.99"} 2.3</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACES -->
+  <div class="pillar" data-type="traces" onclick="togglePillar(this)">
+    <div class="pillar-glow"></div>
+    <div class="pillar-icon">🔗</div>
+    <div class="pillar-title">Traces</div>
+    <div class="pillar-desc">Suivi du parcours d'une requete a travers les services distribues</div>
+    <div class="animation-area" id="traces-anim"></div>
+    <div class="pillar-details">
+      <div class="detail-section">
+        <h4>Ce que ca capture</h4>
+        <p>Parcours complet des requetes, latence par service, dependances, goulots d'etranglement</p>
+      </div>
+      <div class="detail-section">
+        <h4>Outils</h4>
+        <ul><li>Jaeger</li><li>Zipkin</li><li>Tempo (Grafana)</li><li>OpenTelemetry</li></ul>
+      </div>
+      <div class="detail-section">
+        <h4>Exemple</h4>
+        <p style="font-family:monospace;font-size:.75rem;color:#8b5cf6;background:#0a0f1a;padding:.5rem;border-radius:6px">TraceID: 3a2f7c...<br>├─ API Gateway (12ms)<br>│  ├─ Auth Service (3ms)<br>│  └─ Order Service (45ms)<br>│     └─ Payment Service (120ms)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot logs"></div>Logs — Evenements textuels</div>
+  <div class="legend-item"><div class="legend-dot metrics"></div>Metriques — Mesures numeriques</div>
+  <div class="legend-item"><div class="legend-dot traces"></div>Traces — Parcours distribue</div>
+</div>
+
+<script>
+function togglePillar(el){
+  el.classList.toggle('expanded');
+}
+
+// --- Log animation ---
+const logMessages=[
+  '[INFO] GET /api/orders 200 12ms',
+  '[ERROR] Connection refused: db-primary:5432',
+  '[WARN] High memory usage: 89%',
+  '[INFO] POST /api/payment 201 45ms',
+  '[DEBUG] Cache hit ratio: 0.73',
+  '[ERROR] Timeout: OrderService > PaymentService',
+  '[INFO] Health check OK',
+  '[WARN] Rate limit approaching: 980/1000',
+  '[INFO] DELETE /api/sessions 204 3ms',
+  '[ERROR] 503 Service Unavailable: upstream'
+];
+function spawnLog(){
+  const area=document.getElementById('logs-anim');
+  if(!area)return;
+  const line=document.createElement('div');
+  line.className='log-line';
+  const ts=new Date().toISOString().substring(11,19);
+  line.textContent=ts+' '+logMessages[Math.floor(Math.random()*logMessages.length)];
+  line.style.top='-20px';
+  line.style.animationDuration=(2.5+Math.random()*2)+'s';
+  area.appendChild(line);
+  line.addEventListener('animationend',()=>line.remove());
+}
+setInterval(spawnLog,400);
+
+// --- Metrics animation (canvas chart) ---
+const mCanvas=document.getElementById('metricsCanvas');
+const mCtx=mCanvas.getContext('2d');
+let metricData=[];
+for(let i=0;i<60;i++) metricData.push(50+Math.random()*30);
+function drawMetrics(){
+  const rect=mCanvas.parentElement.getBoundingClientRect();
+  mCanvas.width=rect.width;
+  mCanvas.height=rect.height;
+  const w=mCanvas.width, h=mCanvas.height;
+  mCtx.clearRect(0,0,w,h);
+  // grid
+  mCtx.strokeStyle='#1e2d4a';
+  mCtx.lineWidth=1;
+  for(let y=0;y<h;y+=h/4){mCtx.beginPath();mCtx.moveTo(0,y);mCtx.lineTo(w,y);mCtx.stroke()}
+  // line
+  mCtx.beginPath();
+  mCtx.strokeStyle='#f59e0b';
+  mCtx.lineWidth=2;
+  const step=w/(metricData.length-1);
+  metricData.forEach((v,i)=>{
+    const x=i*step, y=h-((v/100)*h*0.8)-h*0.1;
+    i===0?mCtx.moveTo(x,y):mCtx.lineTo(x,y);
+  });
+  mCtx.stroke();
+  // fill
+  mCtx.lineTo(w,h);mCtx.lineTo(0,h);mCtx.closePath();
+  const grad=mCtx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(245,158,11,0.3)');
+  grad.addColorStop(1,'rgba(245,158,11,0)');
+  mCtx.fillStyle=grad;
+  mCtx.fill();
+  // current value
+  const cur=metricData[metricData.length-1];
+  mCtx.fillStyle='#f59e0b';
+  mCtx.font='bold 14px Segoe UI';
+  mCtx.fillText(cur.toFixed(1)+' req/s',w-90,20);
+}
+setInterval(()=>{
+  metricData.push(metricData[metricData.length-1]+((Math.random()-.48)*8));
+  const last=metricData[metricData.length-1];
+  if(last>95)metricData[metricData.length-1]=95;
+  if(last<10)metricData[metricData.length-1]=10;
+  if(metricData.length>60)metricData.shift();
+  drawMetrics();
+},500);
+drawMetrics();
+
+// --- Trace animation ---
+const traceArea=document.getElementById('traces-anim');
+let traceNodes=[];
+function initTrace(){
+  traceArea.innerHTML='';
+  traceNodes=[];
+  const w=traceArea.clientWidth||280, h=traceArea.clientHeight||180;
+  const services=[
+    {label:'API',x:w*0.15,y:h*0.5},
+    {label:'Auth',x:w*0.38,y:h*0.25},
+    {label:'Order',x:w*0.38,y:h*0.75},
+    {label:'Pay',x:w*0.62,y:h*0.75},
+    {label:'DB',x:w*0.85,y:h*0.5}
+  ];
+  const edges=[[0,1],[0,2],[2,3],[1,4],[3,4]];
+  edges.forEach(([a,b])=>{
+    const sa=services[a],sb=services[b];
+    const line=document.createElement('div');
+    line.className='trace-line';
+    const dx=sb.x-sa.x,dy=sb.y-sa.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    Object.assign(line.style,{width:len+'px',left:sa.x+'px',top:sa.y+'px',transform:`rotate(${angle}deg)`,transformOrigin:'0 0'});
+    traceArea.appendChild(line);
+  });
+  services.forEach((s)=>{
+    const dot=document.createElement('div');
+    dot.className='trace-dot';
+    dot.title=s.label;
+    Object.assign(dot.style,{left:(s.x-4)+'px',top:(s.y-4)+'px'});
+    traceArea.appendChild(dot);
+    // label
+    const lbl=document.createElement('div');
+    lbl.textContent=s.label;
+    Object.assign(lbl.style,{position:'absolute',left:(s.x-12)+'px',top:(s.y+10)+'px',fontSize:'.65rem',color:'#c4b5fd',textAlign:'center',width:'30px'});
+    traceArea.appendChild(lbl);
+    traceNodes.push({el:dot,...s});
+  });
+}
+let pulseIdx=0;
+function pulseTrace(){
+  traceNodes.forEach((n,i)=>{
+    n.el.style.transform=i===pulseIdx?'scale(2)':'scale(1)';
+    n.el.style.boxShadow=i===pulseIdx?'0 0 12px #8b5cf6':'none';
+    n.el.style.transition='transform .3s, box-shadow .3s';
+  });
+  pulseIdx=(pulseIdx+1)%traceNodes.length;
+}
+setTimeout(()=>{initTrace();setInterval(pulseTrace,600)},100);
+window.addEventListener('resize',()=>{initTrace()});
+</script>
+</body>
+</html>

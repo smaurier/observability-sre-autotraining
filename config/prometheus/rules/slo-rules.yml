@@ -1,0 +1,12 @@
+groups:
+  - name: slo_rules
+    rules:
+      - record: slo:http_request_error_rate:ratio_rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total[5m]))
+
+      - record: slo:http_request_duration_p99:histogram_quantile_5m
+        expr: |
+          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))

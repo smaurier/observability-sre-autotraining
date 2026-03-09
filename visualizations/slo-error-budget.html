@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur SLO & Error Budget</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a2e;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  .header{text-align:center;padding:2rem 1rem .5rem}
+  .header h1{font-size:2rem;color:#00d4ff;margin-bottom:.4rem}
+  .header .subtitle{color:#8899aa;font-size:1rem;font-style:italic}
+  .container{max-width:1200px;margin:0 auto;padding:1rem}
+  .top-row{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .input-card{background:#16213e;border-radius:14px;padding:1.5rem;flex:1;min-width:280px;border:1px solid #1e2d4a}
+  .input-card h3{color:#4dabf7;font-size:.95rem;margin-bottom:1rem}
+  .form-group{margin-bottom:1rem}
+  .form-group label{display:block;color:#8899aa;font-size:.8rem;margin-bottom:.3rem}
+  .form-group input{width:100%;padding:.6rem;background:#0f1729;border:1px solid #1e2d4a;border-radius:8px;color:#e0e0e0;font-size:1rem;outline:none;transition:border-color .2s}
+  .form-group input:focus{border-color:#00d4ff}
+  .presets{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+  .preset-btn{padding:.4rem .9rem;background:#0f1729;border:1px solid #1e2d4a;border-radius:6px;color:#aab;font-size:.8rem;cursor:pointer;transition:all .2s}
+  .preset-btn:hover,.preset-btn.active{background:#00d4ff22;border-color:#00d4ff;color:#00d4ff}
+  .results-card{background:#16213e;border-radius:14px;padding:1.5rem;flex:1.5;min-width:350px;border:1px solid #1e2d4a}
+  .results-card h3{color:#4dabf7;font-size:.95rem;margin-bottom:1rem}
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .result-box{background:#0f1729;border-radius:10px;padding:1rem;text-align:center}
+  .result-label{color:#667;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem}
+  .result-value{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .result-unit{font-size:.75rem;color:#667;margin-top:.1rem}
+  .color-green{color:#22c55e}
+  .color-yellow{color:#f59e0b}
+  .color-red{color:#ef4444}
+  .gauge-section{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .gauge-card{background:#16213e;border-radius:14px;padding:1.5rem;flex:1;min-width:300px;border:1px solid #1e2d4a}
+  .gauge-card h3{color:#4dabf7;font-size:.95rem;margin-bottom:1rem}
+  .budget-gauge{position:relative;width:100%;height:36px;background:#0f1729;border-radius:18px;overflow:hidden;margin-bottom:.8rem}
+  .budget-gauge-fill{height:100%;border-radius:18px;transition:width .5s,background .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-size:.8rem;font-weight:700;min-width:40px}
+  .budget-gauge-zones{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;pointer-events:none}
+  .budget-gauge-zones div{height:100%;border-right:2px solid #1a1a2e}
+  .budget-gauge-zones .zone-green{width:50%;background:rgba(34,197,94,.1)}
+  .budget-gauge-zones .zone-yellow{width:30%;background:rgba(245,158,11,.1)}
+  .budget-gauge-zones .zone-red{width:20%;background:rgba(239,68,68,.1)}
+  .gauge-legend{display:flex;justify-content:space-between;font-size:.7rem;color:#556}
+  .burn-rate-card{background:#16213e;border-radius:14px;padding:1.5rem;flex:1;min-width:300px;border:1px solid #1e2d4a}
+  .burn-rate-card h3{color:#4dabf7;font-size:.95rem;margin-bottom:1rem}
+  .burn-indicator{text-align:center;padding:1rem}
+  .burn-value{font-size:3rem;font-weight:800}
+  .burn-label{color:#667;font-size:.85rem;margin-top:.3rem}
+  .severity-badge{display:inline-block;padding:.3rem 1rem;border-radius:20px;font-size:.85rem;font-weight:700;margin-top:.5rem}
+  .sev-ok{background:#22c55e22;color:#22c55e;border:1px solid #22c55e44}
+  .sev-warn{background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+  .sev-critical{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
+  .chart-card{background:#16213e;border-radius:14px;padding:1.5rem;border:1px solid #1e2d4a;margin-bottom:1.5rem}
+  .chart-card h3{color:#4dabf7;font-size:.95rem;margin-bottom:1rem}
+  canvas{display:block;width:100%;border-radius:8px;background:#0f1729}
+  @media(max-width:768px){.top-row,.gauge-section{flex-direction:column}.result-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Calculateur SLO & Error Budget</h1>
+  <p class="subtitle">Ajustez les parametres pour calculer votre error budget</p>
+</div>
+
+<div class="container">
+  <div class="top-row">
+    <div class="input-card">
+      <h3>Parametres SLO</h3>
+      <div class="form-group">
+        <label>Objectif SLO (%)</label>
+        <div class="presets">
+          <button class="preset-btn" onclick="setPreset(99)">99%</button>
+          <button class="preset-btn active" onclick="setPreset(99.9)">99.9%</button>
+          <button class="preset-btn" onclick="setPreset(99.95)">99.95%</button>
+          <button class="preset-btn" onclick="setPreset(99.99)">99.99%</button>
+        </div>
+        <input type="number" id="sloTarget" value="99.9" step="0.01" min="90" max="100" oninput="calculate()">
+      </div>
+      <div class="form-group">
+        <label>Fenetre de temps (jours)</label>
+        <input type="number" id="timeWindow" value="30" min="1" max="365" oninput="calculate()">
+      </div>
+      <div class="form-group">
+        <label>Taux d'erreur actuel (%)</label>
+        <input type="number" id="errorRate" value="0.05" step="0.001" min="0" max="100" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="results-card">
+      <h3>Resultats</h3>
+      <div class="result-grid">
+        <div class="result-box">
+          <div class="result-label">Indisponibilite autorisee</div>
+          <div class="result-value color-green" id="allowedDowntime">43m 12s</div>
+          <div class="result-unit">sur la fenetre</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Budget d'erreur restant</div>
+          <div class="result-value" id="budgetRemaining">50.0%</div>
+          <div class="result-unit" id="budgetAbsolute">21m 36s restants</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Temps avant epuisement</div>
+          <div class="result-value" id="exhaustionTime">15j 0h</div>
+          <div class="result-unit">au rythme actuel</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Requetes en erreur autorisees</div>
+          <div class="result-value color-green" id="allowedErrors">1 000</div>
+          <div class="result-unit">sur 1M de requetes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gauge-section">
+    <div class="gauge-card">
+      <h3>Consommation du budget d'erreur</h3>
+      <div class="budget-gauge">
+        <div class="budget-gauge-zones"><div class="zone-green"></div><div class="zone-yellow"></div><div class="zone-red"></div></div>
+        <div class="budget-gauge-fill" id="budgetGaugeFill" style="width:50%;background:#22c55e">50%</div>
+      </div>
+      <div class="gauge-legend"><span>0%</span><span>50% — Normal</span><span>80% — Attention</span><span>100%</span></div>
+    </div>
+    <div class="burn-rate-card">
+      <h3>Burn Rate</h3>
+      <div class="burn-indicator">
+        <div class="burn-value" id="burnValue">1.0x</div>
+        <div class="burn-label">Vitesse de consommation du budget</div>
+        <div class="severity-badge sev-ok" id="sevBadge">Normal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h3>Consommation du budget dans le temps</h3>
+    <canvas id="budgetChart" height="220"></canvas>
+  </div>
+</div>
+
+<script>
+function formatDuration(minutes){
+  if(minutes<1) return Math.round(minutes*60)+'s';
+  if(minutes<60) return Math.floor(minutes)+'m '+Math.round((minutes%1)*60)+'s';
+  if(minutes<1440){const h=Math.floor(minutes/60);return h+'h '+Math.round(minutes%60)+'m';}
+  const d=Math.floor(minutes/1440);const h=Math.floor((minutes%1440)/60);return d+'j '+h+'h';
+}
+
+function setPreset(val){
+  document.getElementById('sloTarget').value=val;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',parseFloat(b.textContent)===val));
+  calculate();
+}
+
+function calculate(){
+  const slo=parseFloat(document.getElementById('sloTarget').value)||99.9;
+  const window=parseInt(document.getElementById('timeWindow').value)||30;
+  const errorRate=parseFloat(document.getElementById('errorRate').value)||0;
+
+  const totalMinutes=window*24*60;
+  const errorBudgetPct=100-slo; // e.g., 0.1%
+  const allowedDowntimeMin=totalMinutes*(errorBudgetPct/100);
+
+  // consumption: how much of the budget is used
+  const consumedMin=totalMinutes*(errorRate/100);
+  const consumedPct=Math.min((consumedMin/allowedDowntimeMin)*100,999);
+  const remainingPct=Math.max(100-consumedPct,0);
+  const remainingMin=Math.max(allowedDowntimeMin-consumedMin,0);
+
+  // burn rate = actual error rate / allowed error rate
+  const burnRate=errorBudgetPct>0?(errorRate/errorBudgetPct):0;
+
+  // time to exhaustion
+  let exhaustionMin=Infinity;
+  if(errorRate>0 && remainingMin>0){
+    exhaustionMin=remainingMin/(errorRate/100);
+  }
+
+  // allowed errors per 1M requests
+  const allowedErrors=Math.round(1000000*(errorBudgetPct/100));
+
+  // update UI
+  document.getElementById('allowedDowntime').textContent=formatDuration(allowedDowntimeMin);
+  document.getElementById('budgetRemaining').textContent=remainingPct.toFixed(1)+'%';
+  document.getElementById('budgetRemaining').className='result-value '+(remainingPct>50?'color-green':remainingPct>20?'color-yellow':'color-red');
+  document.getElementById('budgetAbsolute').textContent=formatDuration(remainingMin)+' restants';
+  document.getElementById('exhaustionTime').textContent=exhaustionMin===Infinity?'--':formatDuration(exhaustionMin);
+  document.getElementById('allowedErrors').textContent=allowedErrors.toLocaleString('fr-FR');
+
+  // gauge
+  const gaugeFill=document.getElementById('budgetGaugeFill');
+  const pctClamped=Math.min(consumedPct,100);
+  gaugeFill.style.width=Math.max(pctClamped,3)+'%';
+  gaugeFill.textContent=Math.round(consumedPct)+'%';
+  gaugeFill.style.background=consumedPct<50?'#22c55e':consumedPct<80?'#f59e0b':'#ef4444';
+
+  // burn rate
+  document.getElementById('burnValue').textContent=burnRate.toFixed(2)+'x';
+  document.getElementById('burnValue').style.color=burnRate<1?'#22c55e':burnRate<2?'#f59e0b':'#ef4444';
+  const badge=document.getElementById('sevBadge');
+  if(burnRate<1){badge.textContent='Normal';badge.className='severity-badge sev-ok';}
+  else if(burnRate<2){badge.textContent='Attention';badge.className='severity-badge sev-warn';}
+  else{badge.textContent='Critique';badge.className='severity-badge sev-critical';}
+
+  drawChart(window, errorBudgetPct, errorRate);
+}
+
+function drawChart(windowDays, budgetPct, errorRate){
+  const canvas=document.getElementById('budgetChart');
+  canvas.width=canvas.clientWidth*2;canvas.height=canvas.clientHeight*2;
+  const ctx=canvas.getContext('2d');ctx.scale(2,2);
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+
+  const pad={top:20,right:20,bottom:30,left:50};
+  const cw=w-pad.left-pad.right, ch=h-pad.top-pad.bottom;
+
+  // grid
+  ctx.strokeStyle='#1e2d4a';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.top+i*(ch/4);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(w-pad.right,y);ctx.stroke();
+    ctx.fillStyle='#556';ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText((100-i*25)+'%',pad.left-6,y+4);
+  }
+  // x-axis
+  const xTicks=Math.min(windowDays,6);
+  for(let i=0;i<=xTicks;i++){
+    const x=pad.left+i*(cw/xTicks);
+    ctx.fillStyle='#556';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('J'+Math.round(i*(windowDays/xTicks)),x,h-8);
+  }
+
+  // budget line (100% = full budget remaining, going down)
+  const dailyConsumption=errorRate/budgetPct*(100/windowDays);
+  ctx.beginPath();ctx.strokeStyle='#00d4ff';ctx.lineWidth=2;
+  for(let d=0;d<=windowDays;d++){
+    const remaining=Math.max(100-dailyConsumption*d,0);
+    const x=pad.left+(d/windowDays)*cw;
+    const y=pad.top+(1-remaining/100)*ch;
+    d===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // ideal line (linear consumption to exactly 0% at end)
+  ctx.beginPath();ctx.strokeStyle='#334';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+  ctx.moveTo(pad.left,pad.top);
+  ctx.lineTo(pad.left+cw,pad.top+ch);
+  ctx.stroke();ctx.setLineDash([]);
+
+  // danger zone
+  const y80=pad.top+(1-20/100)*ch;
+  ctx.fillStyle='rgba(239,68,68,0.05)';
+  ctx.fillRect(pad.left,y80,cw,pad.top+ch-y80);
+  ctx.strokeStyle='#ef444444';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.left,y80);ctx.lineTo(w-pad.right,y80);ctx.stroke();
+  ctx.fillStyle='#ef444488';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Zone critique (20%)',pad.left+4,y80-4);
+
+  // labels
+  ctx.fillStyle='#00d4ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Budget restant',pad.left+4,pad.top+14);
+  ctx.fillStyle='#556';
+  ctx.fillText('Consommation ideale',pad.left+cw-130,pad.top+14);
+}
+
+calculate();
+</script>
+</body>
+</html>

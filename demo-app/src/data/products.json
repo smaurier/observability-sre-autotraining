@@ -1,0 +1,7 @@
+[
+  { "id": "prod-001", "name": "Mechanical Keyboard", "price": 129.99, "category": "peripherals", "stock": 42 },
+  { "id": "prod-002", "name": "Wireless Mouse", "price": 59.99, "category": "peripherals", "stock": 87 },
+  { "id": "prod-003", "name": "4K Monitor", "price": 449.99, "category": "displays", "stock": 15 },
+  { "id": "prod-004", "name": "USB-C Hub", "price": 39.99, "category": "accessories", "stock": 120 },
+  { "id": "prod-005", "name": "Noise-Canceling Headphones", "price": 299.99, "category": "audio", "stock": 33 }
+]

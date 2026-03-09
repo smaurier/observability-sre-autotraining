@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz 19 — Projet final</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; color: #ffffff; }
+    .subtitle { text-align: center; color: #8892b0; margin-bottom: 2rem; font-size: 1rem; }
+    .progress-bar-container { background: #0d1117; border-radius: 10px; height: 14px; margin-bottom: 2rem; overflow: hidden; }
+    .progress-bar { background: linear-gradient(90deg, #0d6efd, #4dabf7); height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+    .progress-text { text-align: center; color: #8892b0; margin-bottom: 1rem; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .question-label { font-size: 0.85rem; color: #4dabf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .question-text { font-size: 1.15rem; margin-bottom: 1.2rem; line-height: 1.5; color: #ffffff; }
+    pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; overflow-x: auto; font-size: 0.95rem; }
+    code { font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; color: #c9d1d9; }
+    .options { list-style: none; }
+    .options li { margin-bottom: 0.5rem; }
+    .options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; background: #0d1117; border: 2px solid #30363d; border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 1rem; }
+    .options label:hover { border-color: #4dabf7; background: #1c2a4a; }
+    .options input[type="radio"] { accent-color: #0d6efd; width: 18px; height: 18px; flex-shrink: 0; }
+    .btn { display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-primary:hover { background: #3b82f6; }
+    .btn-primary:disabled { background: #374151; cursor: not-allowed; }
+    .btn-restart { background: #238636; color: #fff; margin-top: 1rem; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-restart:hover { background: #2ea043; }
+    .feedback { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback.correct { background: #0f5132; border: 1px solid #198754; color: #d1fae5; display: block; }
+    .feedback.wrong { background: #842029; border: 1px solid #dc3545; color: #fdd; display: block; }
+    .score-card { text-align: center; padding: 3rem 2rem; }
+    .score-card .score { font-size: 3rem; font-weight: 700; color: #4dabf7; margin-bottom: 0.5rem; }
+    .score-card .score-label { font-size: 1.2rem; color: #8892b0; margin-bottom: 1.5rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz 19 — Projet final</h1>
+    <p class="subtitle">synthese observabilite, SRE, production</p>
+    <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text" id="progressText">Question 1 / 5</p>
+    <div id="quizContainer"></div>
+    <div id="scoreContainer" class="card score-card hidden"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        label: "Question 1 — Pilier de l'observabilite",
+        text: "Parmi les trois piliers de l'observabilite, lequel est le plus utile pour debugger un probleme de latence dans un systeme distribue avec de multiples microservices ?",
+        code: null,
+        options: [
+          "Les logs, car ils contiennent les messages d'erreur detailles",
+          "Les metriques, car elles montrent les tendances de latence",
+          "Le tracing distribue, car il montre le chemin complet d'une requete a travers tous les services et identifie le goulet d'etranglement",
+          "Les dashboards Grafana, car ils visualisent les donnees"
+        ],
+        answer: 2,
+        explanation: "Le tracing distribue est le pilier le plus adapte pour debugger les problemes de latence dans les systemes distribues. Il montre le parcours complet d'une requete (trace) decompose en spans pour chaque service, permettant d'identifier exactement quel service ou quelle operation introduit la latence excessive."
+      },
+      {
+        label: "Question 2 — Composants SLO",
+        text: "Quels sont les elements minimum necessaires pour definir un SLO complet ?",
+        code: null,
+        options: [
+          "Un nom et une description",
+          "Un SLI (metrique), un objectif cible (ex: 99.9%), et une fenetre de temps (ex: 30 jours glissants)",
+          "Un dashboard Grafana et une alerte",
+          "Un SLA signe avec le client"
+        ],
+        answer: 1,
+        explanation: "Un SLO complet necessite au minimum : un SLI bien defini (quelle metrique mesurer, ex: taux de requetes reussies), un objectif cible (ex: 99.9%), et une fenetre de temps (ex: 30 jours glissants). Sans ces trois elements, le SLO est incomplet et ne peut pas etre mesure ni alerte de maniere fiable."
+      },
+      {
+        label: "Question 3 — Chaos Engineering",
+        text: "Quelle est la toute premiere etape avant d'injecter une panne dans une experience de chaos engineering ?",
+        code: null,
+        options: [
+          "Obtenir l'approbation du management",
+          "Definir l'hypothese de steady state et s'assurer que le monitoring peut mesurer l'impact",
+          "Prevenir les utilisateurs qu'il pourrait y avoir des perturbations",
+          "Acheter une licence pour un outil de chaos"
+        ],
+        answer: 1,
+        explanation: "Avant toute injection de panne, il faut definir l'hypothese de steady state (quel est le comportement normal mesurable) et verifier que l'observabilite est en place pour mesurer l'impact. Sans ces prerequis, l'experience n'a pas de valeur car on ne peut pas determiner si le systeme s'est comporte correctement ou non."
+      },
+      {
+        label: "Question 4 — DORA et fiabilite",
+        text: "Quelle metrique DORA est la plus directement liee a la fiabilite du service en production ?",
+        code: null,
+        options: [
+          "Deployment Frequency (frequence de deploiement)",
+          "Lead Time for Changes (delai de mise en production)",
+          "Change Failure Rate (taux d'echec des changements)",
+          "Toutes les metriques DORA sont egalement liees a la fiabilite"
+        ],
+        answer: 2,
+        explanation: "Le Change Failure Rate mesure le pourcentage de deploiements qui causent un incident en production. C'est la metrique DORA la plus directement liee a la fiabilite : un taux eleve signifie que les changements introduisent frequemment des regressions. Les equipes elite maintiennent un taux de 0 a 15%."
+      },
+      {
+        label: "Question 5 — Stack d'observabilite",
+        text: "Quels composants sont necessaires pour une stack d'observabilite complete dans un environnement de production ?",
+        code: null,
+        options: [
+          "Uniquement un outil de logging comme ELK",
+          "Prometheus pour les metriques et Grafana pour les dashboards",
+          "Collecte de logs structures, metriques (Prometheus), tracing distribue (Jaeger/Tempo), dashboards (Grafana), alerting (Alertmanager), et un collecteur unifie (OTel Collector)",
+          "Un APM commercial suffit pour tout couvrir"
+        ],
+        answer: 2,
+        explanation: "Une stack d'observabilite complete couvre les trois piliers : logs structures (Loki, ELK), metriques (Prometheus), tracing distribue (Jaeger, Tempo). Elle inclut aussi la visualisation (Grafana), l'alerting (Alertmanager), et idealement un collecteur unifie (OpenTelemetry Collector) pour normaliser et router les donnees de telemetrie."
+      }
+    ];
+    let currentQuestion = 0, score = 0, answered = false;
+    function renderQuestion() {
+      const q = questions[currentQuestion]; const total = questions.length;
+      document.getElementById('progressBar').style.width = ((currentQuestion / total) * 100) + '%';
+      document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} / ${total}`;
+      let html = `<div class="card"><p class="question-label">${q.label}</p><p class="question-text">${q.text}</p>`;
+      if (q.code) html += `<pre><code>${q.code}</code></pre>`;
+      html += `<ul class="options">`;
+      q.options.forEach((opt, i) => { html += `<li><label><input type="radio" name="q" value="${i}"> ${opt}</label></li>`; });
+      html += `</ul><button class="btn btn-primary" id="validateBtn" onclick="validate()" disabled>Valider</button><div class="feedback" id="feedback"></div></div>`;
+      document.getElementById('quizContainer').innerHTML = html;
+      document.querySelectorAll('input[name="q"]').forEach(r => { r.addEventListener('change', () => { document.getElementById('validateBtn').disabled = false; }); });
+      answered = false;
+    }
+    function validate() {
+      if (answered) { currentQuestion++; if (currentQuestion < questions.length) renderQuestion(); else showScore(); return; }
+      answered = true;
+      const selected = document.querySelector('input[name="q"]:checked'); if (!selected) return;
+      const val = parseInt(selected.value); const q = questions[currentQuestion];
+      const fb = document.getElementById('feedback'); const btn = document.getElementById('validateBtn');
+      document.querySelectorAll('input[name="q"]').forEach(r => r.disabled = true);
+      if (val === q.answer) { score++; fb.className = 'feedback correct'; fb.innerHTML = `<strong>Correct !</strong> ${q.explanation}`; }
+      else { fb.className = 'feedback wrong'; fb.innerHTML = `<strong>Incorrect.</strong> ${q.explanation}`; }
+      btn.textContent = currentQuestion < questions.length - 1 ? 'Suivant' : 'Voir le score';
+    }
+    function showScore() {
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('progressText').textContent = 'Termine !';
+      const sc = document.getElementById('scoreContainer'); sc.classList.remove('hidden');
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = pct === 100 ? 'Parfait !' : pct >= 60 ? 'Bien joue !' : 'Continuez a reviser !';
+      sc.innerHTML = `<div class="score">${score} / ${questions.length}</div><div class="score-label">${msg} (${pct}%)</div><button class="btn-restart" onclick="restart()">Recommencer</button>`;
+    }
+    function restart() { currentQuestion = 0; score = 0; answered = false; document.getElementById('scoreContainer').classList.add('hidden'); document.getElementById('quizContainer').classList.remove('hidden'); renderQuestion(); }
+    renderQuestion();
+  </script>
+</body>
+</html>

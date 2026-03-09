@@ -1,0 +1,30 @@
+groups:
+  - name: slo_burn_rate
+    rules:
+      - alert: HighErrorBurnRate_1h
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total[1h]))
+          ) > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "High error burn rate (1h window)"
+          description: "Error rate is burning through the error budget 14.4x faster than expected."
+
+      - alert: HighErrorBurnRate_6h
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[6h]))
+            /
+            sum(rate(http_requests_total[6h]))
+          ) > (6 * 0.001)
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Elevated error burn rate (6h window)"
+          description: "Error rate is burning through the error budget 6x faster than expected."
