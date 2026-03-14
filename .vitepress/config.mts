@@ -79,6 +79,15 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Phase 6 — Outils Commerciaux',
+          collapsed: false,
+          items: [
+            { text: '22 - Sentry — Error Tracking', link: '/modules/22-sentry-error-tracking' },
+            { text: '23 - ELK Stack & Kibana', link: '/modules/23-elk-stack-kibana' },
+            { text: '24 - Honeycomb — Observabilite Avancee', link: '/modules/24-honeycomb-observabilite-avancee' },
+          ],
+        },
+        {
           text: 'Annexes',
           collapsed: false,
           items: [
@@ -113,6 +122,9 @@ export default defineConfig({
             { text: 'Quiz 19 - Projet Final', link: '/quizzes/quiz-19-projet-final' },
             { text: 'Quiz 20 - Kubernetes Observability', link: '/quizzes/quiz-20-kubernetes-observability' },
             { text: 'Quiz 21 - FinOps Observability', link: '/quizzes/quiz-21-finops-observability' },
+            { text: 'Quiz 22 - Sentry Error Tracking', link: '/quizzes/quiz-22-sentry-error-tracking' },
+            { text: 'Quiz 23 - ELK Stack & Kibana', link: '/quizzes/quiz-23-elk-stack-kibana' },
+            { text: 'Quiz 24 - Honeycomb Observabilite', link: '/quizzes/quiz-24-honeycomb-observabilite' },
           ],
         },
       ],

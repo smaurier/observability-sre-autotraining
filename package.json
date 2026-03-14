@@ -29,6 +29,9 @@
     "lab:19": "npx tsx labs/lab-19-projet-final/exercise.ts",
     "lab:21": "npx tsx labs/lab-21-kubernetes-observability/exercise.ts",
     "lab:22": "npx tsx labs/lab-22-finops-observability/exercise.ts",
+    "lab:23": "npx tsx labs/lab-23-sentry-error-tracking/exercise.ts",
+    "lab:24": "npx tsx labs/lab-24-elk-kibana/exercise.ts",
+    "lab:25": "npx tsx labs/lab-25-honeycomb-observabilite/exercise.ts",
     "solution:01": "npx tsx labs/lab-01-console-log-vs-structured/solution.ts",
     "solution:02": "npx tsx labs/lab-02-pino-logger/solution.ts",
     "solution:03": "npx tsx labs/lab-03-correlation-context/solution.ts",
@@ -49,7 +52,10 @@
     "solution:18": "npx tsx labs/lab-18-production-readiness/solution.ts",
     "solution:19": "npx tsx labs/lab-19-projet-final/solution.ts",
     "solution:21": "npx tsx labs/lab-21-kubernetes-observability/solution.ts",
-    "solution:22": "npx tsx labs/lab-22-finops-observability/solution.ts"
+    "solution:22": "npx tsx labs/lab-22-finops-observability/solution.ts",
+    "solution:23": "npx tsx labs/lab-23-sentry-error-tracking/solution.ts",
+    "solution:24": "npx tsx labs/lab-24-elk-kibana/solution.ts",
+    "solution:25": "npx tsx labs/lab-25-honeycomb-observabilite/solution.ts"
   },
   "engines": {
     "node": ">=20.0.0"
