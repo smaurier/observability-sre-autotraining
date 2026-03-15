@@ -1,0 +1,1 @@
+const fs=require("fs");const B="C:/Users/smaurier-ext/Documents/projects/observability-sre-course";console.log("script loaded");

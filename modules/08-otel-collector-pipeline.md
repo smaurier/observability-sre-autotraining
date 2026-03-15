@@ -151,44 +151,24 @@ Voici une configuration complete et annotee du Collector pour notre cours :
 
 ```yaml
 # config/otel-collector.yaml
-
-# Receivers — comment les donnees entrent dans le Collector
 receivers:
   otlp:
     protocols:
-      grpc:
-        endpoint: 0.0.0.0:4317
-      http:
-        endpoint: 0.0.0.0:4318
-        cors:
-          allowed_origins:
-            - "http://localhost:*"
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
 
-# Processors — comment les donnees sont traitees
 processors:
-  # Batch — regroupe les donnees pour des exports plus efficaces
   batch:
     timeout: 5s
     send_batch_size: 512
     send_batch_max_size: 1024
-
-  # Memory limiter — empeche le Collector de manquer de memoire
   memory_limiter:
     check_interval: 1s
-    limit_mib: 512        # Limite absolue
-    spike_limit_mib: 128  # Marge pour les pics
-
-  # Attributes — ajouter/modifier/supprimer des attributs
+    limit_mib: 512
+    spike_limit_mib: 128
   attributes:
     actions:
-      - key: environment
-        value: development
-        action: upsert
-      - key: collector.version
-        value: "0.96.0"
-        action: insert
-
-  # Filter — supprimer les donnees non desirees
+      - { key: environment, value: development, action: upsert }
   filter:
     error_mode: ignore
     traces:
@@ -196,49 +176,33 @@ processors:
         - 'attributes["http.route"] == "/health"'
         - 'attributes["http.route"] == "/metrics"'
 
-# Exporters — ou les donnees sont envoyees
 exporters:
-  # Traces vers Jaeger
   otlp/jaeger:
     endpoint: jaeger:4317
-    tls:
-      insecure: true
-
-  # Metriques exposees pour Prometheus
+    tls: { insecure: true }
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: otel
-    resource_to_telemetry_conversion:
-      enabled: true
+    resource_to_telemetry_conversion: { enabled: true }
+  debug: { verbosity: basic }
 
-  # Logs (debug en developpement)
-  debug:
-    verbosity: basic
-
-# Service — assembler les pipelines
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch, filter, attributes]
       exporters: [otlp/jaeger, debug]
-
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [prometheus]
-
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch, attributes]
       exporters: [debug]
-
-  # Telemetrie du Collector lui-meme
   telemetry:
-    logs:
-      level: info
-    metrics:
-      address: 0.0.0.0:8888
+    logs: { level: info }
+    metrics: { address: 0.0.0.0:8888 }
 ```
 
 ---
@@ -250,50 +214,20 @@ OTLP (OpenTelemetry Protocol) est le protocole natif d'OpenTelemetry. Il existe 
 ### OTLP/gRPC (port 4317)
 
 ```typescript
-// Configuration SDK pour OTLP gRPC
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-
-const exporter = new OTLPTraceExporter({
-  url: 'http://localhost:4317',
-  // gRPC offre :
-  // - Streaming bidirectionnel
-  // - Compression native
-  // - Meilleure performance sur de gros volumes
-});
+const exporter = new OTLPTraceExporter({ url: 'http://localhost:4317' });
 ```
+
+Streaming bidirectionnel, compression native, meilleures performances sur de gros volumes.
 
 ### OTLP/HTTP (port 4318)
 
 ```typescript
-// Configuration SDK pour OTLP HTTP
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-
-const exporter = new OTLPTraceExporter({
-  url: 'http://localhost:4318/v1/traces',
-  // HTTP offre :
-  // - Simplicite (pas besoin de gRPC)
-  // - Compatibilite universelle (proxies, load balancers)
-  // - Debugging plus facile (curl, Postman)
-});
+const exporter = new OTLPTraceExporter({ url: 'http://localhost:4318/v1/traces' });
 ```
 
-```typescript
-// Comparaison pour choisir
-interface OTLPComparison {
-  grpc: {
-    port: 4317;
-    performance: 'superieure';
-    complexity: 'plus elevee (protobuf, HTTP/2)';
-    bestFor: 'production, haut volume';
-  };
-  http: {
-    port: 4318;
-    performance: 'bonne';
-    complexity: 'simple (JSON over HTTP)';
-    bestFor: 'developpement, faible volume, debug';
-  };
-}
-```
+Plus simple (JSON over HTTP), compatible avec proxies/load balancers, debugging facile (curl, Postman).
 
 ::: tip A retenir
 En developpement, utilisez OTLP/HTTP pour sa simplicite. En production avec de gros volumes, preferez OTLP/gRPC pour ses performances. Le Collector supporte les deux simultanement.
@@ -328,25 +262,7 @@ processors:
     spike_limit_mib: 128       # Commencer a rejeter a 384 MB (512-128)
 ```
 
-```typescript
-// Analogie TypeScript du memory_limiter
-function shouldAcceptData(currentMemoryMB: number): boolean {
-  const LIMIT = 512;
-  const SPIKE_LIMIT = 128;
-  const SOFT_LIMIT = LIMIT - SPIKE_LIMIT; // 384 MB
-
-  if (currentMemoryMB >= LIMIT) {
-    // Limite dure : rejeter tout
-    return false;
-  }
-  if (currentMemoryMB >= SOFT_LIMIT) {
-    // Zone tampon : commencer a rejeter progressivement
-    console.warn('Memory pressure — dropping data');
-    return false;
-  }
-  return true;
-}
-```
+Le `spike_limit_mib` definit une zone tampon : le Collector commence a rejeter des donnees a `limit_mib - spike_limit_mib` (ici 384 MB) avant d'atteindre la limite dure (512 MB).
 
 ### filter — eliminer le bruit
 
@@ -356,17 +272,11 @@ processors:
     error_mode: ignore
     traces:
       span:
-        # Supprimer les spans de health check
         - 'attributes["http.route"] == "/health"'
-        - 'attributes["http.route"] == "/ready"'
         - 'attributes["http.route"] == "/metrics"'
-        # Supprimer les spans tres courts (< 1ms) et sans erreur
-        - 'duration < 1000000 and status.code == STATUS_CODE_UNSET'
-    metrics:
-      metric:
-        # Exclure certaines metriques
-        - 'name == "process_runtime_jvm_classes_loaded"'
 ```
+
+Utilisez `filter` pour supprimer les spans de health check, les metriques inutiles et les spans tres courts sans erreur.
 
 ### tail_sampling — echantillonnage intelligent
 
@@ -411,29 +321,16 @@ processors:
 processors:
   attributes:
     actions:
-      # Ajouter un attribut si absent
       - key: environment
         value: production
-        action: insert
-
-      # Mettre a jour ou ajouter
-      - key: team
-        value: backend
-        action: upsert
-
-      # Supprimer un attribut (PII par exemple)
+        action: insert    # Ajouter si absent
       - key: user.email
-        action: delete
-
-      # Hasher un attribut sensible
+        action: delete     # Supprimer (PII)
       - key: user.ip
-        action: hash
-
-      # Extraire une valeur d'un attribut existant
-      - key: http.url
-        pattern: "^https?://(?P<host>[^/]+)"
-        action: extract
+        action: hash       # Hasher un attribut sensible
 ```
+
+Actions disponibles : `insert`, `upsert`, `update`, `delete`, `hash`, `extract` (regex).
 
 ---
 
@@ -441,43 +338,16 @@ processors:
 
 ### Head-based sampling
 
-La decision est prise **au debut de la trace**, avant que quoi que ce soit ne se passe.
+Decision prise **au debut de la trace** (cote SDK). Simple et previsible, sans surcout memoire. Inconvenient : risque de perdre des traces en erreur.
 
 ```typescript
-// Head-based : decision aleatoire a la creation du root span
 import { TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-base';
-
-// Garder 10% des traces, aleatoirement
-const sampler = new TraceIdRatioBasedSampler(0.1);
-
-// Avantages :
-// - Simple et previsible
-// - Pas de surcout memoire
-// - Fonctionne sans Collector
-
-// Inconvenients :
-// - Risque de perdre des traces en erreur (90% sont supprimees)
-// - Pas de contexte pour la decision (on ne sait pas encore si la requete va echouer)
+const sampler = new TraceIdRatioBasedSampler(0.1); // Garder 10% aleatoirement
 ```
 
 ### Tail-based sampling
 
-La decision est prise **a la fin de la trace**, quand tous les spans ont ete recus.
-
-```typescript
-// Tail-based : le Collector attend la trace complete avant de decider
-
-// Avantages :
-// - 100% des traces en erreur conservees
-// - 100% des traces lentes conservees
-// - Decision basee sur le contenu reel de la trace
-
-// Inconvenients :
-// - Necessite un Collector (pas faisable cote SDK)
-// - Consommation memoire (garder les traces en attente)
-// - Latence d'export (attente de la fin de trace)
-// - Plus complexe a configurer
-```
+Decision prise **a la fin de la trace** (cote Collector). Conserve 100% des erreurs et traces lentes. Inconvenient : consommation memoire et necessite un Collector.
 
 ```
 Head-based:                  Tail-based:
@@ -521,12 +391,7 @@ Chaque instance d'application a son propre Collector. Ideal pour Kubernetes (sid
               Backend (Jaeger, etc.)
 ```
 
-```yaml
-# Avantages de l'agent :
-# - Faible latence (communication locale)
-# - Isolation (un crash d'agent n'affecte qu'un pod)
-# - Leger (configuration minimale : batch + export)
-```
+Avantages : faible latence (communication locale), isolation (un crash n'affecte qu'un pod), configuration legere.
 
 ### Mode Gateway (centralise)
 
@@ -562,104 +427,21 @@ Le pattern le plus robuste en production : agents locaux + gateway central.
 └────────────────┘
 ```
 
-```typescript
-// Resume des patterns de deploiement
-interface DeploymentPattern {
-  agent: {
-    location: 'sidecar, par instance';
-    role: 'batch, compression, retry local';
-    sampling: 'head-based uniquement';
-    bestFor: 'buffering local, reduction de latence';
-  };
-  gateway: {
-    location: 'service centralise';
-    role: 'processing avance, routing, sampling';
-    sampling: 'tail-based possible';
-    bestFor: 'tail sampling, transformations complexes';
-  };
-  hybrid: {
-    location: 'agents locaux + gateway central';
-    role: 'le meilleur des deux mondes';
-    sampling: 'head au niveau agent, tail au niveau gateway';
-    bestFor: 'production a grande echelle';
-  };
-}
-```
+| Pattern | Sampling | Ideal pour |
+|---------|----------|------------|
+| **Agent** | Head-based uniquement | Buffering local, faible latence |
+| **Gateway** | Tail-based possible | Sampling intelligent, transformations |
+| **Hybride** | Head (agent) + tail (gateway) | Production a grande echelle |
 
 ---
 
 ## Configuration de la stack du cours
 
-Voici le Docker Compose complet pour lancer toute la stack d'observabilite du cours :
+Le fichier `docker-compose.yml` complet est disponible dans le [Lab 08](/labs/lab-08-otel-collector/README). Il lance : `demo-app`, `otel-collector`, `jaeger`, `prometheus` et `grafana`.
 
-```yaml
-# docker-compose.yml
-version: '3.8'
+---
 
-services:
-  demo-app:
-    build: ./demo-app
-    ports:
-      - '3000:3000'
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-      - OTEL_SERVICE_NAME=demo-app
-      - NODE_ENV=development
-      - LOG_LEVEL=info
-    depends_on:
-      - otel-collector
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.96.0
-    command: ['--config=/etc/otel-collector.yaml']
-    ports:
-      - '4317:4317'   # OTLP gRPC
-      - '4318:4318'   # OTLP HTTP
-      - '8888:8888'   # Metriques du Collector
-      - '8889:8889'   # Metriques exportees pour Prometheus
-    volumes:
-      - ./config/otel-collector.yaml:/etc/otel-collector.yaml
-    depends_on:
-      - jaeger
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.54
-    ports:
-      - '16686:16686' # UI
-      - '14268:14268' # Legacy Jaeger
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-
-  prometheus:
-    image: prom/prometheus:v2.50.0
-    ports:
-      - '9090:9090'
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana:10.3.1
-    ports:
-      - '3001:3000'
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-```
-
-```bash
-# Lancer toute la stack
-docker compose up -d
-
-# Verifier que tout tourne
-docker compose ps
-
-# Acceder aux interfaces :
-# Demo App    : http://localhost:3000
-# Jaeger UI   : http://localhost:16686
-# Prometheus  : http://localhost:9090
-# Grafana     : http://localhost:3001 (admin/admin)
-```
+> **Grafana Alloy** (successeur de Grafana Agent) : Si vous utilisez la stack Grafana (Loki + Tempo + Mimir), Alloy est une alternative au OTel Collector generique. Il supporte nativement les formats Grafana et offre une configuration visuelle. Pour les stacks multi-vendor, restez sur le OTel Collector standard.
 
 ---
 

@@ -212,8 +212,6 @@ Voici la structure que nous utiliserons dans les labs :
 
 ```yaml
 # docker-compose.yml — Stack minimale : app + Prometheus
-version: '3.8'
-
 services:
   demo-app:
     build: ./demo-app              # Construit l'image a partir du Dockerfile local

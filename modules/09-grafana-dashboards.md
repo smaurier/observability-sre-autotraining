@@ -12,6 +12,10 @@
 
 ---
 
+> **Grafana 11 (mi-2024)** : Nouvelle navigation unifiee, Explore Logs (recherche de logs sans PromQL), Scenes framework pour des dashboards dynamiques, alerting ameliore avec multi-folder rules, et support natif des correlations traces↔logs↔metriques. Les concepts de ce module restent valides — Grafana 11 ameliore l'UX sans casser les APIs.
+
+---
+
 ## PromQL en profondeur
 
 PromQL (Prometheus Query Language) est le langage de requete de Prometheus. C'est un langage fonctionnel specialise pour les series temporelles.
