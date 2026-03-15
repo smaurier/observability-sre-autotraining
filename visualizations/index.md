@@ -1,6 +1,6 @@
 # Visualisations interactives
 
-Explorez les concepts d'observabilite et SRE grace a ces visualisations animees.
+Explorez les concepts d'observabilité et SRE grâce à ces visualisations animees.
 
 ## Liste des visualisations
 

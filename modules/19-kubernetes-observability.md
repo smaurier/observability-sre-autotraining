@@ -2,13 +2,13 @@
 
 ## Objectifs pedagogiques
 
-- Comprendre pourquoi l'observabilite dans Kubernetes est fondamentalement differente d'un environnement classique
-- Maitriser les metriques natives de Kubernetes (kubelet, cAdvisor, kube-state-metrics, node-exporter)
-- Deployer et configurer Prometheus sur Kubernetes avec l'Operator et les CRDs
-- Mettre en place une strategie de logging adaptee aux conteneurs (DaemonSet, Fluent Bit, Loki)
+- Comprendre pourquoi l'observabilité dans Kubernetes est fondamentalement différente d'un environnement classique
+- Maîtriser les metriques natives de Kubernetes (kubelet, cAdvisor, kube-state-metrics, node-exporter)
+- Déployer et configurer Prometheus sur Kubernetes avec l'Operator et les CRDs
+- Mettre en place une stratégie de logging adaptee aux conteneurs (DaemonSet, Fluent Bit, Loki)
 - Instrumenter le tracing distribue avec l'OpenTelemetry Operator
 - Construire les dashboards Grafana essentiels pour Kubernetes (USE par node, RED par service, control plane)
-- Definir des alertes specifiques Kubernetes (CrashLoopBackOff, OOMKilled, node NotReady, PVC full)
+- Définir des alertes spécifiques Kubernetes (CrashLoopBackOff, OOMKilled, node NotReady, PVC full)
 - Configurer l'auto-scaling base sur des metriques custom Prometheus (HPA, Prometheus Adapter, KEDA)
 - Appliquer les principes d'Observability as Code dans un contexte GitOps Kubernetes
 
@@ -16,28 +16,28 @@
 
 ## Kubernetes — L'essentiel pour ce module
 
-Ce module porte sur l'**observabilite** de Kubernetes, pas sur l'administration de clusters. Cependant, il suppose une familiarite minimale avec les concepts Kubernetes. Si vous venez du module 00 (Docker & Docker Compose) et n'avez jamais touche a Kubernetes, cette section vous donne les bases necessaires pour suivre confortablement.
+Ce module porte sur l'**observabilité** de Kubernetes, pas sur l'administration de clusters. Cependant, il suppose une familiarite minimale avec les concepts Kubernetes. Si vous venez du module 00 (Docker & Docker Compose) et n'avez jamais touche a Kubernetes, cette section vous donne les bases nécessaires pour suivre confortablement.
 
-### Concepts cles
+### Concepts clés
 
 | Concept | Description |
 |---------|-------------|
-| **Cluster** | Ensemble de machines (nodes) gere par Kubernetes |
+| **Cluster** | Ensemble de machines (nodes) géré par Kubernetes |
 | **Node** | Une machine (physique ou VM) dans le cluster |
-| **Pod** | Plus petite unite deployable — un ou plusieurs containers partageant reseau et stockage |
+| **Pod** | Plus petite unite deployable — un ou plusieurs containers partageant réseau et stockage |
 | **Deployment** | Gere les replicas d'un pod (scaling, rolling updates) |
 | **Service** | Expose un ensemble de pods avec une IP stable et un nom DNS |
 | **Namespace** | Isolation logique — comme des dossiers pour organiser les ressources (ex : `monitoring`, `default`) |
-| **ConfigMap / Secret** | Configuration externalisee — equivalent des variables d'environnement et fichiers `.env` dans Docker Compose |
-| **CRD (Custom Resource Definition)** | Extension du vocabulaire Kubernetes — permet de definir de nouveaux types de ressources (utilise massivement par Prometheus Operator) |
-| **Label** | Paire cle-valeur attachee a tout objet Kubernetes — sert a la selection et au filtrage (ex : `app=prometheus`, `team=backend`) |
+| **ConfigMap / Secret** | Configuration externalisee — équivalent des variables d'environnement et fichiers `.env` dans Docker Compose |
+| **CRD (Custom Resource Definition)** | Extension du vocabulaire Kubernetes — permet de définir de nouveaux types de ressources (utilise massivement par Prometheus Operator) |
+| **Label** | Paire clé-valeur attachee a tout objet Kubernetes — sert à la selection et au filtrage (ex : `app=prometheus`, `team=backend`) |
 | **DaemonSet** | Garantit qu'un pod tourne sur **chaque** node du cluster — utilise pour la collecte de logs et metriques |
 
-> **Analogie Docker → Kubernetes** : Si un container Docker est un processus, un Pod est un groupe de containers qui partagent le meme reseau. Si `docker-compose.yml` decrit vos services, un **Deployment** YAML fait la meme chose dans Kubernetes, mais avec du scaling, du self-healing et du rolling update integres.
+> **Analogie Docker → Kubernetes** : Si un container Docker est un processus, un Pod est un groupe de containers qui partagent le même réseau. Si `docker-compose.yml` decrit vos services, un **Deployment** YAML fait la même chose dans Kubernetes, mais avec du scaling, du self-healing et du rolling update integres.
 
 ### Commandes kubectl essentielles
 
-`kubectl` est le CLI de Kubernetes — l'equivalent de `docker` pour Docker.
+`kubectl` est le CLI de Kubernetes — l'équivalent de `docker` pour Docker.
 
 ```bash
 # Voir les ressources
@@ -95,7 +95,7 @@ Pour suivre les exercices pratiques de ce module, vous avez besoin d'un cluster 
 |-------|----------|-------|
 | **Minikube** | `minikube start` | Le plus repandu, supporte plusieurs drivers (Docker, VirtualBox) |
 | **kind** (Kubernetes IN Docker) | `kind create cluster` | Leger, tourne dans des containers Docker |
-| **Docker Desktop** | Activer Kubernetes dans les preferences | Le plus simple si vous utilisez deja Docker Desktop |
+| **Docker Desktop** | Activer Kubernetes dans les preferences | Le plus simple si vous utilisez déjà Docker Desktop |
 
 ```bash
 # Exemple avec Minikube
@@ -107,7 +107,7 @@ kind create cluster --name observability-lab
 kubectl cluster-info
 ```
 
-> **Ressources recommandees** : un cluster local avec 4 Go de RAM et 2 CPUs est suffisant pour deployer Prometheus, Grafana et les exporters de ce module.
+> **Ressources recommandees** : un cluster local avec 4 Go de RAM et 2 CPUs est suffisant pour déployer Prometheus, Grafana et les exporters de ce module.
 
 ### Fichier YAML Kubernetes — Anatomie rapide
 
@@ -135,15 +135,15 @@ spec:                        # Specification desiree
         - containerPort: 9090
 ```
 
-> Si vous connaissez `docker-compose.yml`, la logique est similaire : vous **declarez** l'etat desire, et Kubernetes s'assure de le maintenir.
+> Si vous connaissez `docker-compose.yml`, la logique est similaire : vous **declarez** l'état desire, et Kubernetes s'assure de le maintenir.
 
 ::: tip Pas besoin d'etre expert Kubernetes
-Ce module se concentre sur l'**observabilite** de Kubernetes, pas sur son administration. Les concepts ci-dessus suffisent pour comprendre ou et comment collecter les signaux (metriques, logs, traces). Si vous voulez approfondir Kubernetes, consultez la [documentation officielle](https://kubernetes.io/docs/tutorials/) ou le tutoriel interactif [Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+Ce module se concentre sur l'**observabilité** de Kubernetes, pas sur son administration. Les concepts ci-dessus suffisent pour comprendre où et comment collecter les signaux (metriques, logs, traces). Si vous voulez approfondir Kubernetes, consultez la [documentation officielle](https://kubernetes.io/docs/tutorials/) ou le tutoriel interactif [Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 :::
 
 ---
 
-## Pourquoi l'observabilite Kubernetes est differente
+## Pourquoi l'observabilité Kubernetes est différente
 
 ### L'ephemerite change tout
 
@@ -230,7 +230,7 @@ Kubernetes introduit plusieurs couches d'abstraction entre le hardware et votre 
 
 ### Observer l'orchestrateur vs observer les applications
 
-C'est une distinction fondamentale. Les deux sont necessaires, mais les outils et les metriques different completement.
+C'est une distinction fondamentale. Les deux sont nécessaires, mais les outils et les metriques différent complètement.
 
 ```typescript
 interface ObservabilityLayer {
@@ -275,7 +275,7 @@ const layers: ObservabilityLayer[] = [
 ```
 
 ::: warning Piege classique
-Beaucoup d'equipes installent Prometheus sur Kubernetes et pensent avoir "fait l'observabilite" parce qu'elles voient les metriques de CPU et memoire des pods. Mais sans les metriques **applicatives** (taux d'erreur, latence, metriques metier), vous surveillez la tuyauterie sans savoir si l'eau qui en sort est potable.
+Beaucoup d'équipes installent Prometheus sur Kubernetes et pensent avoir "fait l'observabilité" parce qu'elles voient les metriques de CPU et mémoire des pods. Mais sans les metriques **applicatives** (taux d'erreur, latence, metriques metier), vous surveillez la tuyauterie sans savoir si l'eau qui en sort est potable.
 :::
 
 ---
@@ -284,7 +284,7 @@ Beaucoup d'equipes installent Prometheus sur Kubernetes et pensent avoir "fait l
 
 ### kubelet et cAdvisor
 
-Chaque node Kubernetes execute un **kubelet** qui integre **cAdvisor** (Container Advisor). cAdvisor collecte automatiquement les metriques de ressources pour chaque container en cours d'execution, sans aucune instrumentation.
+Chaque node Kubernetes exécuté un **kubelet** qui intégré **cAdvisor** (Container Advisor). cAdvisor collecte automatiquement les metriques de ressources pour chaque container en cours d'exécution, sans aucune instrumentation.
 
 ```typescript
 interface CAdvisorMetric {
@@ -340,13 +340,13 @@ const cadvisorMetrics: CAdvisorMetric[] = [
 ];
 ```
 
-::: tip Memoire : usage vs working_set
-`container_memory_usage_bytes` inclut le cache filesystem, qui peut etre libere par le kernel. La metrique qui compte vraiment pour les OOM kills est `container_memory_working_set_bytes`. Utilisez toujours cette derniere pour comparer aux limits de votre container.
+::: tip Mémoire : usage vs working_set
+`container_memory_usage_bytes` inclut le cache filesystem, qui peut etre libere par le kernel. La metrique qui compte vraiment pour les OOM kills est `container_memory_working_set_bytes`. Utilisez toujours cette dernière pour comparer aux limits de votre container.
 :::
 
 ### kube-state-metrics
 
-**kube-state-metrics** est un service qui interroge l'API Kubernetes et expose l'etat des objets K8s sous forme de metriques Prometheus. C'est la source de verite pour savoir si vos Deployments, Pods, Nodes, Jobs et PVCs sont dans l'etat attendu.
+**kube-state-metrics** est un service qui interroge l'API Kubernetes et expose l'état des objets K8s sous forme de metriques Prometheus. C'est la source de verite pour savoir si vos Deployments, Pods, Nodes, Jobs et PVCs sont dans l'état attendu.
 
 ```typescript
 interface KubeStateMetric {
@@ -422,7 +422,7 @@ const kubeStateMetrics: KubeStateMetric[] = [
 
 ### node-exporter
 
-**node-exporter** expose les metriques systeme de chaque node : CPU, memoire, disque, reseau, et bien plus. Il est deploye en tant que DaemonSet pour couvrir chaque node du cluster.
+**node-exporter** expose les metriques système de chaque node : CPU, mémoire, disque, réseau, et bien plus. Il est déployé en tant que DaemonSet pour couvrir chaque node du cluster.
 
 ```yaml
 # DaemonSet node-exporter (simplifie)
@@ -474,19 +474,19 @@ spec:
             path: /
 ```
 
-### Tableau recapitulatif des metriques essentielles
+### Tableau récapitulatif des metriques essentielles
 
-| Source | Metrique Prometheus | Description | Methode |
+| Source | Metrique Prometheus | Description | Méthode |
 |--------|-------------------|-------------|---------|
 | cAdvisor | `container_cpu_usage_seconds_total` | CPU par container | USE |
-| cAdvisor | `container_memory_working_set_bytes` | Memoire active par container | USE |
-| cAdvisor | `container_network_receive_bytes_total` | Trafic reseau entrant | USE |
-| kube-state | `kube_pod_status_phase` | Phase du pod | Etat K8s |
-| kube-state | `kube_pod_container_status_restarts_total` | Restarts du container | Etat K8s |
-| kube-state | `kube_deployment_status_replicas_unavailable` | Replicas manquants | Etat K8s |
-| kube-state | `kube_node_status_condition` | Sante du node | Etat K8s |
+| cAdvisor | `container_memory_working_set_bytes` | Mémoire active par container | USE |
+| cAdvisor | `container_network_receive_bytes_total` | Trafic réseau entrant | USE |
+| kube-state | `kube_pod_status_phase` | Phase du pod | État K8s |
+| kube-state | `kube_pod_container_status_restarts_total` | Restarts du container | État K8s |
+| kube-state | `kube_deployment_status_replicas_unavailable` | Replicas manquants | État K8s |
+| kube-state | `kube_node_status_condition` | Sante du node | État K8s |
 | node-exporter | `node_cpu_seconds_total` | CPU du node | USE |
-| node-exporter | `node_memory_MemAvailable_bytes` | Memoire disponible du node | USE |
+| node-exporter | `node_memory_MemAvailable_bytes` | Mémoire disponible du node | USE |
 | node-exporter | `node_filesystem_avail_bytes` | Espace disque disponible | USE |
 | node-exporter | `node_disk_io_time_seconds_total` | Saturation I/O disque | USE |
 | API Server | `apiserver_request_total` | Requetes vers l'API server | RED |
@@ -499,7 +499,7 @@ spec:
 
 ### Prometheus Operator et CRDs
 
-Deployer Prometheus "a la main" sur Kubernetes est fastidieux : il faut gerer la configuration, le service discovery, les regles d'alerting, et les mises a jour. Le **Prometheus Operator** simplifie tout cela en introduisant des **Custom Resource Definitions** (CRDs) qui permettent de configurer Prometheus de maniere declarative.
+Déployer Prometheus "à la main" sur Kubernetes est fastidieux : il faut gérer la configuration, le service discovery, les regles d'alerting, et les mises a jour. Le **Prometheus Operator** simplifie tout cela en introduisant des **Custom Resource Definitions** (CRDs) qui permettent de configurer Prometheus de manière declarative.
 
 ```typescript
 interface PrometheusOperatorCRD {
@@ -544,7 +544,7 @@ const operatorCRDs: PrometheusOperatorCRD[] = [
 
 ### Installation avec kube-prometheus-stack
 
-La maniere la plus courante de deployer l'ensemble est via le Helm chart **kube-prometheus-stack** qui installe en une commande : Prometheus Operator, Prometheus, Alertmanager, Grafana, node-exporter, kube-state-metrics, et un ensemble de dashboards et regles preconfigures.
+La manière la plus courante de déployer l'ensemble est via le Helm chart **kube-prometheus-stack** qui installe en une commande : Prometheus Operator, Prometheus, Alertmanager, Grafana, node-exporter, kube-state-metrics, et un ensemble de dashboards et regles preconfigures.
 
 ```yaml
 # values.yaml pour kube-prometheus-stack (extraits cles)
@@ -598,7 +598,7 @@ helm install kube-prometheus prometheus-community/kube-prometheus-stack \
 
 ### Service discovery Kubernetes
 
-L'un des avantages majeurs de Prometheus sur Kubernetes est le **service discovery natif**. Prometheus interroge l'API Kubernetes pour decouvrir automatiquement les cibles a scraper. Plus besoin de maintenir une liste statique de targets.
+L'un des avantages majeurs de Prometheus sur Kubernetes est le **service discovery natif**. Prometheus interroge l'API Kubernetes pour découvrir automatiquement les cibles a scraper. Plus besoin de maintenir une liste statique de targets.
 
 ```yaml
 # Extrait de configuration Prometheus (genere par l'Operator)
@@ -633,7 +633,7 @@ scrape_configs:
 
 ### Relabeling pour filtrer et enrichir
 
-Le relabeling est le mecanisme qui rend Prometheus puissant sur Kubernetes. Il permet de transformer les metadonnees K8s en labels Prometheus.
+Le relabeling est le mécanisme qui rend Prometheus puissant sur Kubernetes. Il permet de transformer les metadonnees K8s en labels Prometheus.
 
 ```typescript
 interface RelabelRule {
@@ -680,7 +680,7 @@ const commonRelabelRules: RelabelRule[] = [
 
 ### Exemple : ServiceMonitor pour une app Node.js
 
-Voici comment creer un ServiceMonitor pour que Prometheus scrape automatiquement votre application Node.js.
+Voici comment créer un ServiceMonitor pour que Prometheus scrape automatiquement votre application Node.js.
 
 ```yaml
 # deployment.yaml
@@ -834,7 +834,7 @@ metricsApp.listen(METRICS_PORT, () => {
 ```
 
 ::: tip Port dedie pour les metriques
-Bonne pratique : exposez vos metriques sur un **port different** du port applicatif. Cela permet de configurer les Network Policies pour que seul Prometheus accede au port metriques, sans exposer vos metriques aux utilisateurs finaux.
+Bonne pratique : exposez vos metriques sur un **port différent** du port applicatif. Cela permet de configurer les Network Policies pour que seul Prometheus accede au port metriques, sans exposer vos metriques aux utilisateurs finaux.
 :::
 
 ### Thanos et Cortex pour le stockage long terme
@@ -885,7 +885,7 @@ const longTermOptions: LongTermStorage[] = [
 
 ### stdout/stderr et la convention 12-Factor
 
-La convention dans Kubernetes est simple et decoule directement du [12-Factor App](https://12factor.net/logs) : **votre application ecrit ses logs sur stdout/stderr, et la plateforme se charge de les collecter**.
+La convention dans Kubernetes est simple et decoule directement du [12-Factor App](https://12factor.net/logs) : **votre application écrit ses logs sur stdout/stderr, et la plateforme se charge de les collecter**.
 
 ```typescript
 // BON : logger sur stdout avec pino (structured logging)
@@ -1055,7 +1055,7 @@ data:
 
 ### Enrichissement automatique
 
-Le filtre `kubernetes` de Fluent Bit enrichit automatiquement chaque ligne de log avec les metadonnees K8s. C'est l'un des gros avantages de Kubernetes pour l'observabilite.
+Le filtre `kubernetes` de Fluent Bit enrichit automatiquement chaque ligne de log avec les metadonnees K8s. C'est l'un des gros avantages de Kubernetes pour l'observabilité.
 
 ```typescript
 interface LogEnrichment {
@@ -1150,9 +1150,9 @@ const comparison: LogBackendComparison[] = [
 ::: tip Bonnes pratiques logging K8s
 1. **Toujours sur stdout/stderr** — jamais dans des fichiers internes au container
 2. **Structured logging JSON** — facilite le parsing et l'indexation
-3. **DaemonSet par defaut** — Sidecar uniquement si necessaire
+3. **DaemonSet par defaut** — Sidecar uniquement si nécessaire
 4. **Labels K8s coherents** — `app`, `team`, `version` sur tous les pods
-5. **Loki si vous etes deja sur Grafana** — sinon Elasticsearch reste valable
+5. **Loki si vous etes déjà sur Grafana** — sinon Elasticsearch reste valable
 6. **Retention differenciee** — logs d'erreur gardes plus longtemps que les logs info
 :::
 
@@ -1162,7 +1162,7 @@ const comparison: LogBackendComparison[] = [
 
 ### Auto-instrumentation avec l'OTel Operator
 
-L'**OpenTelemetry Operator** pour Kubernetes permet d'instrumenter automatiquement vos applications sans modifier une seule ligne de code. Il injecte un agent d'instrumentation au demarrage du pod via un webhook d'admission.
+L'**OpenTelemetry Operator** pour Kubernetes permet d'instrumenter automatiquement vos applications sans modifier une seule ligne de code. Il injecte un agent d'instrumentation au démarrage du pod via un webhook d'admission.
 
 ```yaml
 # 1. Installer l'OpenTelemetry Operator (via Helm)
@@ -1220,7 +1220,7 @@ spec:
 
 ### Injection de sidecar OTel Collector
 
-Pour un controle plus fin sur la collecte de telemetrie, vous pouvez deployer un OTel Collector en sidecar. Il recoit les traces/metriques/logs de l'application et les exporte vers le backend.
+Pour un controle plus fin sur la collecte de telemetrie, vous pouvez déployer un OTel Collector en sidecar. Il recoit les traces/metriques/logs de l'application et les exporte vers le backend.
 
 ```yaml
 # OTel Collector en mode sidecar via l'Operator
@@ -1286,9 +1286,9 @@ spec:
           exporters: [prometheus]
 ```
 
-### Service mesh et observabilite gratuite
+### Service mesh et observabilité gratuite
 
-Un **service mesh** (Istio, Linkerd) place un proxy sidecar (Envoy, Linkerd-proxy) devant chaque pod. Ce proxy intercepte tout le trafic reseau et genere automatiquement des metriques L7 (HTTP, gRPC) et des traces distribuees — sans aucune instrumentation applicative.
+Un **service mesh** (Istio, Linkerd) place un proxy sidecar (Envoy, Linkerd-proxy) devant chaque pod. Ce proxy intercepte tout le trafic réseau et généré automatiquement des metriques L7 (HTTP, gRPC) et des traces distribuees — sans aucune instrumentation applicative.
 
 ```typescript
 interface ServiceMeshObservability {
@@ -1327,12 +1327,12 @@ const meshObservability: ServiceMeshObservability[] = [
 ```
 
 ::: warning Service mesh : cout vs benefice
-Un service mesh ajoute de la complexite, de la latence (faible : ~1ms) et de la consommation memoire (sidecar Envoy : ~50-100 MB par pod). Evaluez si les metriques L7 gratuites et le mTLS justifient ce cout pour votre contexte. Pour un petit cluster, l'instrumentation applicative directe peut suffire.
+Un service mesh ajoute de la complexite, de la latence (faible : ~1ms) et de la consommation mémoire (sidecar Envoy : ~50-100 MB par pod). Evaluez si les metriques L7 gratuites et le mTLS justifient ce cout pour votre contexte. Pour un petit cluster, l'instrumentation applicative directe peut suffire.
 :::
 
 ### Correlation logs-traces-metriques via labels K8s
 
-La cle de la correlation dans Kubernetes est la coherence des labels. Le meme identifiant (`app`, `namespace`, `pod`) doit etre present dans les trois signaux.
+La clé de la correlation dans Kubernetes est la coherence des labels. Le même identifiant (`app`, `namespace`, `pod`) doit etre present dans les trois signaux.
 
 ```typescript
 // Correlation via les labels K8s communs
@@ -1402,7 +1402,7 @@ logWithTrace('Order created', { orderId: 'ORD-123', amount: 99.90 });
 
 ### Dashboard USE par node
 
-Le dashboard USE (Utilization, Saturation, Errors) par node repond a la question : "Mes machines ont-elles les ressources necessaires ?"
+Le dashboard USE (Utilization, Saturation, Errors) par node repond à la question : "Mes machines ont-elles les ressources nécessaires ?"
 
 ```typescript
 interface USEDashboardQuery {
@@ -1454,7 +1454,7 @@ const nodeUSEQueries: USEDashboardQuery[] = [
 
 ### Dashboard RED par service/namespace
 
-Le dashboard RED (Rate, Errors, Duration) repond a la question : "Mes services fonctionnent-ils correctement pour les utilisateurs ?"
+Le dashboard RED (Rate, Errors, Duration) repond à la question : "Mes services fonctionnent-ils correctement pour les utilisateurs ?"
 
 ```
 # Requetes PromQL pour un dashboard RED par namespace
@@ -1481,7 +1481,7 @@ histogram_quantile(0.99,
 
 ### Dashboard pods : sante et anomalies
 
-Ce dashboard est specifique a Kubernetes et n'a pas d'equivalent en infrastructure classique. Il repond a : "Mes pods sont-ils stables ?"
+Ce dashboard est spécifique a Kubernetes et n'a pas d'équivalent en infrastructure classique. Il repond a : "Mes pods sont-ils stables ?"
 
 ```typescript
 interface PodDashboardPanel {
@@ -1567,7 +1567,7 @@ histogram_quantile(0.99, sum(rate(scheduler_scheduling_algorithm_duration_second
 
 ---
 
-## Alerting specifique Kubernetes
+## Alerting spécifique Kubernetes
 
 ### Alertes pods
 
@@ -1735,7 +1735,7 @@ spec:
             summary: "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} quasi plein ({{ $value | humanizePercentage }})"
 ```
 
-### Bonnes pratiques : eviter l'alert fatigue en K8s
+### Bonnes pratiques : éviter l'alert fatigue en K8s
 
 ```typescript
 interface AlertFatigueAntiPattern {
@@ -1779,7 +1779,7 @@ const alertAntiPatterns: AlertFatigueAntiPattern[] = [
 
 ### HPA avec metriques Prometheus
 
-Le **Horizontal Pod Autoscaler** (HPA) de Kubernetes peut scaler vos pods non seulement sur CPU/memoire, mais aussi sur des metriques custom provenant de Prometheus.
+Le **Horizontal Pod Autoscaler** (HPA) de Kubernetes peut scaler vos pods non seulement sur CPU/mémoire, mais aussi sur des metriques custom provenant de Prometheus.
 
 ```
 Architecture du custom metrics auto-scaling
@@ -1812,7 +1812,7 @@ Architecture du custom metrics auto-scaling
 
 ### Prometheus Adapter
 
-Le **Prometheus Adapter** est le pont entre Prometheus et l'API custom metrics de Kubernetes. Il traduit les requetes de l'API K8s en requetes PromQL.
+Le **Prometheus Adapter** est le pont entre Prometheus et l'API custom metrics de Kubernetes. Il traduit les requêtes de l'API K8s en requêtes PromQL.
 
 ```yaml
 # prometheus-adapter-config.yaml
@@ -1856,7 +1856,7 @@ data:
         metricsQuery: 'avg(<<.Series>>{<<.LabelMatchers>>}) by (<<.GroupBy>>)'
 ```
 
-### Exemple : scaler sur les requetes HTTP par seconde
+### Exemple : scaler sur les requêtes HTTP par seconde
 
 ```yaml
 # hpa-http-rps.yaml
@@ -1942,7 +1942,7 @@ setInterval(updateQueueMetrics, 10_000);
 
 ### KEDA pour l'event-driven autoscaling
 
-**KEDA** (Kubernetes Event-Driven Autoscaling) va plus loin que le HPA classique : il peut scaler de 0 a N et supporte nativement des dizaines de sources d'evenements (Kafka, RabbitMQ, SQS, Prometheus, Cron...).
+**KEDA** (Kubernetes Event-Driven Autoscaling) va plus loin que le HPA classique : il peut scaler de 0 a N et supporte nativement des dizaines de sources d'événements (Kafka, RabbitMQ, SQS, Prometheus, Cron...).
 
 ```yaml
 # keda-scaledobject.yaml
@@ -2015,9 +2015,9 @@ const scalingAntiPatterns: ScalingAntiPattern[] = [
 
 ---
 
-## Health checks Kubernetes pour l'observabilite
+## Health checks Kubernetes pour l'observabilité
 
-Un health check bien configure est la base de l'observabilite dans Kubernetes. Il permet a Kubernetes de savoir si votre pod est fonctionnel, pret a recevoir du trafic, et s'il a fini de demarrer.
+Un health check bien configure est la base de l'observabilité dans Kubernetes. Il permet a Kubernetes de savoir si votre pod est fonctionnel, pret a recevoir du trafic, et s'il a fini de démarrer.
 
 ```typescript
 // src/health/health-checks.ts
@@ -2122,16 +2122,16 @@ initialize();
 ```
 
 ::: warning Piege classique des probes
-Ne **jamais** verifier les dependances dans la liveness probe. Si votre base de donnees tombe, tous vos pods seront tues et recrees en boucle, aggravant le probleme. La liveness doit uniquement verifier que le processus est vivant (pas de deadlock). Les dependances se verifient dans la readiness probe.
+Ne **jamais** vérifier les dépendances dans la liveness probe. Si votre base de donnees tombe, tous vos pods seront tues et recrees en boucle, aggravant le problème. La liveness doit uniquement vérifier que le processus est vivant (pas de deadlock). Les dépendances se verifient dans la readiness probe.
 :::
 
 ---
 
-## Aller plus loin : Observabilite GitOps et Platform Engineering
+## Aller plus loin : Observabilité GitOps et Platform Engineering
 
-### Observabilite as Code dans un contexte Kubernetes
+### Observabilité as Code dans un contexte Kubernetes
 
-Dans un contexte Kubernetes, l'Observability as Code (vue au Module 17) prend une dimension supplementaire : les configurations d'observabilite sont elles-memes des objets Kubernetes, deployes via GitOps.
+Dans un contexte Kubernetes, l'Observability as Code (vue au Module 17) prend une dimension supplementaire : les configurations d'observabilité sont elles-memes des objets Kubernetes, déployés via GitOps.
 
 ```typescript
 interface K8sObservabilityAsCode {
@@ -2192,7 +2192,7 @@ data:
 
 ### Monitoring des pipelines CI/CD et des deploiements K8s
 
-Observer vos deployments est aussi important qu'observer vos applications. Un deploiement qui prend 30 minutes au lieu de 5 est un signal d'alerte.
+Observer vos deployments est aussi important qu'observer vos applications. Un déploiement qui prend 30 minutes au lieu de 5 est un signal d'alerte.
 
 ```typescript
 // Metriques de deploiement a tracker
@@ -2226,9 +2226,9 @@ const deploymentMetrics: DeploymentMetric[] = [
 ];
 ```
 
-### eBPF et observabilite sans instrumentation
+### eBPF et observabilité sans instrumentation
 
-**eBPF** (extended Berkeley Packet Filter) est une technologie du kernel Linux qui permet d'observer le systeme a un niveau tres bas, sans modifier ni instrumenter les applications.
+**eBPF** (extended Berkeley Packet Filter) est une technologie du kernel Linux qui permet d'observer le système à un niveau très bas, sans modifier ni instrumenter les applications.
 
 ```typescript
 interface EBPFTool {
@@ -2276,7 +2276,7 @@ const ebpfTools: EBPFTool[] = [
 
 ### OpenCost pour le cost monitoring Kubernetes
 
-L'observabilite inclut aussi les couts. **OpenCost** (projet CNCF) calcule le cout de chaque pod, namespace, label et deployment dans votre cluster.
+L'observabilité inclut aussi les couts. **OpenCost** (projet CNCF) calcule le cout de chaque pod, namespace, label et deployment dans votre cluster.
 
 ```typescript
 interface CostObservability {
@@ -2327,19 +2327,19 @@ sum by (namespace) (
 )
 ```
 
-::: tip Reference SRE
-Le Google SRE Workbook, Chapitre 11 ("Managing Load") detaille les strategies de gestion de charge a l'echelle, incluant l'auto-scaling, le load shedding, et la gestion de capacite. Les principes decrits s'appliquent directement au HPA Kubernetes et au dimensionnement des clusters. Le Chapitre 18 du SRE Book ("Software Engineering in SRE") souligne l'importance d'automatiser l'observabilite plutot que de la configurer manuellement — ce qui rejoint directement l'approche GitOps decrite dans cette section.
+::: tip Référence SRE
+Le Google SRE Workbook, Chapitre 11 ("Managing Load") détaillé les stratégies de gestion de charge a l'echelle, incluant l'auto-scaling, le load shedding, et la gestion de capacité. Les principes decrits s'appliquent directement au HPA Kubernetes et au dimensionnement des clusters. Le Chapitre 18 du SRE Book ("Software Engineering in SRE") souligne l'importance d'automatiser l'observabilité plutot que de la configurer manuellement — ce qui rejoint directement l'approche GitOps decrite dans cette section.
 :::
 
 ---
 
-## Resume
+## Résumé
 
-### Tableau recapitulatif
+### Tableau récapitulatif
 
-| Couche | Outil | Metriques cles | Dashboard |
+| Couche | Outil | Metriques clés | Dashboard |
 |--------|-------|---------------|-----------|
-| **Node (hardware)** | node-exporter | CPU, memoire, disque, reseau | USE par node |
+| **Node (hardware)** | node-exporter | CPU, mémoire, disque, réseau | USE par node |
 | **Container (runtime)** | cAdvisor (kubelet) | CPU/mem par container, fs, network | USE par pod |
 | **Orchestrateur (K8s)** | kube-state-metrics | Pod phase, restarts, replicas, conditions | Pods health |
 | **Control plane** | API server, etcd, scheduler | Request rate/latency, leader, proposals | Control plane |
@@ -2348,9 +2348,9 @@ Le Google SRE Workbook, Chapitre 11 ("Managing Load") detaille les strategies de
 | **Traces** | OTel Operator + Tempo | Spans, trace propagation, service map | Tempo dans Grafana |
 | **Couts** | OpenCost | CPU/mem cost par namespace/deployment | Cost dashboard |
 
-### Points cles a retenir
+### Points clés à retenir
 
-- L'ephemerite des pods impose une **collecte en temps reel** des logs, metriques et traces
+- L'ephemerite des pods impose une **collecte en temps réel** des logs, metriques et traces
 - Observer **chaque couche** separement : node, container, orchestrateur, application
 - **kube-prometheus-stack** est le point de depart recommande (Prometheus Operator + Grafana + alertes preconfigures)
 - Les logs vont sur **stdout**, collectes par un DaemonSet Fluent Bit, stockes dans Loki
@@ -2358,14 +2358,14 @@ Le Google SRE Workbook, Chapitre 11 ("Managing Load") detaille les strategies de
 - Les alertes K8s doivent etre **actionnables** avec un runbook, pas du bruit
 - L'auto-scaling sur metriques custom (HPA + Prometheus Adapter) est plus pertinent que le scaling sur CPU seul
 - **KEDA** permet le scale-to-zero pour les workloads event-driven
-- L'observabilite elle-meme se deploie en **GitOps** (ServiceMonitor, PrometheusRule, ConfigMap dashboards)
-- **eBPF** est l'avenir de l'observabilite sans instrumentation (Cilium, Pixie)
+- L'observabilité elle-même se deploie en **GitOps** (ServiceMonitor, PrometheusRule, ConfigMap dashboards)
+- **eBPF** est l'avenir de l'observabilité sans instrumentation (Cilium, Pixie)
 
 ---
 
 ## Pour aller plus loin
 
-- [Lab 21 — Observabilite Kubernetes avec kube-prometheus-stack](/labs/lab-21-kubernetes-observability/README)
+- [Lab 21 — Observabilité Kubernetes avec kube-prometheus-stack](/labs/lab-21-kubernetes-observability/README)
 - [Quiz 20 — Kubernetes & Container Observability](/quizzes/quiz-20-kubernetes-observability)
 - Google SRE Book, Chapitre 6 : "Monitoring Distributed Systems"
 - Google SRE Workbook, Chapitre 11 : "Managing Load"
@@ -2374,3 +2374,13 @@ Le Google SRE Workbook, Chapitre 11 ("Managing Load") detaille les strategies de
 - KEDA Documentation : https://keda.sh
 - OpenCost : https://www.opencost.io
 - Kubernetes Monitoring with Prometheus (livre, O'Reilly)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 20 kubernetes observability](../screencasts/screencast-20-kubernetes-observability.md)
+2. **Lab** : [lab-21-kubernetes-observability](../labs/lab-21-kubernetes-observability/README)
+3. **Quiz** : [quiz 20 kubernetes observability](../quizzes/quiz-20-kubernetes-observability.html)
+:::

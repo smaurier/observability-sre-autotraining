@@ -4,22 +4,22 @@
 
 - Comprendre l'architecture ELK (Elasticsearch, Logstash, Kibana)
 - Comparer ELK avec la stack Grafana (Loki, Prometheus, Tempo)
-- Maitriser les concepts Elasticsearch : index, mapping, shards, replicas
+- Maîtriser les concepts Elasticsearch : index, mapping, shards, replicas
 - Configurer Logstash et Filebeat pour l'ingestion de logs
-- Creer des dashboards et visualisations dans Kibana
-- Ecrire des requetes KQL et Lucene
-- Gerer le cycle de vie des index (ILM)
+- Créer des dashboards et visualisations dans Kibana
+- Écrire des requêtes KQL et Lucene
+- Gérer le cycle de vie des index (ILM)
 
 ---
 
 ## 1. ELK vs Grafana Stack
 
-Jusqu'ici, le cours s'est concentre sur la stack open-source Grafana (Prometheus, Loki, Tempo, Grafana). ELK est **l'autre grande stack d'observabilite**, tres repandue en entreprise.
+Jusqu'ici, le cours s'est concentre sur la stack open-source Grafana (Prometheus, Loki, Tempo, Grafana). ELK est **l'autre grande stack d'observabilité**, très repandue en entreprise.
 
 | Critere | ELK Stack | Grafana Stack |
 |---------|-----------|---------------|
 | **Logs** | Elasticsearch + Kibana | Loki + Grafana |
-| **Metriques** | Elasticsearch (ou Metricbeat) | Prometheus + Grafana |
+| **Metriques** | Elasticsearch (où Metricbeat) | Prometheus + Grafana |
 | **Traces** | Elastic APM | Tempo + Grafana |
 | **Ingestion** | Logstash, Filebeat, Elastic Agent | Promtail, OTel Collector |
 | **Requetes** | KQL, Lucene, Elasticsearch DSL | LogQL, PromQL |
@@ -34,8 +34,8 @@ Jusqu'ici, le cours s'est concentre sur la stack open-source Grafana (Prometheus
 
 - **Recherche full-text avancee** sur les logs (analyseurs, stemming, synonymes)
 - **Volume massif** avec besoin de recherche rapide
-- **Equipe deja formee** a Elasticsearch
-- **Ecosysteme Elastic** deja en place (APM, Security, SIEM)
+- **Équipe déjà formee** a Elasticsearch
+- **Ecosysteme Elastic** déjà en place (APM, Security, SIEM)
 
 ### Quand rester sur Grafana ?
 
@@ -67,13 +67,13 @@ Elasticsearch Cluster
     └── ...
 ```
 
-### Concepts cles
+### Concepts clés
 
 | Concept | Description | Analogie SQL |
 |---------|-------------|-------------|
 | **Index** | Collection de documents | Table |
 | **Document** | Unite de donnees (JSON) | Ligne |
-| **Field** | Propriete d'un document | Colonne |
+| **Field** | Propriété d'un document | Colonne |
 | **Mapping** | Schema d'un index | DDL (CREATE TABLE) |
 | **Shard** | Partition horizontale d'un index | Partition |
 | **Replica** | Copie d'un shard (haute dispo) | Replica |
@@ -209,7 +209,7 @@ output {
 
 ### Grok — Parser des logs non structures
 
-Grok utilise des patterns nommes pour extraire des champs a partir de texte :
+Grok utilise des patterns nommes pour extraire des champs à partir de texte :
 
 ```ruby
 # Log Apache
@@ -239,7 +239,7 @@ filter {
 | `%{WORD}` | Un mot (sans espaces) |
 | `%{NUMBER}` | Nombre entier ou decimal |
 | `%{HTTPDATE}` | Date format Apache |
-| `%{URIPATHPARAM}` | Chemin URI avec parametres |
+| `%{URIPATHPARAM}` | Chemin URI avec paramètres |
 | `%{GREEDYDATA}` | Tout le reste |
 | `%{LOGLEVEL}` | DEBUG, INFO, WARN, ERROR |
 
@@ -342,7 +342,7 @@ duration_ms:{1000 TO *}
 
 ### Lens — Editeur visuel
 
-Lens est l'editeur de visualisation recommande. Drag & drop des champs pour creer :
+Lens est l'editeur de visualisation recommande. Drag & drop des champs pour créer :
 - **Bar chart** : erreurs par service
 - **Line chart** : latence P95 dans le temps
 - **Pie chart** : repartition par status code
@@ -355,7 +355,7 @@ Lens est l'editeur de visualisation recommande. Drag & drop des champs pour cree
 Pour les visualisations temporelles avancees :
 - Annotations (deploiements, incidents)
 - Mathematiques entre series (error_rate = errors / total)
-- Comparaison avec une periode precedente
+- Comparaison avec une periode précédente
 
 ### Aggregations
 
@@ -595,7 +595,7 @@ volumes:
 |-------|--------|
 | Taille optimale d'un shard | 10-50 GB |
 | Nombre max de shards par noeud | ~600 |
-| Nombre de shards primaires | Non modifiable apres creation |
+| Nombre de shards primaires | Non modifiable après création |
 | Nombre de replicas | Modifiable a chaud |
 
 ### Formule de dimensionnement
@@ -617,12 +617,12 @@ Noeuds data (40 shards/noeud) : 200 / 40 = 5 noeuds
 1. **Index par jour** (`logs-app-2024.03.14`) plutot qu'un seul gros index
 2. **Forcemerge** les vieux index (1 segment = recherche plus rapide)
 3. **Frozen indices** pour les donnees > 30 jours (hors heap)
-4. **Source filtering** — ne recuperer que les champs necessaires
+4. **Source filtering** — ne récupérer que les champs nécessaires
 5. **Index sorting** — trier les documents a l'indexation pour accelerer les queries
 
 ---
 
-## 11. Securite
+## 11. Sécurité
 
 ### RBAC (Role-Based Access Control)
 
@@ -643,7 +643,7 @@ POST _security/role/logs-reader
 
 ### Spaces Kibana
 
-Les Spaces isolent les dashboards et index patterns par equipe :
+Les Spaces isolent les dashboards et index patterns par équipe :
 - Space "Backend Team" : logs des services API
 - Space "Frontend Team" : logs RUM et Core Web Vitals
 - Space "Security" : logs d'audit et SIEM
@@ -665,7 +665,17 @@ Passez au **Lab 24** pour mettre en pratique :
 
 - [Elasticsearch Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 - [Kibana Guide](https://www.elastic.co/guide/en/kibana/current/index.html)
-- [Logstash Reference](https://www.elastic.co/guide/en/logstash/current/index.html)
+- [Logstash Référence](https://www.elastic.co/guide/en/logstash/current/index.html)
 - [Grok Debugger](https://grokdebugger.com/)
 - [OpenSearch](https://opensearch.org/) — Fork Apache 2.0 d'Elasticsearch
 - [ELK Docker Compose](https://github.com/deviantony/docker-elk)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 23 elk stack kibana](../screencasts/screencast-23-elk-stack-kibana.md)
+2. **Lab** : [lab-23-sentry-error-tracking](../labs/lab-23-sentry-error-tracking/README)
+3. **Quiz** : [quiz 23 elk stack kibana](../quizzes/quiz-23-elk-stack-kibana.html)
+:::

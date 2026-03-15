@@ -4,25 +4,25 @@
 - **Duree estimee** : 22-28 min
 - **Module** : `modules/16-dora-metrics.md`
 - **Lab associe** : Lab 16
-- **Prerequis** : Screencast 15
+- **Prérequis** : Screencast 15
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
-- [ ] Fichier `scripts/dora-tracker.ts` pret a etre cree
+- [ ] Terminal intégré ouvert (2 terminaux)
+- [ ] Fichier `scripts/dora-tracker.ts` pret a etre créé
 - [ ] Donnees d'exemple pour les deployments preparees
 
 ## Script
 
 ### [00:00-02:30] Introduction
 
-> Nous avons couvert l'observabilite technique, les SLOs, l'alerting, la gestion d'incidents, le chaos engineering. Mais comment savoir si notre equipe s'ameliore dans son ensemble ? L'equipe DORA — DevOps Research and Assessment — fondee par Dr. Nicole Forsgren, Gene Kim et Jez Humble, a identifie 4 metriques qui predisent la performance organisationnelle. Ces metriques sont le fruit de 7 ans de recherche sur des milliers d'equipes.
+> Nous avons couvert l'observabilité technique, les SLOs, l'alerting, la gestion d'incidents, le chaos engineering. Mais comment savoir si notre équipe s'ameliore dans son ensemble ? L'équipe DORA — DevOps Research and Assessment — fondee par Dr. Nicole Forsgren, Gene Kim et Jez Humble, a identifie 4 metriques qui predisent la performance organisationnelle. Ces metriques sont le fruit de 7 ans de recherche sur des milliers d'équipes.
 
-> L'analogie : mesurer une equipe de developpement sans les metriques DORA, c'est comme gerer une usine sans mesurer le temps de production, le taux de defauts ou les delais de livraison. Vous ne savez pas si vous allez dans la bonne direction.
+> L'analogie : mesurer une équipe de développement sans les metriques DORA, c'est comme gérer une usine sans mesurer le temps de production, le taux de defauts ou les delais de livraison. Vous ne savez pas si vous allez dans la bonne direction.
 
 ### [02:30-07:00] Les 4 metriques DORA expliquees
 
-**Action** : Ecrire les 4 metriques avec des exemples concrets.
+**Action** : Écrire les 4 metriques avec des exemples concrets.
 
 ```typescript
 // Les 4 metriques DORA
@@ -65,7 +65,7 @@ interface DORAMetrics {
 }
 ```
 
-> Les deux premieres metriques (DF et LT) mesurent la velocite — a quelle vitesse livrez-vous de la valeur. Les deux dernieres (CFR et MTTR) mesurent la stabilite — quelle est la qualite de ce que vous livrez. L'insight cle de la recherche DORA : les equipes elite sont rapides ET stables. Velocite et stabilite ne sont pas en opposition.
+> Les deux premières metriques (DF et LT) mesurent la velocite — a quelle vitesse livrez-vous de la valeur. Les deux dernières (CFR et MTTR) mesurent la stabilite — quelle est la qualite de ce que vous livrez. L'insight clé de la recherche DORA : les équipes elite sont rapides ET stables. Velocite et stabilite ne sont pas en opposition.
 
 **Action** : Donner des exemples concrets.
 
@@ -89,11 +89,11 @@ const examples = {
 };
 ```
 
-> La difference est frappante. L'equipe elite deploie 50 fois par jour en 15 minutes, avec 5% d'echec et 10 minutes de recovery. L'equipe en difficulte deploie tous les 3 mois, met 3 mois a livrer, echoue une fois sur deux et met 3 jours a se retablir.
+> La différence est frappante. L'équipe elite deploie 50 fois par jour en 15 minutes, avec 5% d'echec et 10 minutes de recovery. L'équipe en difficulte deploie tous les 3 mois, met 3 mois a livrer, echoue une fois sur deux et met 3 jours a se retablir.
 
 ### [07:00-13:00] Construire un DORA tracker en TypeScript
 
-**Action** : Creer le fichier `scripts/dora-tracker.ts`.
+**Action** : Créer le fichier `scripts/dora-tracker.ts`.
 
 ```typescript
 // scripts/dora-tracker.ts
@@ -221,19 +221,19 @@ function classifyMTTR(minutes: number): string {
 }
 ```
 
-**Action** : Executer le tracker.
+**Action** : Exécuter le tracker.
 
 ```bash
 npx tsx scripts/dora-tracker.ts
 ```
 
-> Regardons les resultats. Deployment Frequency : 1.0 deployment par jour — bande "Elite". Lead Time : 30 minutes (mediane) — bande "Elite". Change Failure Rate : 6.7% — bande "Elite". MTTR : 45 minutes — bande "Elite". Notre equipe (fictive) est dans la bande elite sur les 4 metriques.
+> Regardons les résultats. Deployment Frequency : 1.0 deployment par jour — bande "Elite". Lead Time : 30 minutes (mediane) — bande "Elite". Change Failure Rate : 6.7% — bande "Elite". MTTR : 45 minutes — bande "Elite". Notre équipe (fictive) est dans la bande elite sur les 4 metriques.
 
 ### [13:00-18:00] Identifier et mesurer le toil
 
-> Le toil est un concept central du SRE. C'est le travail manuel, repetitif, automatisable, reactif, sans valeur durable, et qui croit lineairement avec la taille du service.
+> Le toil est un concept central du SRE. C'est le travail manuel, repetitif, automatisable, réactif, sans valeur durable, et qui croit lineairement avec la taille du service.
 
-**Action** : Definir le toil avec des exemples.
+**Action** : Définir le toil avec des exemples.
 
 ```typescript
 // Definition du toil (SRE Book, chapitre 5)
@@ -277,7 +277,7 @@ const toilExamples = [
 
 ### [18:00-22:00] Calculer le pourcentage de toil
 
-**Action** : Calculer le toil de l'equipe.
+**Action** : Calculer le toil de l'équipe.
 
 ```typescript
 // Calcul du pourcentage de toil
@@ -320,7 +320,7 @@ function calculateToil(allocation: TimeAllocation[]) {
 // Notre equipe est dans la zone verte, mais peut encore ameliorer
 ```
 
-> La regle des 50% du livre Google SRE dit : un SRE ne doit pas passer plus de 50% de son temps en toil. Au-dela, l'equipe n'a plus le temps d'automatiser et le toil ne fait que croitre. Notre equipe fictive est a 22.5% — correct mais ameliorable.
+> La regle des 50% du livre Google SRE dit : un SRE ne doit pas passer plus de 50% de son temps en toil. Au-dela, l'équipe n'a plus le temps d'automatiser et le toil ne fait que croitre. Notre équipe fictive est a 22.5% — correct mais ameliorable.
 
 **Action** : Prioriser les actions de reduction du toil.
 
@@ -351,9 +351,9 @@ const toilReductionPlan = [
 ];
 ```
 
-> Le ROI est simple : heures economisees par semaine vs heures de developpement. Le redemarrage automatique est rentabilise en 2 semaines — c'est un quick win evident.
+> Le ROI est simple : heures economisees par semaine vs heures de développement. Le redemarrage automatique est rentabilise en 2 semaines — c'est un quick win evident.
 
-### [22:00-25:00] Lier DORA et toil a l'observabilite
+### [22:00-25:00] Lier DORA et toil a l'observabilité
 
 > Les metriques DORA et la reduction du toil sont directement liees a tout ce que nous avons appris. Le Lead Time depend de la qualite de votre pipeline CI/CD — que le module 17 abordera avec l'observability as code. Le MTTR depend de la qualite de vos dashboards, alertes et runbooks. Le Change Failure Rate depend de vos tests, y compris les tests de chaos. Le toil de monitoring est reduit par l'automatisation des dashboards et des alertes.
 
@@ -368,18 +368,18 @@ const improvementLoop = {
 };
 ```
 
-### [25:00-27:00] Recapitulatif
+### [25:00-27:00] Récapitulatif
 
-> Recapitulons. Les 4 metriques DORA mesurent la performance d'une equipe : Deployment Frequency, Lead Time, Change Failure Rate, MTTR. Les equipes elite sont rapides ET stables — ce n'est pas un compromis. Le toil est le travail manuel, repetitif et automatisable qui freine l'equipe. La regle des 50% fixe la limite. Priorisez les actions de reduction par ROI.
+> Recapitulons. Les 4 metriques DORA mesurent la performance d'une équipe : Deployment Frequency, Lead Time, Change Failure Rate, MTTR. Les équipes elite sont rapides ET stables — ce n'est pas un compromis. Le toil est le travail manuel, repetitif et automatisable qui freine l'équipe. La regle des 50% fixe la limite. Priorisez les actions de reduction par ROI.
 
-> Dans le prochain module, nous passons a l'observability as code — generer des dashboards et des alertes programmatiquement. C'est l'une des meilleures facons de reduire le toil d'observabilite. Faites le Lab 16 !
+> Dans le prochain module, nous passons a l'observability as code — générer des dashboards et des alertes programmatiquement. C'est l'une des meilleures facons de reduire le toil d'observabilité. Faites le Lab 16 !
 
 ## Points d'attention pour l'enregistrement
-- Les 4 metriques DORA doivent etre presentees avec des exemples concrets, pas juste des definitions
-- La comparaison elite vs low performer est tres parlante — prendre le temps
-- Le DORA tracker en TypeScript est un livrable concret — executer le code en live
+- Les 4 metriques DORA doivent etre presentees avec des exemples concrets, pas juste des définitions
+- La comparaison elite vs low performer est très parlante — prendre le temps
+- Le DORA tracker en TypeScript est un livrable concret — exécuter le code en live
 - La classification en bandes (Elite, High, Medium, Low) est importante
 - Le toil est souvent sous-estime — insister sur les exemples quotidiens
 - Le calcul du pourcentage de toil est revelateur pour les participants
-- La priorisation par ROI est une competence pratique applicable immediatement
-- Lier DORA et toil a l'observabilite montre la coherence du cours
+- La priorisation par ROI est une compétence pratique applicable immediatement
+- Lier DORA et toil a l'observabilité montre la coherence du cours

@@ -9,7 +9,7 @@
 - Construire une **Pipeline** chainant reception, traitement et export
 - Implementer un **TailSampler** pour l'echantillonnage intelligent des traces
 
-## Prerequis
+## Prérequis
 
 - Lab 07 (tracing) termine
 - Notions de base sur les pipelines de donnees

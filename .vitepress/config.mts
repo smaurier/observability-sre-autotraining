@@ -130,11 +130,11 @@ export default defineConfig({
         {
           text: 'Visualisations',
           items: [
-            { text: 'Three Pillars', link: '/visualizations/three-pillars' },
-            { text: 'Metric Types', link: '/visualizations/metric-types' },
-            { text: 'Distributed Trace', link: '/visualizations/distributed-trace' },
-            { text: 'SLO Error Budget', link: '/visualizations/slo-error-budget' },
-            { text: 'Incident Lifecycle', link: '/visualizations/incident-lifecycle' },
+            { text: 'Three Pillars', link: '/visualizations/three-pillars.html' },
+            { text: 'Metric Types', link: '/visualizations/metric-types.html' },
+            { text: 'Distributed Trace', link: '/visualizations/distributed-trace.html' },
+            { text: 'SLO Error Budget', link: '/visualizations/slo-error-budget.html' },
+            { text: 'Incident Lifecycle', link: '/visualizations/incident-lifecycle.html' },
           ],
         },
       ],

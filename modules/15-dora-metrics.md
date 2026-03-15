@@ -5,18 +5,18 @@
 - Comprendre les 4 metriques DORA et leur importance
 - Savoir mesurer chaque metrique dans un pipeline CI/CD
 - Identifier les bandes de performance (elite, high, medium, low)
-- Definir le toil et savoir l'identifier dans le travail quotidien
+- Définir le toil et savoir l'identifier dans le travail quotidien
 - Appliquer la regle des 50% du SRE Book
 - Implementer un DORA tracker en TypeScript
-- Mettre en place des strategies concretes d'elimination du toil
+- Mettre en place des stratégies concretes d'elimination du toil
 
 ---
 
-## Introduction : mesurer la performance d'une equipe
+## Introduction : mesurer la performance d'une équipe
 
-Comment savoir si votre equipe d'ingenierie est performante ? Le nombre de lignes de code ? Le nombre de features livrees ? Ces metriques sont trompeuses. L'equipe **DORA** (DevOps Research and Assessment), fondee par Dr. Nicole Forsgren, Gene Kim et Jez Humble, a identifie **4 metriques** qui predisent la performance organisationnelle. Ces metriques sont issues de 7 ans de recherche sur des milliers d'equipes.
+Comment savoir si votre équipe d'ingenierie est performante ? Le nombre de lignes de code ? Le nombre de features livrees ? Ces metriques sont trompeuses. L'équipe **DORA** (DevOps Research and Assessment), fondee par Dr. Nicole Forsgren, Gene Kim et Jez Humble, a identifie **4 metriques** qui predisent la performance organisationnelle. Ces metriques sont issues de 7 ans de recherche sur des milliers d'équipes.
 
-L'analogie : mesurer une equipe de developpement sans les metriques DORA, c'est comme gerer une usine sans mesurer le temps de production, le taux de defauts ou les delais de livraison.
+L'analogie : mesurer une équipe de développement sans les metriques DORA, c'est comme gérer une usine sans mesurer le temps de production, le taux de defauts ou les delais de livraison.
 
 ---
 
@@ -183,8 +183,8 @@ console.log('Evaluation DORA:', evaluation);
 
 ### Le paradoxe vitesse vs stabilite
 
-::: tip Decouverte cle de DORA
-Contrairement a l'intuition, les equipes **elite** sont a la fois les plus rapides ET les plus stables. Deployer souvent en petits batches reduit le risque par changement. Vitesse et stabilite ne sont pas en opposition — elles se renforcent mutuellement.
+::: tip Decouverte clé de DORA
+Contrairement a l'intuition, les équipes **elite** sont à la fois les plus rapides ET les plus stables. Déployer souvent en petits batches reduit le risque par changement. Vitesse et stabilite ne sont pas en opposition — elles se renforcent mutuellement.
 :::
 
 ---
@@ -703,7 +703,7 @@ console.log(budget.report());
 
 ---
 
-## Strategies d'elimination du toil
+## Stratégies d'elimination du toil
 
 ### Prioriser par impact
 
@@ -768,27 +768,27 @@ const strategies: ToilEliminationStrategy[] = [
 
 ## Bonnes pratiques
 
-1. **Mesurez les DORA depuis le debut** : meme si les chiffres ne sont pas bons, la tendance est ce qui compte
+1. **Mesurez les DORA depuis le debut** : même si les chiffres ne sont pas bons, la tendance est ce qui compte
 2. **Automatisez la collecte** : les metriques DORA doivent venir du pipeline CI/CD, pas de rapports manuels
-3. **Partagez les metriques** : affichez-les sur un dashboard visible par toute l'equipe
+3. **Partagez les metriques** : affichez-les sur un dashboard visible par toute l'équipe
 4. **Ne punissez pas** : les metriques DORA sont un outil d'amelioration, pas de jugement
-5. **Inventoriez le toil regulierement** : un audit trimestriel du toil est necessaire
-6. **Respectez la regle des 50%** : si le toil depasse 50%, escaladez au management
+5. **Inventoriez le toil regulierement** : un audit trimestriel du toil est nécessaire
+6. **Respectez la regle des 50%** : si le toil dépasse 50%, escaladez au management
 7. **Automatisez par ROI** : commencez par les taches les plus frequentes et les plus couteuses
 8. **Celebrez l'elimination du toil** : chaque automatisation reussie merite d'etre reconnue
-9. **Mefiez-vous du "toil cache"** : le toil que font les devs sans le declarer (ex: "c'est rapide, je le fais a la main")
-10. **Liez DORA aux SLOs** : un bon MTTR est directement lie a un bon error budget management
+9. **Mefiez-vous du "toil cache"** : le toil que font les devs sans le declarer (ex: "c'est rapide, je le fais à la main")
+10. **Liez DORA aux SLOs** : un bon MTTR est directement lie à un bon error budget management
 
 ---
 
 ::: tip A retenir
 - Les **4 metriques DORA** : Deployment Frequency, Lead Time, Change Failure Rate, MTTR
-- Les equipes **elite** sont les plus rapides ET les plus stables — vitesse et qualite se renforcent
+- Les équipes **elite** sont les plus rapides ET les plus stables — vitesse et qualite se renforcent
 - Le **toil** est le travail manuel, repetitif, automatisable, sans valeur durable
 - **Regle des 50%** : un SRE ne doit pas passer plus de 50% de son temps en toil
 - Priorisez l'elimination du toil par **ROI** : temps sauve / effort d'automatisation
 - Les metriques DORA doivent etre **collectees automatiquement** depuis le pipeline CI/CD
-- Le niveau global d'une equipe est determine par sa **metrique la plus faible**
+- Le niveau global d'une équipe est déterminé par sa **metrique la plus faible**
 :::
 
 ---
@@ -800,3 +800,13 @@ const strategies: ToilEliminationStrategy[] = [
 - "Accelerate" par Nicole Forsgren, Jez Humble & Gene Kim
 - Google SRE Book, Chapitre 5 : "Eliminating Toil"
 - DORA State of DevOps Report (annuel)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 16 dora metrics](../screencasts/screencast-16-dora-metrics.md)
+2. **Lab** : [lab-16-dora-tracker](../labs/lab-16-dora-tracker/README)
+3. **Quiz** : [quiz 16 dora metrics](../quizzes/quiz-16-dora-metrics.html)
+:::

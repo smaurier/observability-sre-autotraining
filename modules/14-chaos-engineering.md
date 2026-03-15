@@ -3,21 +3,21 @@
 ## Objectifs pedagogiques
 
 - Comprendre les principes fondamentaux du chaos engineering
-- Connaitre l'histoire et les origines (Netflix, Chaos Monkey)
-- Formuler une hypothese d'etat stable (steady state hypothesis)
-- Concevoir et executer des experiences de chaos
+- Connaître l'histoire et les origines (Netflix, Chaos Monkey)
+- Formuler une hypothese d'état stable (steady state hypothesis)
+- Concevoir et exécuter des experiences de chaos
 - Implementer un chaos middleware en TypeScript/Express
 - Appliquer le pattern circuit breaker
-- Maitriser le controle du blast radius
-- Connaitre le modele de maturite en chaos engineering
+- Maîtriser le controle du blast radius
+- Connaître le modèle de maturite en chaos engineering
 
 ---
 
 ## Introduction : casser pour mieux construire
 
-Les pompiers allument des feux controles pour empecher les mega-incendies. Les pilotes s'entrainent aux pannes moteur dans des simulateurs. Le chaos engineering applique la meme logique a vos systemes : **provoquer des pannes controlees en production pour decouvrir les faiblesses avant que vos utilisateurs ne les decouvrent pour vous**.
+Les pompiers allument des feux controles pour empecher les mega-incendies. Les pilotes s'entrainent aux pannes moteur dans des simulateurs. Le chaos engineering applique la même logique a vos systèmes : **provoquer des pannes controlees en production pour découvrir les faiblesses avant que vos utilisateurs ne les decouvrent pour vous**.
 
-Le chaos engineering n'est pas du sabotage. C'est une discipline scientifique rigoureuse basee sur des hypotheses, des experiences controlees et une analyse methodique des resultats.
+Le chaos engineering n'est pas du sabotage. C'est une discipline scientifique rigoureuse basee sur des hypotheses, des experiences controlees et une analyse methodique des résultats.
 
 ---
 
@@ -25,9 +25,9 @@ Le chaos engineering n'est pas du sabotage. C'est une discipline scientifique ri
 
 ### L'histoire
 
-En 2010, Netflix migre vers AWS. Le cloud apporte de la flexibilite mais aussi de l'incertitude : les instances peuvent disparaitre a tout moment. Plutot que d'esperer que ca n'arrive pas, Netflix decide de **provoquer** ces pannes deliberement.
+En 2010, Netflix migre vers AWS. Le cloud apporte de la flexibilite mais aussi de l'incertitude : les instances peuvent disparaitre a tout moment. Plutot que d'esperer que ça n'arrive pas, Netflix decide de **provoquer** ces pannes deliberement.
 
-Ainsi nait **Chaos Monkey** : un programme qui arrete aleatoirement des instances en production pendant les heures de bureau. L'objectif est simple : si un service ne survit pas a la perte d'une instance, il faut le corriger **maintenant**, pas a 3h du matin quand AWS decide de la recycler.
+Ainsi nait **Chaos Monkey** : un programme qui arrete aleatoirement des instances en production pendant les heures de bureau. L'objectif est simple : si un service ne survit pas à la perte d'une instance, il faut le corriger **maintenant**, pas a 3h du matin quand AWS decide de la recycler.
 
 ### La famille Simian Army
 
@@ -515,7 +515,7 @@ app.use(chaos.middleware());
 
 ## Circuit Breaker Pattern
 
-Le **circuit breaker** est le complement naturel du chaos engineering : il protege votre service quand une dependance est defaillante.
+Le **circuit breaker** est le complement naturel du chaos engineering : il protege votre service quand une dépendance est defaillante.
 
 ```typescript
 type CircuitState = 'closed' | 'open' | 'half-open';
@@ -619,7 +619,7 @@ async function processPayment(orderId: string): Promise<{ success: boolean }> {
 
 ## Blast Radius Control
 
-Le **blast radius** est l'impact maximal d'une experience de chaos. Le controler est essentiel pour eviter de transformer une experience en vrai incident.
+Le **blast radius** est l'impact maximal d'une experience de chaos. Le controler est essentiel pour éviter de transformer une experience en vrai incident.
 
 ```typescript
 interface BlastRadiusControl {
@@ -748,7 +748,7 @@ function createExperimentRunner(
 
 ### Qu'est-ce qu'un Game Day ?
 
-Un **Game Day** est un exercice planifie ou l'equipe execute des experiences de chaos en groupe, avec des roles definis et un objectif d'apprentissage.
+Un **Game Day** est un exercice planifie ou l'équipe exécuté des experiences de chaos en groupe, avec des roles définis et un objectif d'apprentissage.
 
 ```typescript
 interface GameDayPlan {
@@ -820,7 +820,7 @@ const gameDayPlan: GameDayPlan = {
 
 ---
 
-## Modele de maturite Chaos Engineering
+## Modèle de maturite Chaos Engineering
 
 ```typescript
 interface MaturityLevel {
@@ -897,9 +897,9 @@ const maturityModel: MaturityLevel[] = [
 2. **Formulez toujours une hypothese** : pas d'experience sans hypothese claire et mesurable
 3. **Definissez des abort conditions** : savoir quand arreter est aussi important que savoir quand commencer
 4. **Controlez le blast radius** : augmentez progressivement l'ampleur des experiences
-5. **Impliquez toute l'equipe** : le chaos engineering n'est pas reserve aux SREs
+5. **Impliquez toute l'équipe** : le chaos engineering n'est pas reserve aux SREs
 6. **Automatisez** : les experiments manuels ne passent pas a l'echelle
-7. **Mesurez les resultats** : chaque experience doit produire des donnees exploitables
+7. **Mesurez les résultats** : chaque experience doit produire des donnees exploitables
 8. **Corrigez avant de continuer** : ne passez pas au niveau suivant si les faiblesses du niveau actuel ne sont pas corrigees
 9. **Ne faites jamais de chaos en secret** : toutes les parties prenantes doivent etre informees
 10. **Le circuit breaker est votre meilleur ami** : implementez-le avant de faire du chaos en production
@@ -908,13 +908,13 @@ const maturityModel: MaturityLevel[] = [
 
 ::: tip A retenir
 - Le chaos engineering est une **discipline scientifique** : hypothese, experience, mesure, analyse
-- Origine : **Netflix Chaos Monkey** (2010) — provoquer des pannes pour renforcer le systeme
-- Toujours definir l'**etat stable** (metriques de baseline) avant une experience
+- Origine : **Netflix Chaos Monkey** (2010) — provoquer des pannes pour renforcer le système
+- Toujours définir l'**état stable** (metriques de baseline) avant une experience
 - Types de faults : **kill instance, latence, erreurs, timeout, saturation ressources**
 - Le **blast radius** doit etre controle et augmente progressivement (staging -> pod -> service -> zone -> region)
-- Le **circuit breaker** protege votre service quand une dependance est defaillante
-- Les **Game Days** sont des exercices planifies pour pratiquer en equipe
-- L'objectif n'est pas de casser, mais de **decouvrir les faiblesses et les corriger**
+- Le **circuit breaker** protege votre service quand une dépendance est defaillante
+- Les **Game Days** sont des exercices planifies pour pratiquer en équipe
+- L'objectif n'est pas de casser, mais de **découvrir les faiblesses et les corriger**
 :::
 
 ---
@@ -930,8 +930,8 @@ Au-dela du middleware TypeScript, l'ecosysteme dispose d'outils matures pour le 
 | **Gremlin** | Plateforme SaaS, fault injection multi-cloud | Enterprise |
 | **Litmus Chaos** | Chaos engineering natif Kubernetes (CNCF) | Cloud-native |
 | **Chaos Toolkit** | Framework open source, extensible, CLI-based | Equipes devops |
-| **Toxiproxy** | Proxy TCP pour simuler conditions reseau (latence, jitter, bandwidth) | Developpement/CI |
-| **tc (traffic control)** | Outil Linux natif pour degrader le reseau | Infrastructure |
+| **Toxiproxy** | Proxy TCP pour simuler conditions réseau (latence, jitter, bandwidth) | Developpement/CI |
+| **tc (traffic control)** | Outil Linux natif pour degrader le réseau | Infrastructure |
 
 ```typescript
 // Exemple : Toxiproxy en TypeScript pour les tests d'integration
@@ -968,7 +968,7 @@ const pgProxy: ToxiproxyConfig = {
 
 ### Le Game Day avance : au-dela du kill -9
 
-Les Game Days debutants tuent des processus. Les Game Days experts testent des scenarios multi-facteurs realistes :
+Les Game Days débutants tuent des processus. Les Game Days experts testent des scenarios multi-facteurs realistes :
 
 ```typescript
 interface AdvancedGameDay {
@@ -1003,7 +1003,7 @@ const advancedScenarios: AdvancedGameDay[] = [
 ];
 ```
 
-### Resilience patterns : au-dela du circuit breaker
+### Résilience patterns : au-dela du circuit breaker
 
 Le circuit breaker est le pattern le plus connu, mais il en existe d'autres tout aussi importants :
 
@@ -1048,8 +1048,8 @@ function loadShedMiddleware(maxInFlight: number) {
 }
 ```
 
-::: tip Reference SRE
-Le Google SRE Book (Chapitre 22, "Addressing Cascading Failures") est la reference absolue pour les patterns de resilience. Il couvre le load shedding, le graceful degradation, les retries avec backoff, et les circuit breakers en profondeur. Le Chapitre 17 ("Testing for Reliability") explique comment structurer les Game Days. Pour aller encore plus loin, "Release It!" de Michael Nygard est le livre de reference sur les patterns de stabilite.
+::: tip Référence SRE
+Le Google SRE Book (Chapitre 22, "Addressing Cascading Failures") est la référence absolue pour les patterns de résilience. Il couvre le load shedding, le graceful degradation, les retries avec backoff, et les circuit breakers en profondeur. Le Chapitre 17 ("Testing for Reliability") explique comment structurer les Game Days. Pour aller encore plus loin, "Release It!" de Michael Nygard est le livre de référence sur les patterns de stabilite.
 :::
 
 ---
@@ -1061,3 +1061,13 @@ Le Google SRE Book (Chapitre 22, "Addressing Cascading Failures") est la referen
 - Principles of Chaos Engineering : https://principlesofchaos.org
 - Netflix Tech Blog : "Chaos Engineering"
 - Google SRE Book, Chapitre 17 : "Testing for Reliability"
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 15 chaos engineering](../screencasts/screencast-15-chaos-engineering.md)
+2. **Lab** : [lab-15-chaos-middleware](../labs/lab-15-chaos-middleware/README)
+3. **Quiz** : [quiz 15 chaos engineering](../quizzes/quiz-15-chaos-engineering.html)
+:::

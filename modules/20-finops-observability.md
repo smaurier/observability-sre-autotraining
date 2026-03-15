@@ -1,22 +1,22 @@
-# Module 21 — FinOps : Maitriser le Cout de l'Observabilite
+# Module 21 — FinOps : Maîtriser le Cout de l'Observabilité
 
 ## Objectifs pedagogiques
 
-- Comprendre pourquoi l'observabilite peut devenir l'un des postes de depense les plus eleves de l'infrastructure
+- Comprendre pourquoi l'observabilité peut devenir l'un des postes de depense les plus eleves de l'infrastructure
 - Identifier les drivers de cout pour chaque pilier (logs, metriques, traces)
-- Maitriser les strategies de reduction des couts : sampling, filtrage, retention, downsampling
-- Concevoir une architecture d'observabilite cost-effective (open source vs SaaS vs hybride)
-- Mettre en place une gouvernance FinOps appliquee a l'observabilite
-- Mesurer et justifier le ROI de l'observabilite aupres du management
+- Maîtriser les stratégies de reduction des couts : sampling, filtrage, retention, downsampling
+- Concevoir une architecture d'observabilité cost-effective (open source vs SaaS vs hybride)
+- Mettre en place une gouvernance FinOps appliquee a l'observabilité
+- Mesurer et justifier le ROI de l'observabilité aupres du management
 - Appliquer la regle "bonne couverture, pas couverture maximale"
 
 ---
 
-## Le paradoxe de l'observabilite : plus on observe, plus ca coute
+## Le paradoxe de l'observabilité : plus on observe, plus ça coute
 
-### Le cout cache de l'observabilite
+### Le cout cache de l'observabilité
 
-L'observabilite est souvent presentee comme un investissement indispensable — et elle l'est. Mais personne ne vous previent que la facture peut exploser silencieusement. Chaque requete HTTP, chaque appel de fonction, chaque evenement systeme peut generer des logs, incrementer des metriques et produire des spans de trace. A l'echelle d'un systeme distribue, ces donnees representent un **volume colossal**.
+L'observabilité est souvent presentee comme un investissement indispensable — et elle l'est. Mais personne ne vous previent que la facture peut exploser silencieusement. Chaque requête HTTP, chaque appel de fonction, chaque événement système peut générer des logs, incrementer des metriques et produire des spans de trace. A l'echelle d'un système distribue, ces donnees representent un **volume colossal**.
 
 ```typescript
 interface ObservabilityCostDrivers {
@@ -54,7 +54,7 @@ const costDrivers: ObservabilityCostDrivers[] = [
 ];
 ```
 
-### Ordres de grandeur : combien coute l'observabilite ?
+### Ordres de grandeur : combien coute l'observabilité ?
 
 Les prix varient selon les fournisseurs, mais voici des ordres de grandeur representatifs (tarifs publics, 2024-2025) :
 
@@ -72,12 +72,12 @@ Les prix varient selon les fournisseurs, mais voici des ordres de grandeur repre
 | **Traces** | New Relic | Inclus | Facturation par Go ingere |
 
 ::: warning Les prix changent frequemment
-Ces chiffres sont des ordres de grandeur pour donner une intuition. Consultez toujours les tarifs officiels a jour. Les remises volume, les engagements annuels et les modeles de facturation varient enormement.
+Ces chiffres sont des ordres de grandeur pour donner une intuition. Consultez toujours les tarifs officiels a jour. Les remises volume, les engagements annuels et les modèles de facturation varient enormement.
 :::
 
 ### La regle des 90 %
 
-Une etude recurrente dans l'industrie montre que **90 % des donnees d'observabilite collectees ne sont jamais consultees**. Autrement dit, pour chaque euro depense en observabilite, 90 centimes financent des donnees qui dorment dans un stockage couteux sans jamais etre lues.
+Une étude recurrente dans l'industrie montre que **90 % des donnees d'observabilité collectees ne sont jamais consultees**. Autrement dit, pour chaque euro depense en observabilité, 90 centimes financent des donnees qui dorment dans un stockage couteux sans jamais etre lues.
 
 ```typescript
 interface DataUsageAnalysis {
@@ -129,15 +129,15 @@ console.log(`Cout mensuel gaspille estime : ~${totalWasted.toLocaleString()} $`)
 // Cout mensuel gaspille estime : ~4 890 $
 ```
 
-### Analogie : l'observabilite comme une assurance
+### Analogie : l'observabilité comme une assurance
 
-L'observabilite fonctionne comme une **assurance**. Vous payez un cout recurrent en esperant ne jamais en avoir besoin (un incident grave). Mais :
+L'observabilité fonctionne comme une **assurance**. Vous payez un cout récurrent en esperant ne jamais en avoir besoin (un incident grave). Mais :
 
-- **Trop peu d'assurance** : quand l'incident arrive, vous n'avez pas les donnees pour le diagnostiquer. Le MTTR explose. Le cout de l'incident depasse largement le cout de l'observabilite que vous auriez du avoir.
-- **Trop d'assurance** : vous collectez tout, a la granularite maximale, avec une retention de 2 ans. Votre facture mensuelle pourrait financer un ingenieur supplementaire.
+- **Trop peu d'assurance** : quand l'incident arrive, vous n'avez pas les donnees pour le diagnostiquer. Le MTTR explose. Le cout de l'incident dépasse largement le cout de l'observabilité que vous auriez du avoir.
+- **Trop d'assurance** : vous collectez tout, à la granularite maximale, avec une retention de 2 ans. Votre facture mensuelle pourrait financer un ingenieur supplementaire.
 - **La bonne assurance** : vous collectez les donnees critiques en detail, vous echantillonnez le reste, et vous ajustez la couverture en fonction des risques.
 
-Le FinOps applique a l'observabilite, c'est exactement cette demarche : **trouver le bon niveau de couverture pour chaque type de donnee**.
+Le FinOps applique a l'observabilité, c'est exactement cette demarche : **trouver le bon niveau de couverture pour chaque type de donnee**.
 
 ---
 
@@ -196,7 +196,7 @@ calculateLogCost({
 ```
 
 ::: danger DEBUG en production = catastrophe financiere
-Passer de INFO a DEBUG multiplie le volume de logs par **10 a 20 fois**. Un developpeur qui oublie de retirer un `logger.debug()` en boucle peut a lui seul generer des milliers d'euros de cout supplementaire par mois. C'est l'equivalent d'ouvrir un robinet d'eau dans une piece et d'oublier de le fermer.
+Passer de INFO a DEBUG multiplie le volume de logs par **10 a 20 fois**. Un développeur qui oublie de retirer un `logger.debug()` en boucle peut a lui seul générer des milliers d'euros de cout supplementaire par mois. C'est l'équivalent d'ouvrir un robinet d'eau dans une piece et d'oublier de le fermer.
 :::
 
 La decomposition du cout des logs se fait en trois phases :
@@ -204,12 +204,12 @@ La decomposition du cout des logs se fait en trois phases :
 | Phase | Description | Cout relatif |
 |-------|-------------|-------------|
 | **Ingestion** | Reception, parsing, enrichissement | Eleve (facturation au volume) |
-| **Stockage** | Ecriture sur disque, indexation | Moyen (indexation couteuse) |
-| **Requete** | Recherche full-text, agregation | Variable (selon la frequence) |
+| **Stockage** | Écriture sur disque, indexation | Moyen (indexation couteuse) |
+| **Requête** | Recherche full-text, agregation | Variable (selon la frequence) |
 
 ### Metriques
 
-La **cardinalite** est le principal driver de cout pour les metriques. Chaque combinaison unique de labels cree une **serie temporelle** (time series) distincte. Le cout est proportionnel au nombre de series actives, pas au nombre de metriques definies.
+La **cardinalite** est le principal driver de cout pour les metriques. Chaque combinaison unique de labels créé une **serie temporelle** (time series) distincte. Le cout est proportionnel au nombre de series actives, pas au nombre de metriques definies.
 
 ```typescript
 interface MetricCardinalityCalculation {
@@ -339,15 +339,15 @@ calculateTraceCost({
 // Cout : 755 $/mois
 ```
 
-Une seule requete HTTP dans un systeme distribue peut generer entre 20 et 100 spans. Quand chaque span porte des attributs riches (headers HTTP, parametres de requete, resultats de base de donnees), la taille par span peut facilement atteindre 1 a 5 Ko.
+Une seule requête HTTP dans un système distribue peut générer entre 20 et 100 spans. Quand chaque span porte des attributs riches (headers HTTP, paramètres de requête, résultats de base de donnees), la taille par span peut facilement atteindre 1 a 5 Ko.
 
 ---
 
-## Strategies de reduction des couts — Logs
+## Stratégies de reduction des couts — Logs
 
 ### Niveaux de log dynamiques
 
-Pouvoir changer le niveau de log **sans redeployer** est l'une des strategies les plus efficaces. En fonctionnement normal, on reste en INFO. Lors d'un incident, on passe temporairement en DEBUG pour le service concerne, puis on revient en INFO.
+Pouvoir changer le niveau de log **sans redeployer** est l'une des stratégies les plus efficaces. En fonctionnement normal, on reste en INFO. Lors d'un incident, on passe temporairement en DEBUG pour le service concerne, puis on revient en INFO.
 
 ```typescript
 import { createServer, IncomingMessage, ServerResponse } from 'http';
@@ -440,7 +440,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 
 ### Log sampling
 
-Pour les evenements a haute frequence, on peut n'enregistrer qu'un echantillon :
+Pour les événements a haute frequence, on peut n'enregistrer qu'un echantillon :
 
 ```typescript
 class SampledLogger {
@@ -502,9 +502,9 @@ function requestHandler(req: { method: string; url: string; statusCode: number }
 }
 ```
 
-### Filtrage a la source avec OTel Collector
+### Filtrage à la source avec OTel Collector
 
-Le filtre le plus efficace est celui qui agit **avant** l'ingestion dans le backend payant. L'OpenTelemetry Collector permet de filtrer les logs a la source :
+Le filtre le plus efficace est celui qui agit **avant** l'ingestion dans le backend payant. L'OpenTelemetry Collector permet de filtrer les logs à la source :
 
 ```yaml
 # otel-collector-config.yaml — filtrage des logs
@@ -550,14 +550,14 @@ service:
 
 ### Politique de retention tiered
 
-Toutes les donnees n'ont pas la meme valeur dans le temps. Une politique de retention a plusieurs niveaux optimise les couts :
+Toutes les donnees n'ont pas la même valeur dans le temps. Une politique de retention a plusieurs niveaux optimise les couts :
 
 | Tier | Duree | Stockage | Acces | Cout relatif |
 |------|-------|----------|-------|-------------|
-| **Hot** | 0-7 jours | SSD, indexe | Temps reel, requetes ad hoc | Eleve |
+| **Hot** | 0-7 jours | SSD, indexe | Temps réel, requêtes ad hoc | Eleve |
 | **Warm** | 7-30 jours | HDD, indexe | Requetes lentes autorisees | Moyen |
 | **Cold** | 30-90 jours | Object storage (S3) | Requetes batch uniquement | Faible |
-| **Archive** | 90 jours - 1 an | Glacier / Archive | Restauration en heures | Tres faible |
+| **Archive** | 90 jours - 1 an | Glacier / Archive | Restauration en heures | Très faible |
 | **Delete** | > 1 an | Supprime | N/A | Zero |
 
 ```typescript
@@ -604,11 +604,11 @@ calculateRetentionCost(100, retentionPolicies);
 
 ---
 
-## Strategies de reduction des couts — Metriques
+## Stratégies de reduction des couts — Metriques
 
 ### Identifier les metriques inutilisees
 
-La premiere etape est de faire l'inventaire : quelles metriques existent, lesquelles sont reellement utilisees dans des dashboards ou des alertes ?
+La première étape est de faire l'inventaire : quelles metriques existent, lesquelles sont réellement utilisees dans des dashboards ou des alertes ?
 
 ```typescript
 interface MetricUsageReport {
@@ -725,12 +725,12 @@ Les metriques recentes doivent etre granulaires (echantillonnage toutes les 15 s
 
 | Age des donnees | Resolution | Raison |
 |-----------------|-----------|--------|
-| 0-2 heures | 15s | Debug en temps reel |
+| 0-2 heures | 15s | Debug en temps réel |
 | 2h-24h | 1 min | Analyse intrajournaliere |
 | 1-7 jours | 5 min | Tendances hebdomadaires |
 | 7-30 jours | 15 min | Tendances mensuelles |
 | 30-90 jours | 1 heure | Analyse historique |
-| 90+ jours | 1 jour | Capacite planning long terme |
+| 90+ jours | 1 jour | Capacité planning long terme |
 
 ```typescript
 interface DownsamplingRule {
@@ -769,7 +769,7 @@ calculateStorageSavings(downsamplingRules);
 
 ### Recording rules pour pre-calculer les agregations
 
-Plutot que de stocker les metriques brutes a haute cardinalite et de les agreger a chaque requete, les recording rules pre-calculent les agregations :
+Plutot que de stocker les metriques brutes a haute cardinalite et de les agreger à chaque requête, les recording rules pre-calculent les agregations :
 
 ```yaml
 # prometheus-recording-rules.yaml
@@ -796,15 +796,15 @@ groups:
           sum(rate(http_requests_total[5m])) by (job)
 ```
 
-L'avantage est double : les requetes de dashboard sont plus rapides (elles lisent des series pre-calculees) et on peut eventuellement supprimer les metriques brutes apres un delai court.
+L'avantage est double : les requêtes de dashboard sont plus rapides (elles lisent des series pre-calculees) et on peut eventuellement supprimer les metriques brutes après un delai court.
 
 ---
 
-## Strategies de reduction des couts — Traces
+## Stratégies de reduction des couts — Traces
 
 ### Head-based sampling vs Tail-based sampling
 
-Le **sampling** est la strategie la plus impactante pour reduire le cout des traces. Il existe deux approches fondamentalement differentes :
+Le **sampling** est la stratégie la plus impactante pour reduire le cout des traces. Il existe deux approches fondamentalement différentes :
 
 ```typescript
 interface SamplingComparison {
@@ -849,9 +849,9 @@ const samplingStrategies: SamplingComparison[] = [
 ];
 ```
 
-### Strategies de sampling intelligentes
+### Stratégies de sampling intelligentes
 
-La strategie optimale combine plusieurs criteres pour garder les traces les plus precieuses :
+La stratégie optimale combine plusieurs criteres pour garder les traces les plus precieuses :
 
 ```typescript
 interface SamplingPolicy {
@@ -1059,7 +1059,7 @@ evaluateSamplingROI([
 
 ---
 
-## Architecture d'observabilite cost-effective
+## Architecture d'observabilité cost-effective
 
 ### Open source vs SaaS : comparaison honnete
 
@@ -1129,7 +1129,7 @@ const architectures: ArchitectureComparison[] = [
 | **Hybride** | 2 000 $ | 400 $ | 1 500 $ | **3 900 $** | 2 sem. | 10h/mois |
 
 ::: tip Le cout cache du self-hosted
-L'open source est "gratuit" en termes de licence, mais le cout operationnel est souvent sous-estime. Maintenir un cluster Prometheus en haute disponibilite, gerer les upgrades de Loki, debugger les pannes du Tempo backend — tout cela consomme du temps d'ingenieur. A 150 $/h charge, 20 heures de maintenance par mois representent 3 000 $/mois. C'est parfois plus cher que le SaaS.
+L'open source est "gratuit" en termes de licence, mais le cout operationnel est souvent sous-estime. Maintenir un cluster Prometheus en haute disponibilité, gérer les upgrades de Loki, debugger les pannes du Tempo backend — tout cela consomme du temps d'ingenieur. A 150 $/h charge, 20 heures de maintenance par mois representent 3 000 $/mois. C'est parfois plus cher que le SaaS.
 :::
 
 ### Architecture hybride recommandee
@@ -1172,9 +1172,9 @@ const hybridArch: HybridArchitecture[] = [
 ];
 ```
 
-### Le modele "phased rollout"
+### Le modèle "phased rollout"
 
-Ne deployer qu'au rythme du besoin reel permet d'eviter le surinvestissement :
+Ne déployer qu'au rythme du besoin réel permet d'éviter le surinvestissement :
 
 | Phase | Ce qu'on deploie | Quand | Cout mensuel estime |
 |-------|-----------------|-------|-------------------|
@@ -1182,15 +1182,15 @@ Ne deployer qu'au rythme du besoin reel permet d'eviter le surinvestissement :
 | **Phase 2** | Logs structures (INFO uniquement) + correlation traceId | Mois 1-2 | +300-800 $ |
 | **Phase 3** | Tracing distribue (sampling 5%) sur les services critiques | Mois 3-4 | +500-1 500 $ |
 | **Phase 4** | Tracing complet avec tail-based sampling | Mois 6+ | +500-1 000 $ |
-| **Phase 5** | Profiling continu, eBPF, observabilite avancee | Quand necessaire | +500-2 000 $ |
+| **Phase 5** | Profiling continu, eBPF, observabilité avancee | Quand nécessaire | +500-2 000 $ |
 
 ---
 
 ## Gouvernance et politiques
 
-### Budget d'observabilite par equipe
+### Budget d'observabilité par équipe
 
-Attribuer un budget d'observabilite par equipe ou par service responsabilise les developpeurs :
+Attribuer un budget d'observabilité par équipe ou par service responsabilise les développeurs :
 
 ```typescript
 interface ObservabilityBudget {
@@ -1256,9 +1256,9 @@ function generateBudgetReport(budgets: ObservabilityBudget[]): void {
 generateBudgetReport(budgets);
 ```
 
-### Alertes sur les couts d'observabilite (meta-observabilite)
+### Alertes sur les couts d'observabilité (meta-observabilité)
 
-Il est essentiel de **monitorer les couts du monitoring lui-meme** :
+Il est essentiel de **monitorer les couts du monitoring lui-même** :
 
 ```yaml
 # prometheus-cost-alerts.yaml
@@ -1305,7 +1305,7 @@ groups:
           description: "Cout estime : {{ $value | printf \"%.0f\" }} $. Budget : {{ $labels.budget }} $."
 ```
 
-### Template de politique d'observabilite
+### Template de politique d'observabilité
 
 ```typescript
 interface ObservabilityPolicy {
@@ -1377,17 +1377,17 @@ Planifiez une revue trimestrielle qui couvre :
 
 1. **Dashboards** : lesquels sont utilises ? Lesquels n'ont pas ete ouverts depuis 90 jours ?
 2. **Alertes** : lesquelles ont fire ? Lesquelles sont du bruit (toujours en firing ou jamais) ?
-3. **Metriques** : quelles sont les top 10 metriques par cardinalite ? Sont-elles toutes necessaires ?
+3. **Metriques** : quelles sont les top 10 metriques par cardinalite ? Sont-elles toutes nécessaires ?
 4. **Logs** : quel est le top 10 des sources de volume ? Y a-t-il des logs DEBUG ou TRACE en production ?
 5. **Budget** : sommes-nous dans les limites ? Ou sont les depassements ?
 
 ---
 
-## Mesurer le ROI de l'observabilite
+## Mesurer le ROI de l'observabilité
 
 ### Les metriques du ROI
 
-Pour convaincre le management que l'observabilite vaut son cout, il faut la quantifier :
+Pour convaincre le management que l'observabilité vaut son cout, il faut la quantifier :
 
 ```typescript
 interface ObservabilityROI {
@@ -1500,7 +1500,7 @@ calculateROI(costs, gains);
 ```
 
 ::: tip Presenter le ROI au management
-Les chiffres de ROI sont impressionnants, mais le management aura confiance si vous pouvez montrer des **donnees reelles** : le MTTR avant et apres l'implementation de l'observabilite, le nombre d'incidents detectes proactivement, le temps moyen de debug. Collectez ces donnees des le premier jour.
+Les chiffres de ROI sont impressionnants, mais le management aura confiance si vous pouvez montrer des **donnees reelles** : le MTTR avant et après l'implementation de l'observabilité, le nombre d'incidents detectes proactivement, le temps moyen de debug. Collectez ces donnees des le premier jour.
 :::
 
 ---
@@ -1511,20 +1511,20 @@ Les chiffres de ROI sont impressionnants, mais le management aura confiance si v
 
 Pour les environnements Kubernetes, des outils dedies permettent de mesurer et d'optimiser les couts :
 
-- **OpenCost** (CNCF) : projet open source qui attribue les couts Kubernetes (CPU, memoire, stockage, reseau) a chaque pod, namespace et deployment. Il peut s'integrer avec Prometheus pour exposer des metriques de cout.
-- **Kubecost** : version commerciale plus riche, avec des recommandations d'optimisation, des alertes budgetaires et des rapports de chargeback par equipe.
+- **OpenCost** (CNCF) : projet open source qui attribue les couts Kubernetes (CPU, mémoire, stockage, réseau) à chaque pod, namespace et deployment. Il peut s'intégrer avec Prometheus pour exposer des metriques de cout.
+- **Kubecost** : version commerciale plus riche, avec des recommandations d'optimisation, des alertes budgetaires et des rapports de chargeback par équipe.
 
 ### FinOps Foundation
 
-La [FinOps Foundation](https://www.finops.org/) (membre de la Linux Foundation) definit un cadre de pratiques pour gerer les couts cloud. Ses principes s'appliquent directement a l'observabilite :
+La [FinOps Foundation](https://www.finops.org/) (membre de la Linux Foundation) définit un cadre de pratiques pour gérer les couts cloud. Ses principes s'appliquent directement a l'observabilité :
 
-1. **Equipes et collaboration** : les equipes doivent etre responsables de leurs couts d'observabilite
-2. **Decisions basees sur la valeur business** : chaque investissement en observabilite doit etre justifie par un gain mesurable
-3. **Modele de responsabilite centralisee** : une equipe FinOps/Platform definit les politiques, les equipes produit les appliquent
-4. **Rapports accessibles et en temps reel** : les couts d'observabilite doivent etre visibles par tous
+1. **Equipes et collaboration** : les équipes doivent etre responsables de leurs couts d'observabilité
+2. **Decisions basees sur la valeur business** : chaque investissement en observabilité doit etre justifie par un gain mesurable
+3. **Modèle de responsabilite centralisee** : une équipe FinOps/Platform définit les politiques, les équipes produit les appliquent
+4. **Rapports accessibles et en temps réel** : les couts d'observabilité doivent etre visibles par tous
 5. **Optimisation continue** : les couts ne sont jamais "regles" — ils doivent etre revus regulierement
 
-### Observabilite "on-demand"
+### Observabilité "on-demand"
 
 Une approche avancee consiste a operer avec une granularite reduite en temps normal, et a **augmenter temporairement** la granularite en cas d'incident :
 
@@ -1558,52 +1558,62 @@ const onDemandPolicies: OnDemandObservability[] = [
 ];
 ```
 
-### References
+### Références
 
 - **"Controlling Observability Costs"** — talk de Charity Majors (Honeycomb), KubeCon 2023
 - **FinOps Foundation** — [finops.org](https://www.finops.org/)
 - **OpenCost** — [opencost.io](https://www.opencost.io/)
 - **"Observability Engineering"** — Charity Majors, Liz Fong-Jones, George Miranda (O'Reilly) — Chapitre 14 sur les couts
-- **Google SRE Workbook**, Chapitre 4 : "Service Level Objectives" — comprendre le rapport entre investissement et fiabilite
+- **Google SRE Workbook**, Chapitre 4 : "Service Level Objectives" — comprendre le rapport entre investissement et fiabilité
 - **"The Hidden Costs of Observability"** — blog post Honeycomb
 - **Datadog Pricing Calculator** — [datadoghq.com/pricing](https://www.datadoghq.com/pricing/)
 - **Grafana Cloud Pricing** — [grafana.com/pricing](https://grafana.com/pricing/)
 
 ---
 
-## Resume
+## Résumé
 
-### Checklist FinOps Observabilite
+### Checklist FinOps Observabilité
 
-- [ ] **Inventaire** : lister tous les couts d'observabilite (ingestion, stockage, requetes, licences, ops)
-- [ ] **Audit des logs** : verifier les niveaux de log en production (pas de DEBUG !), filtrer les health checks
+- [ ] **Inventaire** : lister tous les couts d'observabilité (ingestion, stockage, requêtes, licences, ops)
+- [ ] **Audit des logs** : vérifier les niveaux de log en production (pas de DEBUG !), filtrer les health checks
 - [ ] **Audit de cardinalite** : identifier les metriques a haute cardinalite, eliminer les labels inutiles
-- [ ] **Sampling des traces** : implementer un tail-based sampling qui garde les erreurs et les requetes lentes
+- [ ] **Sampling des traces** : implementer un tail-based sampling qui garde les erreurs et les requêtes lentes
 - [ ] **Retention tiered** : configurer hot/warm/cold/archive pour chaque type de donnee
-- [ ] **Budget par equipe** : attribuer un quota et alerter sur les depassements
+- [ ] **Budget par équipe** : attribuer un quota et alerter sur les depassements
 - [ ] **Recording rules** : pre-calculer les agregations pour reduire la cardinalite a long terme
-- [ ] **Downsampling** : reduire la resolution des metriques anciennes
+- [ ] **Downsampling** : reduire la résolution des metriques anciennes
 - [ ] **Review trimestrielle** : supprimer les dashboards, alertes et metriques inutilises
-- [ ] **Mesurer le ROI** : collecter les metriques avant/apres pour justifier l'investissement
-- [ ] **Politique ecrite** : documenter et faire appliquer la politique d'observabilite de l'organisation
-- [ ] **Meta-observabilite** : monitorer les couts du monitoring lui-meme
+- [ ] **Mesurer le ROI** : collecter les metriques avant/après pour justifier l'investissement
+- [ ] **Politique ecrite** : documenter et faire appliquer la politique d'observabilité de l'organisation
+- [ ] **Meta-observabilité** : monitorer les couts du monitoring lui-même
 
 ---
 
 ::: tip A retenir
-- L'observabilite peut devenir un poste de depense majeur si elle n'est pas geree activement
+- L'observabilité peut devenir un poste de depense majeur si elle n'est pas gérée activement
 - **90% des donnees collectees ne sont jamais consultees** — concentrez-vous sur les donnees a forte valeur
-- Les trois leviers principaux : **filtrage a la source**, **sampling intelligent**, **retention tiered**
+- Les trois leviers principaux : **filtrage à la source**, **sampling intelligent**, **retention tiered**
 - Le **tail-based sampling** est le meilleur compromis cout/visibilite pour les traces
 - La **cardinalite** est le piege principal des metriques — chaque label est un multiplicateur de cout
-- Le **ROI** de l'observabilite est generalement tres eleve (4x a 10x), mais il faut le mesurer
+- Le **ROI** de l'observabilité est généralement très eleve (4x a 10x), mais il faut le mesurer
 - La **gouvernance** (budgets, quotas, reviews) est aussi importante que la technique
-- Privilegiez une approche **phased rollout** : commencez simple, ajoutez au fur et a mesure des besoins reels
+- Privilegiez une approche **phased rollout** : commencez simple, ajoutez au fur et à mesure des besoins réels
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
-- [Lab 22 — Audit FinOps et optimisation des couts d'observabilite](/labs/lab-22-finops-observability/README)
-- [Quiz 21 — FinOps et Cout de l'Observabilite](/quizzes/quiz-21-finops-observability)
+- [Lab 22 — Audit FinOps et optimisation des couts d'observabilité](/labs/lab-22-finops-observability/README)
+- [Quiz 21 — FinOps et Cout de l'Observabilité](/quizzes/quiz-21-finops-observability)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 21 finops observability](../screencasts/screencast-21-finops-observability.md)
+2. **Lab** : [lab-22-finops-observability](../labs/lab-22-finops-observability/README)
+3. **Quiz** : [quiz 21 finops observability](../quizzes/quiz-21-finops-observability.html)
+:::

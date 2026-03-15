@@ -4,27 +4,27 @@
 - **Duree estimee** : 18-22 min
 - **Module** : `modules/07-distributed-tracing.md`
 - **Lab associe** : Lab 07
-- **Prerequis** : Screencast 06
+- **Prérequis** : Screencast 06
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Desktop lance et fonctionnel
 - [ ] Fichier `docker-compose.tracing.yml` ouvert
-- [ ] Fichier `demo-app/src/lib/tracing.ts` pret a etre cree
+- [ ] Fichier `demo-app/src/lib/tracing.ts` pret a etre créé
 - [ ] Navigateur ouvert avec onglets pour `localhost:3000` et `localhost:16686` (Jaeger)
 
 ## Script
 
 ### [00:00-02:00] Introduction
 
-> Nous avons couvert les logs et les metriques — les deux premiers piliers de l'observabilite. Aujourd'hui, nous attaquons le troisieme pilier : les traces distribuees. Quand une requete traverse plusieurs services, les logs vous montrent des evenements isoles, les metriques vous montrent des agregats. Seule une trace vous montre le parcours complet de cette requete precise.
+> Nous avons couvert les logs et les metriques — les deux premiers piliers de l'observabilité. Aujourd'hui, nous attaquons le troisieme pilier : les traces distribuees. Quand une requête traverse plusieurs services, les logs vous montrent des événements isoles, les metriques vous montrent des agregats. Seule une trace vous montre le parcours complet de cette requête précisé.
 
-> L'analogie est celle d'un colis FedEx. A chaque etape, le colis est scanne : entrepot, centre de tri, vol, camion de livraison, porte du client. Chaque scan est un span. L'ensemble des scans forme la trace du colis. Si le colis a mis 5 jours au lieu de 2, vous pouvez voir exactement ou il a ete bloque.
+> L'analogie est celle d'un colis FedEx. A chaque étape, le colis est scanne : entrepot, centre de tri, vol, camion de livraison, porte du client. Chaque scan est un span. L'ensemble des scans forme la trace du colis. Si le colis a mis 5 jours au lieu de 2, vous pouvez voir exactement ou il a ete bloque.
 
 ### [02:00-05:00] Concepts fondamentaux — Trace, Span, SpanContext
 
-**Action** : Ecrire les definitions dans un fichier scratch.
+**Action** : Écrire les définitions dans un fichier scratch.
 
 ```typescript
 // Une TRACE represente le parcours complet d'une requete
@@ -50,11 +50,11 @@ interface Span {
 //     [Child]  processPayment        (traceId: abc123, spanId: 005, parentSpanId: 004)
 ```
 
-> Le traceId est le fil conducteur — il est identique pour tous les spans de la meme requete. Le parentSpanId cree la hierarchie parent-enfant. C'est grace a ces liens que Jaeger peut afficher la vue en cascade (waterfall).
+> Le traceId est le fil conducteur — il est identique pour tous les spans de la même requête. Le parentSpanId créé la hiérarchie parent-enfant. C'est grâce à ces liens que Jaeger peut afficher la vue en cascade (waterfall).
 
 ### [05:00-09:00] Installer et configurer l'OpenTelemetry SDK
 
-**Action** : Installer les dependances OpenTelemetry.
+**Action** : Installer les dépendances OpenTelemetry.
 
 ```bash
 npm install @opentelemetry/sdk-node \
@@ -65,7 +65,7 @@ npm install @opentelemetry/sdk-node \
   @opentelemetry/semantic-conventions
 ```
 
-**Action** : Creer le fichier `demo-app/src/lib/tracing.ts`.
+**Action** : Créer le fichier `demo-app/src/lib/tracing.ts`.
 
 ```typescript
 // demo-app/src/lib/tracing.ts
@@ -102,7 +102,7 @@ process.on('SIGTERM', () => {
 export { sdk };
 ```
 
-> Trois points cles ici. Premierement, l'auto-instrumentation detecte automatiquement les librairies utilisees — Express, HTTP, etc. — et cree des spans sans modifier votre code applicatif. Deuxiemement, le Resource identifie votre service dans les traces. Troisiemement, l'exporter OTLP envoie les traces au Collector ou directement a Jaeger.
+> Trois points clés ici. Premierement, l'auto-instrumentation détecté automatiquement les librairies utilisees — Express, HTTP, etc. — et créé des spans sans modifier votre code applicatif. Deuxiemement, le Resource identifie votre service dans les traces. Troisiemement, l'exporter OTLP envoie les traces au Collector ou directement a Jaeger.
 
 > Ce fichier doit etre importe en tout premier, avant Express et toutes les autres librairies. C'est essentiel pour que le monkey-patching de l'auto-instrumentation fonctionne.
 
@@ -158,7 +158,7 @@ router.post('/', async (req, res) => {
 });
 ```
 
-> Les spans manuels ajoutent de la visibilite sur votre logique metier. L'auto-instrumentation capture les appels HTTP et les requetes DB, mais elle ne sait pas ce que fait votre code entre les deux. Le span `validateOrder` et le span `saveOrder` rendent visible le detail de l'operation.
+> Les spans manuels ajoutent de la visibilite sur votre logique metier. L'auto-instrumentation capture les appels HTTP et les requêtes DB, mais elle ne sait pas ce que fait votre code entre les deux. Le span `validateOrder` et le span `saveOrder` rendent visible le detail de l'operation.
 
 ### [12:00-15:00] Lancer Jaeger et visualiser les traces
 
@@ -168,13 +168,13 @@ router.post('/', async (req, res) => {
 docker compose -f docker-compose.tracing.yml up -d
 ```
 
-**Action** : Verifier que Jaeger est accessible.
+**Action** : Vérifier que Jaeger est accessible.
 
 ```bash
 docker compose -f docker-compose.tracing.yml ps
 ```
 
-**Action** : Envoyer des requetes a la demo-app.
+**Action** : Envoyer des requêtes à la demo-app.
 
 ```bash
 # Quelques requetes pour generer des traces
@@ -200,13 +200,13 @@ curl http://localhost:3000/api/orders/invalid-id
 
 **Action** : Explorer la vue waterfall dans Jaeger.
 
-> Voici la vue en cascade. Le root span est en haut — c'est la requete HTTP entrante. En dessous, vous voyez les spans enfants : le middleware Express, notre span `createOrder`, puis `validateOrder` et `saveOrder`. Les barres horizontales montrent la duree de chaque span — vous voyez immediatement ou le temps est passe.
+> Voici la vue en cascade. Le root span est en haut — c'est la requête HTTP entrante. En dessous, vous voyez les spans enfants : le middleware Express, notre span `createOrder`, puis `validateOrder` et `saveOrder`. Les barres horizontales montrent la duree de chaque span — vous voyez immediatement ou le temps est passe.
 
 **Action** : Cliquer sur un span pour voir ses details.
 
-> En cliquant sur un span, on voit ses attributs : `order.item`, `order.quantity`, `order.id`. Ces attributs sont ceux que nous avons ajoutes avec `setAttribute`. Ils donnent du contexte metier a la trace.
+> En cliquant sur un span, on voit ses attributs : `order.item`, `order.quantity`, `order.id`. Ces attributs sont ceux que nous avons ajoutes avec `setAttribute`. Ils donnent du contexte metier à la trace.
 
-**Action** : Montrer la propagation de contexte en envoyant des requetes entre services.
+**Action** : Montrer la propagation de contexte en envoyant des requêtes entre services.
 
 ```bash
 # Envoyer une requete qui traverse plusieurs services
@@ -214,7 +214,7 @@ curl http://localhost:3000/api/orders/invalid-id
 curl -v http://localhost:3000/api/orders 2>&1 | grep traceparent
 ```
 
-> Le header `traceparent` contient le traceId et le spanId du parent. Quand votre service appelle un autre service via HTTP, le SDK injecte automatiquement ce header. Le service aval le lit, cree un span enfant avec le meme traceId, et la trace est complete de bout en bout. C'est la propagation de contexte W3C Trace Context — le standard utilise par OpenTelemetry.
+> Le header `traceparent` contient le traceId et le spanId du parent. Quand votre service appelle un autre service via HTTP, le SDK injecte automatiquement ce header. Le service aval le lit, créé un span enfant avec le même traceId, et la trace est complete de bout en bout. C'est la propagation de contexte W3C Trace Context — le standard utilise par OpenTelemetry.
 
 ### [18:00-20:00] Comparer une trace normale et une trace en erreur
 
@@ -224,9 +224,9 @@ curl -v http://localhost:3000/api/orders 2>&1 | grep traceparent
 
 > Comparez cela avec les logs : vous devriez chercher dans des centaines de lignes, correler les requestId manuellement. Avec la trace, tout est visible d'un coup.
 
-### [20:00-21:30] Recapitulatif
+### [20:00-21:30] Récapitulatif
 
-> Recapitulons. Une trace represente le parcours complet d'une requete a travers votre systeme. Elle est composee de spans — des unites de travail avec un debut, une duree et des attributs. L'auto-instrumentation capture les appels HTTP et DB automatiquement. Les spans manuels ajoutent de la visibilite sur votre logique metier.
+> Recapitulons. Une trace represente le parcours complet d'une requête a travers votre système. Elle est composee de spans — des unites de travail avec un debut, une duree et des attributs. L'auto-instrumentation capture les appels HTTP et DB automatiquement. Les spans manuels ajoutent de la visibilite sur votre logique metier.
 
 > Jaeger affiche les traces en vue cascade — vous voyez immediatement ou le temps est passe et ou les erreurs se produisent. La propagation de contexte W3C Trace Context lie les spans entre les services.
 
@@ -238,5 +238,5 @@ curl -v http://localhost:3000/api/orders 2>&1 | grep traceparent
 - Prendre le temps d'expliquer la relation parent-enfant entre spans avec le diagramme
 - Comparer visuellement une trace OK et une trace en erreur dans Jaeger
 - S'assurer que Docker Compose est lance avec Jaeger accessible sur le port 16686
-- Envoyer suffisamment de requetes pour avoir des traces variees a montrer
+- Envoyer suffisamment de requêtes pour avoir des traces variees a montrer
 - Expliquer le header traceparent et la propagation W3C — c'est un concept fondamental

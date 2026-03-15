@@ -1,10 +1,10 @@
-# Glossaire Observabilite & SRE
+# Glossaire Observabilité & SRE
 
 ## A
 
 ### Alerting Rule
 
-Regle definie dans Prometheus (ou un autre systeme) qui declenche une alerte lorsqu'une condition est remplie pendant une duree donnee. Les regles sont ecrites en PromQL et declenchent des notifications via Alertmanager.
+Regle definie dans Prometheus (où un autre système) qui declenche une alerte lorsqu'une condition est remplie pendant une duree donnee. Les regles sont ecrites en PromQL et declenchent des notifications via Alertmanager.
 
 ```yaml
 alert: HighErrorRate
@@ -14,11 +14,11 @@ for: 5m
 
 ### APM (Application Performance Monitoring)
 
-Categorie d'outils qui mesurent et suivent les performances d'une application en production : temps de reponse, debit, erreurs, traces. Exemples : Datadog APM, New Relic, Elastic APM.
+Categorie d'outils qui mesurent et suivent les performances d'une application en production : temps de réponse, debit, erreurs, traces. Exemples : Datadog APM, New Relic, Elastic APM.
 
 ### Auto-instrumentation
 
-Capacite d'un SDK (comme OpenTelemetry) a instrumenter automatiquement les bibliotheques et frameworks connus (Express, HTTP, pg, Redis) sans modification du code applicatif. Utilise des hooks et monkey-patching.
+Capacité d'un SDK (comme OpenTelemetry) a instrumenter automatiquement les bibliotheques et frameworks connus (Express, HTTP, pg, Redis) sans modification du code applicatif. Utilise des hooks et monkey-patching.
 
 ```typescript
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
@@ -28,11 +28,11 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 
 ### Baggage
 
-Mecanisme OpenTelemetry permettant de propager des paires cle-valeur arbitraires a travers les frontieres de services, en parallele du contexte de trace. Utile pour transmettre des metadonnees metier (tenantId, region).
+Mécanisme OpenTelemetry permettant de propager des paires clé-valeur arbitraires a travers les frontieres de services, en parallele du contexte de trace. Utile pour transmettre des metadonnees metier (tenantId, region).
 
 ### Blameless Culture
 
-Culture d'equipe ou les postmortems et analyses d'incidents se concentrent sur les causes systemiques plutot que sur la responsabilite individuelle. L'objectif est d'ameliorer les processus, pas de punir les personnes.
+Culture d'équipe ou les postmortems et analyses d'incidents se concentrent sur les causes systemiques plutot que sur la responsabilite individuelle. L'objectif est d'ameliorer les processus, pas de punir les personnes.
 
 ### Blast Radius
 
@@ -40,7 +40,7 @@ Etendue de l'impact potentiel d'une panne ou d'une experience de chaos engineeri
 
 ### Burn Rate
 
-Vitesse a laquelle une equipe consomme son error budget. Un burn rate de 1 signifie que le budget sera epuise exactement a la fin de la fenetre SLO. Un burn rate de 10 signifie qu'il sera epuise 10x plus vite.
+Vitesse a laquelle une équipe consomme son error budget. Un burn rate de 1 signifie que le budget sera epuise exactement à la fin de la fenêtre SLO. Un burn rate de 10 signifie qu'il sera epuise 10x plus vite.
 
 ```
 burn_rate = error_rate_observe / error_budget_rate
@@ -50,15 +50,15 @@ burn_rate = error_rate_observe / error_budget_rate
 
 ### Cardinality
 
-Nombre de combinaisons uniques de labels pour une metrique. Une cardinalite elevee (ex: un label `userId` sur chaque requete) peut causer des problemes de performance et de stockage dans Prometheus.
+Nombre de combinaisons uniques de labels pour une metrique. Une cardinalite elevee (ex: un label `userId` sur chaque requête) peut causer des problèmes de performance et de stockage dans Prometheus.
 
 ### Chaos Engineering
 
-Discipline consistant a injecter deliberement des pannes dans un systeme pour verifier sa resilience et decouvrir des faiblesses. Inspiree des pratiques de Netflix (Chaos Monkey).
+Discipline consistant a injecter deliberement des pannes dans un système pour vérifier sa résilience et découvrir des faiblesses. Inspiree des pratiques de Netflix (Chaos Monkey).
 
 ### Child Logger
 
-Logger derive d'un logger parent qui herite de sa configuration tout en ajoutant des champs de contexte supplementaires. Permet d'enrichir les logs sans repeter les bindings communs.
+Logger dérivé d'un logger parent qui hérité de sa configuration tout en ajoutant des champs de contexte supplementaires. Permet d'enrichir les logs sans repeter les bindings communs.
 
 ```typescript
 const childLogger = logger.child({ requestId: 'abc-123', service: 'orders' });
@@ -66,27 +66,27 @@ const childLogger = logger.child({ requestId: 'abc-123', service: 'orders' });
 
 ### Circuit Breaker
 
-Pattern de resilience qui arrete temporairement les appels vers un service defaillant apres un certain nombre d'echecs. Trois etats : Closed (normal), Open (bloque), Half-Open (test de reprise).
+Pattern de résilience qui arrete temporairement les appels vers un service defaillant après un certain nombre d'echecs. Trois états : Closed (normal), Open (bloque), Half-Open (test de reprise).
 
 ### Collector (OTel)
 
-Composant OpenTelemetry qui recoit, traite et exporte des donnees de telemetrie (traces, metriques, logs). Decouple les applications des backends d'observabilite.
+Composant OpenTelemetry qui recoit, traite et exporte des donnees de telemetrie (traces, metriques, logs). Decouple les applications des backends d'observabilité.
 
 ### Composite SLO
 
-SLO combine a partir de plusieurs SLIs individuels. Par exemple : le service est conforme si ET la disponibilite est >= 99.9% ET la latence p99 est < 500ms.
+SLO combine à partir de plusieurs SLIs individuels. Par exemple : le service est conforme si ET la disponibilité est >= 99.9% ET la latence p99 est < 500ms.
 
 ### Context Propagation
 
-Mecanisme permettant de transmettre le contexte de trace (traceId, spanId) entre les services d'un systeme distribue, generalement via des headers HTTP (W3C traceparent).
+Mécanisme permettant de transmettre le contexte de trace (traceId, spanId) entre les services d'un système distribue, généralement via des headers HTTP (W3C traceparent).
 
 ### Correlation ID
 
-Identifiant unique (souvent un UUID) attache a une requete et propage a travers tous les services qu'elle traverse. Permet de retrouver tous les logs lies a une meme requete.
+Identifiant unique (souvent un UUID) attache à une requête et propage a travers tous les services qu'elle traverse. Permet de retrouver tous les logs lies à une même requête.
 
 ### Counter
 
-Type de metrique Prometheus qui ne peut qu'augmenter (ou etre reinitialise a zero). Utilise pour compter des evenements : requetes, erreurs, octets transferes. Applique `rate()` pour obtenir le debit.
+Type de metrique Prometheus qui ne peut qu'augmenter (où etre reinitialise a zero). Utilise pour compter des événements : requêtes, erreurs, octets transferes. Applique `rate()` pour obtenir le debit.
 
 ```typescript
 const httpRequests = new Counter({
@@ -100,11 +100,11 @@ const httpRequests = new Counter({
 
 ### Dashboard
 
-Tableau de bord visuel aggregant metriques, logs et traces pour fournir une vue d'ensemble de la sante d'un systeme. Grafana est l'outil le plus utilise pour les dashboards d'observabilite.
+Tableau de bord visuel aggregant metriques, logs et traces pour fournir une vue d'ensemble de la sante d'un système. Grafana est l'outil le plus utilise pour les dashboards d'observabilité.
 
 ### Deployment Frequency
 
-Metrique DORA mesurant la frequence a laquelle une equipe deploie du code en production. Les equipes "elite" deploient a la demande, plusieurs fois par jour.
+Metrique DORA mesurant la frequence a laquelle une équipe deploie du code en production. Les équipes "elite" deploient à la demandé, plusieurs fois par jour.
 
 ### DORA Metrics
 
@@ -114,15 +114,15 @@ Ensemble de 4 metriques definies par le programme DORA (DevOps Research and Asse
 
 ### Error Budget
 
-Quantite d'erreurs ou d'indisponibilite autorisee avant de violer un SLO. Pour un SLO de 99.9%, l'error budget est 0.1% du temps ou des requetes sur la fenetre de mesure.
+Quantite d'erreurs ou d'indisponibilite autorisee avant de violer un SLO. Pour un SLO de 99.9%, l'error budget est 0.1% du temps ou des requêtes sur la fenêtre de mesure.
 
 ### Error Budget Policy
 
-Politique d'equipe definissant les actions a prendre lorsque l'error budget est epuise : gel des deployments, focus sur la fiabilite, revue des priorites.
+Politique d'équipe definissant les actions a prendre lorsque l'error budget est epuise : gel des deployments, focus sur la fiabilité, revue des priorites.
 
 ### Event Loop Lag
 
-Delai entre le moment ou un callback est planifie et le moment ou il est effectivement execute dans la boucle d'evenements Node.js. Un indicateur cle de saturation du runtime.
+Delai entre le moment où un callback est planifie et le moment où il est effectivement exécuté dans la boucle d'événements Node.js. Un indicateur clé de saturation du runtime.
 
 ### Exporter (OTel)
 
@@ -132,7 +132,7 @@ Composant du Collector OpenTelemetry responsable d'envoyer les donnees de teleme
 
 ### Failure Mode Analysis (FMEA)
 
-Methode d'analyse systematique des modes de defaillance possibles d'un systeme, evaluant leur probabilite, impact et detectabilite. Aide a prioriser les efforts de resilience.
+Méthode d'analyse systematique des modes de defaillance possibles d'un système, evaluant leur probabilite, impact et detectabilite. Aide a prioriser les efforts de résilience.
 
 ### Five Whys (5 Pourquoi)
 
@@ -142,11 +142,11 @@ Technique d'analyse de cause racine qui consiste a poser "Pourquoi ?" cinq fois 
 
 ### Game Day
 
-Exercice planifie ou une equipe simule une panne en conditions controlees pour tester la resilience du systeme et les procedures d'incident. Forme structuree de chaos engineering.
+Exercice planifie ou une équipe simule une panne en conditions controlees pour tester la résilience du système et les procedures d'incident. Forme structuree de chaos engineering.
 
 ### Gauge
 
-Type de metrique Prometheus qui peut augmenter ou diminuer. Represente une valeur a un instant donne : temperature, connexions actives, utilisation memoire.
+Type de metrique Prometheus qui peut augmenter ou diminuer. Represente une valeur à un instant donne : temperature, connexions actives, utilisation mémoire.
 
 ```typescript
 const activeConnections = new Gauge({
@@ -157,35 +157,35 @@ const activeConnections = new Gauge({
 
 ### Golden Signals
 
-Les 4 signaux cles definis par Google SRE pour monitorer un service : Latency, Traffic, Errors, Saturation. Base des methodes RED et USE.
+Les 4 signaux clés définis par Google SRE pour monitorer un service : Latency, Traffic, Errors, Saturation. Base des méthodes RED et USE.
 
 ### Grafana
 
-Plateforme open source de visualisation et d'analyse. Se connecte a Prometheus, Jaeger et d'autres sources pour creer des dashboards, alertes et explorations.
+Plateforme open source de visualisation et d'analyse. Se connecte a Prometheus, Jaeger et d'autres sources pour créer des dashboards, alertes et explorations.
 
 ## H
 
 ### Head-based Sampling
 
-Strategie d'echantillonnage ou la decision de garder ou rejeter une trace est prise au debut (creation du root span). Simple mais ne peut pas filtrer sur le resultat final de la trace.
+Stratégie d'echantillonnage ou la decision de garder ou rejeter une trace est prise au debut (création du root span). Simple mais ne peut pas filtrer sur le résultat final de la trace.
 
 ### Health Check
 
-Endpoint HTTP qui indique l'etat de sante d'un service. Trois types principaux : liveness (le processus tourne), readiness (pret a recevoir du trafic), startup (initialisation terminee).
+Endpoint HTTP qui indique l'état de sante d'un service. Trois types principaux : liveness (le processus tourne), readiness (pret a recevoir du trafic), startup (initialisation terminee).
 
 ### Histogram
 
-Type de metrique Prometheus qui echantillonne les observations (ex: durees de requetes) et les compte dans des buckets configurables. Permet de calculer des percentiles avec `histogram_quantile()`.
+Type de metrique Prometheus qui echantillonne les observations (ex: durees de requêtes) et les compte dans des buckets configurables. Permet de calculer des percentiles avec `histogram_quantile()`.
 
 ## I
 
 ### Incident
 
-Evenement non planifie qui degrade ou interrompt un service, necessitant une reponse organisee. Classifie par severite (SEV1-SEV4) selon l'impact et l'urgence.
+Événement non planifie qui degrade ou interrompt un service, necessitant une réponse organisee. Classifie par severite (SEV1-SEV4) selon l'impact et l'urgence.
 
 ### Incident Commander (IC)
 
-Role principal lors d'un incident, responsable de la coordination de la reponse, de la prise de decisions et de la delegation des taches aux autres roles.
+Role principal lors d'un incident, responsable de la coordination de la réponse, de la prise de decisions et de la delegation des taches aux autres roles.
 
 ### Ishikawa Diagram (Diagramme en arete de poisson)
 
@@ -195,43 +195,43 @@ Outil d'analyse de causes racines qui organise les causes potentielles en catego
 
 ### Jaeger
 
-Systeme de tracing distribue open source, compatible OpenTelemetry. Permet de visualiser les traces sous forme de waterfall, analyser les latences et les dependances entre services.
+Système de tracing distribue open source, compatible OpenTelemetry. Permet de visualiser les traces sous forme de waterfall, analyser les latences et les dépendances entre services.
 
 ## K
 
 ### k6
 
-Outil de load testing open source (Grafana Labs) qui utilise JavaScript/TypeScript pour definir les scenarios de test. Supporte les tests ramp-up, steady-state, spike et soak.
+Outil de load testing open source (Grafana Labs) qui utilise JavaScript/TypeScript pour définir les scenarios de test. Supporte les tests ramp-up, steady-state, spike et soak.
 
 ## L
 
 ### Label
 
-Paire cle-valeur attachee a une metrique Prometheus pour la dimensionner. Exemples : `method="GET"`, `status="200"`, `route="/api/products"`.
+Paire clé-valeur attachee à une metrique Prometheus pour la dimensionner. Exemples : `method="GET"`, `status="200"`, `route="/api/products"`.
 
 ### Lead Time for Changes
 
-Metrique DORA mesurant le temps entre le commit d'un changement et son deploiement en production. Les equipes elite mesurent ce delai en heures.
+Metrique DORA mesurant le temps entre le commit d'un changement et son déploiement en production. Les équipes elite mesurent ce delai en heures.
 
 ### Liveness Probe
 
-Verification periodique indiquant qu'un processus est vivant et non bloque. Si la probe echoue, le conteneur est redemarre (dans Kubernetes).
+Vérification periodique indiquant qu'un processus est vivant et non bloque. Si la probe echoue, le conteneur est redemarre (dans Kubernetes).
 
 ## M
 
 ### MTTR (Mean Time to Recovery)
 
-Temps moyen entre la detection d'un incident et sa resolution complete. Metrique DORA mesurant la capacite d'une equipe a se remettre d'une panne.
+Temps moyen entre la detection d'un incident et sa résolution complete. Metrique DORA mesurant la capacité d'une équipe a se remettre d'une panne.
 
 ### Multi-window Burn Rate
 
-Strategie d'alerting recommandee par Google SRE Workbook combinant plusieurs fenetres temporelles (1h, 6h) et seuils de burn rate pour reduire les faux positifs et la fatigue d'alerte.
+Stratégie d'alerting recommandee par Google SRE Workbook combinant plusieurs fenetres temporelles (1h, 6h) et seuils de burn rate pour reduire les faux positifs et la fatigue d'alerte.
 
 ## O
 
 ### On-call
 
-Pratique de disponibilite ou un ingenieur est designe pour repondre aux alertes et incidents en dehors des heures de bureau. Implique rotations, compensation et gestion de la fatigue.
+Pratique de disponibilité ou un ingenieur est designe pour repondre aux alertes et incidents en dehors des heures de bureau. Implique rotations, compensation et gestion de la fatigue.
 
 ### OpenTelemetry
 
@@ -245,7 +245,7 @@ Protocole de transport natif d'OpenTelemetry pour envoyer des traces, metriques 
 
 ### PII (Personally Identifiable Information)
 
-Donnees permettant d'identifier une personne : email, numero de carte, adresse. Les logs doivent etre proteges contre les fuites de PII via des redactors.
+Donnees permettant d'identifier une personne : email, numéro de carte, adresse. Les logs doivent etre proteges contre les fuites de PII via des redactors.
 
 ### Pino
 
@@ -253,7 +253,7 @@ Logger Node.js haute performance utilisant la serialisation JSON native de V8. S
 
 ### Postmortem
 
-Document ecrit apres un incident decrivant ce qui s'est passe, l'impact, les causes racines et les actions correctives. Doit etre blameless, factuel et partage largement.
+Document écrit après un incident decrivant ce qui s'est passe, l'impact, les causes racines et les actions correctives. Doit etre blameless, factuel et partage largement.
 
 ### Processor (OTel)
 
@@ -261,7 +261,7 @@ Composant du Collector OpenTelemetry qui transforme les donnees entre reception 
 
 ### Production Readiness Review (PRR)
 
-Processus d'evaluation systematique determinant si un service est pret pour la production. Couvre l'observabilite, le scaling, la securite, la reprise et les dependances.
+Processus d'évaluation systematique determinant si un service est pret pour la production. Couvre l'observabilité, le scaling, la sécurité, la reprise et les dépendances.
 
 ### prom-client
 
@@ -269,21 +269,21 @@ Bibliotheque Node.js officielle pour exposer des metriques au format Prometheus.
 
 ### Prometheus
 
-Systeme de monitoring et d'alerting open source, avec un modele pull-based, un stockage TSDB et le langage de requete PromQL. Standard de facto pour les metriques dans l'ecosysteme cloud-native.
+Système de monitoring et d'alerting open source, avec un modèle pull-based, un stockage TSDB et le langage de requête PromQL. Standard de facto pour les metriques dans l'ecosysteme cloud-native.
 
 ### PromQL
 
-Langage de requete de Prometheus. Permet de selectionner, agreger et transformer les series temporelles. Fonctions cles : `rate()`, `increase()`, `histogram_quantile()`, `predict_linear()`.
+Langage de requête de Prometheus. Permet de selectionner, agreger et transformer les series temporelles. Fonctions clés : `rate()`, `increase()`, `histogram_quantile()`, `predict_linear()`.
 
 ## R
 
 ### Rate
 
-Fonction PromQL calculant le debit par seconde d'un counter sur une fenetre de temps. `rate(http_requests_total[5m])` retourne le nombre moyen de requetes par seconde sur 5 minutes.
+Fonction PromQL calculant le debit par seconde d'un counter sur une fenêtre de temps. `rate(http_requests_total[5m])` retourne le nombre moyen de requêtes par seconde sur 5 minutes.
 
 ### Readiness Probe
 
-Verification indiquant qu'un service est pret a recevoir du trafic. Contrairement a la liveness probe, un echec retire le service du load balancer sans le redemarrer.
+Vérification indiquant qu'un service est pret a recevoir du trafic. Contrairement à la liveness probe, un echec retire le service du load balancer sans le redemarrer.
 
 ### Receiver (OTel)
 
@@ -291,11 +291,11 @@ Composant du Collector OpenTelemetry qui recoit les donnees de telemetrie. Suppo
 
 ### RED Method
 
-Methode d'observabilite pour les services orientes requetes : Rate (debit), Errors (taux d'erreur), Duration (latence). Applicable a tout microservice ou API.
+Méthode d'observabilité pour les services orientes requêtes : Rate (debit), Errors (taux d'erreur), Duration (latence). Applicable a tout microservice ou API.
 
 ### Redactor
 
-Mecanisme de Pino qui masque ou supprime automatiquement des champs sensibles dans les logs avant leur emission. Protege contre les fuites de PII.
+Mécanisme de Pino qui masque ou supprime automatiquement des champs sensibles dans les logs avant leur emission. Protege contre les fuites de PII.
 
 ```typescript
 const logger = pino({ redact: ['req.headers.authorization', '*.password'] });
@@ -303,13 +303,13 @@ const logger = pino({ redact: ['req.headers.authorization', '*.password'] });
 
 ### Runbook
 
-Document operationnel decrivant les etapes a suivre pour diagnostiquer et resoudre un probleme specifique. Lie aux alertes pour guider l'operateur on-call.
+Document operationnel decrivant les étapes à suivre pour diagnostiquer et résoudre un problème spécifique. Lie aux alertes pour guider l'operateur on-call.
 
 ## S
 
 ### Sampling
 
-Technique de reduction du volume de telemetrie en ne conservant qu'une fraction des donnees. Deux approches : head-based (decision au debut) et tail-based (decision a la fin de la trace).
+Technique de reduction du volume de telemetrie en ne conservant qu'une fraction des donnees. Deux approches : head-based (decision au debut) et tail-based (decision à la fin de la trace).
 
 ### SLA (Service Level Agreement)
 
@@ -317,25 +317,25 @@ Contrat formel entre un fournisseur et un client specifiant les niveaux de servi
 
 ### SLI (Service Level Indicator)
 
-Mesure quantitative d'un aspect du service : disponibilite, latence, debit, taux d'erreur. Base sur laquelle les SLOs sont definis.
+Mesure quantitative d'un aspect du service : disponibilité, latence, debit, taux d'erreur. Base sur laquelle les SLOs sont définis.
 
 ### SLO (Service Level Objective)
 
-Objectif interne de fiabilite base sur un SLI. Exemple : "99.9% des requetes aboutissent avec succes sur 30 jours glissants". Moins strict qu'un SLA.
+Objectif interne de fiabilité base sur un SLI. Exemple : "99.9% des requêtes aboutissent avec succes sur 30 jours glissants". Moins strict qu'un SLA.
 
 ### Span
 
-Unite de travail dans une trace distribuee. Contient un nom d'operation, des timestamps debut/fin, des attributs, des evenements et un lien vers le span parent.
+Unite de travail dans une trace distribuee. Contient un nom d'operation, des timestamps debut/fin, des attributs, des événements et un lien vers le span parent.
 
 ### Structured Logging
 
-Pratique de logger des evenements sous forme de donnees structurees (JSON) plutot que du texte libre. Permet le parsing automatique, le filtrage et l'analyse.
+Pratique de logger des événements sous forme de donnees structurees (JSON) plutot que du texte libre. Permet le parsing automatique, le filtrage et l'analyse.
 
 ## T
 
 ### Tail-based Sampling
 
-Strategie d'echantillonnage ou la decision de garder une trace est prise apres que tous les spans sont collectes. Permet de garder preferentiellement les traces avec erreurs ou latence elevee.
+Stratégie d'echantillonnage ou la decision de garder une trace est prise après que tous les spans sont collectes. Permet de garder preferentiellement les traces avec erreurs ou latence elevee.
 
 ### Toil
 
@@ -343,7 +343,7 @@ Travail manuel, repetitif, automatisable, tactique et sans valeur durable. Le SR
 
 ### Trace
 
-Ensemble de spans lies representant le parcours complet d'une requete a travers un systeme distribue. Identifie par un traceId unique.
+Ensemble de spans lies representant le parcours complet d'une requête a travers un système distribue. Identifie par un traceId unique.
 
 ### Trace Context (W3C)
 
@@ -355,16 +355,16 @@ traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 
 ### TSDB (Time Series Database)
 
-Base de donnees optimisee pour le stockage et la requete de series temporelles. Prometheus utilise une TSDB integree avec compression et retention configurables.
+Base de donnees optimisee pour le stockage et la requête de series temporelles. Prometheus utilise une TSDB intégrée avec compression et retention configurables.
 
 ## U
 
 ### USE Method
 
-Methode d'observabilite pour les ressources systeme : Utilization (taux d'utilisation), Saturation (file d'attente), Errors (erreurs materielles/logicielles). Applicable a CPU, memoire, disque, reseau.
+Méthode d'observabilité pour les ressources système : Utilization (taux d'utilisation), Saturation (file d'attente), Errors (erreurs materielles/logicielles). Applicable a CPU, mémoire, disque, réseau.
 
 ## W
 
 ### Waterfall View
 
-Vue de visualisation d'une trace distribuee montrant les spans sous forme de barres horizontales sur une timeline. Permet de visualiser les dependances et les latences entre services.
+Vue de visualisation d'une trace distribuee montrant les spans sous forme de barres horizontales sur une timeline. Permet de visualiser les dépendances et les latences entre services.

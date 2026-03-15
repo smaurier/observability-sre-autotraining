@@ -2,12 +2,12 @@
 
 ## Objectifs
 
-- Generer des panels et dashboards Grafana de maniere programmatique
-- Generer des regles d'alerte Prometheus au format YAML
-- Generer des regles d'enregistrement SLO (recording rules)
+- Générer des panels et dashboards Grafana de manière programmatique
+- Générer des regles d'alerte Prometheus au format YAML
+- Générer des regles d'enregistrement SLO (recording rules)
 - Valider les configurations generees (champs requis, coherence)
 
-## Prerequis
+## Prérequis
 
 - Lab 09 (PromQL & Grafana)
 - Lab 10 (SLOs)
@@ -17,10 +17,10 @@
 
 | # | Sujet | Difficulte |
 |---|-------|------------|
-| 1 | Generer un panel Grafana JSON | ** |
-| 2 | Generer un dashboard Grafana complet | ** |
-| 3 | Generer des alerting rules Prometheus YAML | *** |
-| 4 | Generer des SLO recording rules | *** |
+| 1 | Générer un panel Grafana JSON | ** |
+| 2 | Générer un dashboard Grafana complet | ** |
+| 3 | Générer des alerting rules Prometheus YAML | *** |
+| 4 | Générer des SLO recording rules | *** |
 | 5 | Valider les configurations generees | ** |
 
 ## Lancer les tests

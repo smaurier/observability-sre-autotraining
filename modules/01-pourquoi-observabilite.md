@@ -1,18 +1,18 @@
-# Pourquoi l'Observabilite ? Monitoring vs Observability
+# Pourquoi l'Observabilité ? Monitoring vs Observability
 
 ## Objectifs pedagogiques
 
-- Comprendre l'evolution historique du monitoring vers l'observabilite
-- Maitriser les 3 piliers de l'observabilite (Logs, Metrics, Traces)
-- Distinguer monitoring (questions connues) et observabilite (questions inconnues)
+- Comprendre l'evolution historique du monitoring vers l'observabilité
+- Maîtriser les 3 piliers de l'observabilité (Logs, Metrics, Traces)
+- Distinguer monitoring (questions connues) et observabilité (questions inconnues)
 - Apprehender le concept de cardinalite et son impact
-- Analyser des exemples reels de pannes en production
-- Comparer le debugging avec et sans observabilite
-- Decouvrir la boucle d'observabilite (Observe → Understand → Act)
+- Analyser des exemples réels de pannes en production
+- Comparer le debugging avec et sans observabilité
+- Decouvrir la boucle d'observabilité (Observe → Understand → Act)
 
 ---
 
-## Du monitoring a l'observabilite
+## Du monitoring a l'observabilité
 
 ### L'ere du monitoring traditionnel
 
@@ -40,21 +40,21 @@ Avec les microservices, les conteneurs et le cloud, le paysage a change :
 //                                          [Inventory Service]
 ```
 
-Le monitoring traditionnel ne suffit plus. Quand une requete echoue, quel service est en cause ? Le reseau ? Un timeout ? Une erreur metier ?
+Le monitoring traditionnel ne suffit plus. Quand une requête echoue, quel service est en cause ? Le réseau ? Un timeout ? Une erreur metier ?
 
-### L'observabilite : une nouvelle approche
+### L'observabilité : une nouvelle approche
 
-L'observabilite vient de la theorie du controle : un systeme est **observable** si vous pouvez determiner son etat interne a partir de ses sorties exterieures.
+L'observabilité vient de la théorie du controle : un système est **observable** si vous pouvez déterminer son état interne à partir de ses sorties exterieures.
 
-En ingenierie logicielle, cela signifie instrumenter votre code pour emettre suffisamment de donnees afin de repondre a **n'importe quelle question** sur le comportement du systeme — y compris des questions que vous n'aviez pas prevues.
+En ingenierie logicielle, cela signifie instrumenter votre code pour emettre suffisamment de donnees afin de repondre a **n'importe quelle question** sur le comportement du système — y compris des questions que vous n'aviez pas prevues.
 
 ---
 
-## Les 3 piliers de l'observabilite
+## Les 3 piliers de l'observabilité
 
 ### Pilier 1 : Les Logs
 
-Les logs sont des evenements horodates et textuels emis par votre application.
+Les logs sont des événements horodates et textuels emis par votre application.
 
 ```typescript
 // Log non structure (difficile a exploiter)
@@ -73,12 +73,12 @@ logger.info({
 }, 'Order created successfully');
 ```
 
-**Forces** : contexte riche, detail des evenements individuels.
+**Forces** : contexte riche, detail des événements individuels.
 **Faiblesses** : volume enorme, cout de stockage eleve, difficile d'avoir une vue d'ensemble.
 
 ### Pilier 2 : Les Metriques
 
-Les metriques sont des valeurs numeriques agregees dans le temps.
+Les metriques sont des valeurs numériques agregees dans le temps.
 
 ```typescript
 import { Counter, Histogram } from 'prom-client';
@@ -102,7 +102,7 @@ const httpRequestDuration = new Histogram({
 
 ### Pilier 3 : Les Traces
 
-Les traces suivent le parcours d'une requete a travers les services.
+Les traces suivent le parcours d'une requête a travers les services.
 
 ```typescript
 import { trace } from '@opentelemetry/api';
@@ -129,9 +129,9 @@ async function createOrder(userId: string, items: string[]) {
 
 ---
 
-## Monitoring vs Observabilite
+## Monitoring vs Observabilité
 
-| Aspect | Monitoring | Observabilite |
+| Aspect | Monitoring | Observabilité |
 |--------|-----------|---------------|
 | Questions | Connues a l'avance | Inconnues et emergentes |
 | Approche | Tableaux de bord predéfinis | Exploration ad hoc |
@@ -142,7 +142,7 @@ async function createOrder(userId: string, items: string[]) {
 L'analogie medicale est eclairante :
 
 - **Monitoring** = prise de temperature reguliere. Si > 38°C, alerte.
-- **Observabilite** = avoir acces a l'ensemble des analyses (sang, radio, IRM) pour diagnostiquer un probleme que vous n'aviez pas anticipe.
+- **Observabilité** = avoir acces a l'ensemble des analyses (sang, radio, IRM) pour diagnostiquer un problème que vous n'aviez pas anticipe.
 
 ---
 
@@ -171,7 +171,7 @@ const badMetric = new Counter({
 ```
 
 ::: warning Attention
-Une cardinalite trop elevee est l'erreur numero 1 des debutants en metriques. Chaque combinaison de labels cree une **serie temporelle** distincte. 1 million de series = probleme de performance garanti.
+Une cardinalite trop elevee est l'erreur numéro 1 des débutants en metriques. Chaque combinaison de labels créé une **serie temporelle** distincte. 1 million de series = problème de performance garanti.
 :::
 
 ---
@@ -180,19 +180,19 @@ Une cardinalite trop elevee est l'erreur numero 1 des debutants en metriques. Ch
 
 ### Panne 1 : Le "mardi lent"
 
-Une equipe constate que chaque mardi, l'application ralentit entre 14h et 15h. Sans observabilite, il faut des semaines pour comprendre. Avec des metriques et des traces, on decouvre qu'un cron de synchronisation tourne chaque mardi et sature le pool de connexions a la base de donnees.
+Une équipe constate que chaque mardi, l'application ralentit entre 14h et 15h. Sans observabilité, il faut des semaines pour comprendre. Avec des metriques et des traces, on découvre qu'un cron de synchronisation tourne chaque mardi et sature le pool de connexions à la base de donnees.
 
 ### Panne 2 : Le memory leak silencieux
 
-Un service Node.js consomme de plus en plus de memoire jusqu'a crasher toutes les 48h. Le monitoring basique ne voit que le restart. Avec des metriques de heap et un profiling, on identifie un listener d'evenements jamais nettoye.
+Un service Node.js consomme de plus en plus de mémoire jusqu'a crasher toutes les 48h. Le monitoring basique ne voit que le restart. Avec des metriques de heap et un profiling, on identifie un listener d'événements jamais nettoye.
 
 ### Panne 3 : La latence en cascade
 
-Un service Payment met 5 secondes a repondre au lieu de 200ms. Sans traces distribuees, impossible de savoir si c'est le service lui-meme, la base de donnees, ou un service tiers. Avec une trace, on voit immediatement quel span est le goulot d'etranglement.
+Un service Payment met 5 secondes a repondre au lieu de 200ms. Sans traces distribuees, impossible de savoir si c'est le service lui-même, la base de donnees, ou un service tiers. Avec une trace, on voit immediatement quel span est le goulot d'etranglement.
 
 ---
 
-## Debugging : avec vs sans observabilite
+## Debugging : avec vs sans observabilité
 
 ```typescript
 // SANS observabilite — le processus de debugging
@@ -214,21 +214,21 @@ Un service Payment met 5 secondes a repondre au lieu de 200ms. Sans traces distr
 
 ---
 
-## La boucle d'observabilite
+## La boucle d'observabilité
 
-L'observabilite n'est pas un produit qu'on installe — c'est un **processus continu** :
+L'observabilité n'est pas un produit qu'on installe — c'est un **processus continu** :
 
 1. **Instrumenter** : ajouter des logs, metriques et traces dans le code
 2. **Collecter** : acheminer les donnees vers des backends (Prometheus, Jaeger, Loki)
-3. **Visualiser** : creer des dashboards et des vues exploratoires
-4. **Alerter** : definir des SLOs et des conditions d'alerte
-5. **Investiguer** : utiliser les donnees pour diagnostiquer les problemes
-6. **Ameliorer** : corriger le probleme ET enrichir l'instrumentation
+3. **Visualiser** : créer des dashboards et des vues exploratoires
+4. **Alerter** : définir des SLOs et des conditions d'alerte
+5. **Investiguer** : utiliser les donnees pour diagnostiquer les problèmes
+6. **Ameliorer** : corriger le problème ET enrichir l'instrumentation
 
 Puis le cycle recommence. Chaque incident revele des trous dans l'instrumentation que vous corrigez pour le prochain.
 
 ::: tip A retenir
-Le monitoring repond a la question "Est-ce que ca marche ?". L'observabilite repond a "Pourquoi est-ce que ca ne marche pas ?" — meme pour des problemes que vous n'aviez jamais envisages. Les 3 piliers (Logs, Metriques, Traces) sont complementaires : aucun ne suffit seul.
+Le monitoring repond à la question "Est-ce que ça marche ?". L'observabilité repond a "Pourquoi est-ce que ça ne marche pas ?" — même pour des problèmes que vous n'aviez jamais envisages. Les 3 piliers (Logs, Metriques, Traces) sont complementaires : aucun ne suffit seul.
 :::
 
 ---
@@ -236,16 +236,27 @@ Le monitoring repond a la question "Est-ce que ca marche ?". L'observabilite rep
 ## Bonnes pratiques
 
 - **Commencez par les metriques** : elles sont les moins couteuses et donnent une vue d'ensemble
-- **Ajoutez des logs structures** : ils fournissent le contexte detaille
+- **Ajoutez des logs structures** : ils fournissent le contexte détaillé
 - **Introduisez les traces** quand vous avez plusieurs services
 - **Correlez les 3 piliers** : un `traceId` present dans les logs, les metriques et les traces
-- **Instrumentez au fil de l'eau** : n'attendez pas un incident pour ajouter de l'observabilite
+- **Instrumentez au fil de l'eau** : n'attendez pas un incident pour ajouter de l'observabilité
 - **Mefiez-vous de la cardinalite** : chaque label est un multiplicateur
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
-- [Lab 01 — Comparer debugging avec et sans observabilite](/labs/lab-01-console-log-vs-structured/README)
-- [Quiz 01 — Monitoring vs Observabilite](/quizzes/quiz-01-pourquoi-observabilite)
+- [Lab 01 — Comparer debugging avec et sans observabilité](/labs/lab-01-console-log-vs-structured/README)
+- [Quiz 01 — Monitoring vs Observabilité](/quizzes/quiz-01-pourquoi-observabilite)
 - [Module suivant — Logging structure](/modules/02-logging-structure)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 01 pourquoi observabilité](../screencasts/screencast-01-pourquoi-observabilite.md)
+2. **Lab** : [lab-01-console-log-vs-structured](../labs/lab-01-console-log-vs-structured/README)
+3. **Visualisation** : [Three Pillars](../visualizations/three-pillars.html)
+4. **Quiz** : [quiz 01 pourquoi observabilité](../quizzes/quiz-01-pourquoi-observabilite.html)
+:::

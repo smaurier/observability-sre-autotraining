@@ -4,31 +4,31 @@
 - **Duree estimee** : 22-28 min
 - **Module** : `modules/15-chaos-engineering.md`
 - **Lab associe** : Lab 15
-- **Prerequis** : Screencast 14
+- **Prérequis** : Screencast 14
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (3 terminaux)
+- [ ] Terminal intégré ouvert (3 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] Grafana ouvert avec le dashboard RED (`http://localhost:3001`)
 - [ ] Prometheus ouvert (`http://localhost:9090`)
 - [ ] Jaeger ouvert (`http://localhost:16686`)
 - [ ] demo-app accessible sur `http://localhost:3000`
-- [ ] Fichier `demo-app/src/middleware/chaos.ts` pret a etre cree
+- [ ] Fichier `demo-app/src/middleware/chaos.ts` pret a etre créé
 
 ## Script
 
 ### [00:00-02:30] Introduction
 
-> Nous savons mesurer la fiabilite, alerter sur les degradations, gerer les incidents et tester la capacite. Mais il y a une question fondamentale qu'aucun test unitaire ou test de charge ne peut poser : "Que se passe-t-il quand le systeme echoue partiellement ?"
+> Nous savons mesurer la fiabilité, alerter sur les degradations, gérer les incidents et tester la capacité. Mais il y à une question fondamentale qu'aucun test unitaire ou test de charge ne peut poser : "Que se passe-t-il quand le système echoue partiellement ?"
 
-> Le chaos engineering repond a cette question en provoquant des pannes controlees. L'analogie : les pompiers allument des feux controles pour empecher les mega-incendies. Les pilotes s'entrainent aux pannes moteur dans des simulateurs. Le chaos engineering, c'est l'equivalent pour vos systemes de production.
+> Le chaos engineering repond a cette question en provoquant des pannes controlees. L'analogie : les pompiers allument des feux controles pour empecher les mega-incendies. Les pilotes s'entrainent aux pannes moteur dans des simulateurs. Le chaos engineering, c'est l'équivalent pour vos systèmes de production.
 
-> C'est Netflix qui a popularise cette pratique avec Chaos Monkey — un programme qui eteint aleatoirement des instances en production pendant les heures de bureau. L'idee est simple : si votre service ne survit pas a la perte d'une instance, il faut le corriger maintenant, pas a 3h du matin.
+> C'est Netflix qui a popularise cette pratique avec Chaos Monkey — un programme qui eteint aleatoirement des instances en production pendant les heures de bureau. L'idee est simple : si votre service ne survit pas à la perte d'une instance, il faut le corriger maintenant, pas a 3h du matin.
 
-### [02:30-06:00] Ajouter le middleware de chaos a la demo-app
+### [02:30-06:00] Ajouter le middleware de chaos à la demo-app
 
-**Action** : Creer le fichier `demo-app/src/middleware/chaos.ts`.
+**Action** : Créer le fichier `demo-app/src/middleware/chaos.ts`.
 
 ```typescript
 // demo-app/src/middleware/chaos.ts
@@ -111,13 +111,13 @@ export function setChaosConfig(config: Partial<ChaosConfig>): ChaosConfig {
 }
 ```
 
-> Plusieurs garde-fous sont integres. L'expiration automatique de 30 minutes evite de laisser le chaos actif par erreur — c'est la lecon du postmortem du module 13. Chaque injection est loggee pour le diagnostic.
+> Plusieurs garde-fous sont integres. L'expiration automatique de 30 minutes evite de laisser le chaos actif par erreur — c'est la leçon du postmortem du module 13. Chaque injection est loggee pour le diagnostic.
 
-### [06:00-09:00] Definir l'hypothese d'etat stable (Steady State Hypothesis)
+### [06:00-09:00] Définir l'hypothese d'état stable (Steady State Hypothesis)
 
-> Le chaos engineering est une discipline scientifique. Avant toute experience, on definit une hypothese : "Notre systeme maintiendra son etat stable malgre la perturbation."
+> Le chaos engineering est une discipline scientifique. Avant toute experience, on définit une hypothese : "Notre système maintiendra son état stable malgre la perturbation."
 
-**Action** : Ecrire l'hypothese d'etat stable.
+**Action** : Écrire l'hypothese d'état stable.
 
 ```typescript
 // Steady State Hypothesis
@@ -146,9 +146,9 @@ const steadyStateHypothesis = {
 };
 ```
 
-> L'hypothese est falsifiable — on peut la verifier ou la refuter avec des donnees. C'est la base de la methode scientifique appliquee a l'ingenierie.
+> L'hypothese est falsifiable — on peut la vérifier ou la refuter avec des donnees. C'est la base de la méthode scientifique appliquee a l'ingenierie.
 
-### [09:00-14:00] Game Day — Executer l'experience de chaos
+### [09:00-14:00] Game Day — Exécuter l'experience de chaos
 
 **Action** : D'abord, etablir la baseline en envoyant du trafic normal.
 
@@ -163,7 +163,7 @@ done
 
 **Action** : Observer les metriques baseline dans Grafana.
 
-> L'etat stable est confirme : p99 autour de 50ms, error rate a 0%, debit stable a environ 10 req/s. Notons ces valeurs.
+> L'état stable est confirme : p99 autour de 50ms, error rate a 0%, debit stable a environ 10 req/s. Notons ces valeurs.
 
 **Action** : Activer l'injection de latence.
 
@@ -201,11 +201,11 @@ curl -X POST http://localhost:3000/admin/chaos \
 
 **Action** : Observer l'impact dans Grafana.
 
-> Maintenant, le taux d'erreur monte a environ 10%. L'hypothese est refutee pour le taux d'erreur — 10% depasse largement notre seuil de 0.1%. Le p99 est aussi affecte car les erreurs sont rapides (pas de latence ajoutee). Le SLO est viole. Il nous faut un mecanisme de resilience.
+> Maintenant, le taux d'erreur monte a environ 10%. L'hypothese est refutee pour le taux d'erreur — 10% dépasse largement notre seuil de 0.1%. Le p99 est aussi affecte car les erreurs sont rapides (pas de latence ajoutee). Le SLO est viole. Il nous faut un mécanisme de résilience.
 
 ### [14:00-18:00] Implementer le circuit breaker
 
-**Action** : Ecrire un circuit breaker simple.
+**Action** : Écrire un circuit breaker simple.
 
 ```typescript
 // demo-app/src/lib/circuit-breaker.ts
@@ -276,9 +276,9 @@ const breaker = new CircuitBreaker({
 });
 ```
 
-> Le circuit breaker a trois etats. Ferme (closed) : tout fonctionne, les requetes passent. Ouvert (open) : trop d'echecs, les requetes sont immediatement retournees avec un fallback. Semi-ouvert (half-open) : apres le timeout, on tente une requete pour voir si le service est retabli.
+> Le circuit breaker a trois états. Ferme (closed) : tout fonctionne, les requêtes passent. Ouvert (open) : trop d'echecs, les requêtes sont immediatement retournees avec un fallback. Semi-ouvert (half-open) : après le timeout, on tente une requête pour voir si le service est retabli.
 
-> C'est comme un disjoncteur electrique : quand trop de courant passe, il coupe le circuit pour proteger l'installation. Quand vous le rearmez, il teste et revient a la normale si tout va bien.
+> C'est comme un disjoncteur electrique : quand trop de courant passe, il coupe le circuit pour proteger l'installation. Quand vous le rearmez, il teste et revient à la normale si tout va bien.
 
 ### [18:00-22:00] Rejouer l'experience avec le circuit breaker
 
@@ -299,11 +299,11 @@ curl -X POST http://localhost:3000/admin/chaos \
 
 **Action** : Observer dans Grafana avec le circuit breaker actif.
 
-> Avec le circuit breaker, le comportement change. Apres 5 erreurs consecutives, le circuit s'ouvre. Les requetes suivantes obtiennent immediatement le fallback — une reponse degradee mais rapide. Le taux d'erreur se stabilise. La latence ne s'effondre pas.
+> Avec le circuit breaker, le comportement change. Après 5 erreurs consecutives, le circuit s'ouvre. Les requêtes suivantes obtiennent immediatement le fallback — une réponse degradee mais rapide. Le taux d'erreur se stabilise. La latence ne s'effondre pas.
 
-> Apres 30 secondes, le circuit passe en half-open. Si la requete test reussit, le circuit se referme. Si elle echoue, il reste ouvert pour 30 secondes de plus.
+> Après 30 secondes, le circuit passe en half-open. Si la requête test reussit, le circuit se referme. Si elle echoue, il reste ouvert pour 30 secondes de plus.
 
-**Action** : Desactiver le chaos et montrer la recuperation.
+**Action** : Desactiver le chaos et montrer la récupération.
 
 ```bash
 # Desactiver le chaos
@@ -312,11 +312,11 @@ curl -X POST http://localhost:3000/admin/chaos \
   -d '{"enabled": false}'
 ```
 
-> Le circuit breaker detecte le retour a la normale via la requete half-open. Le circuit se referme. Le service revient a 100% de fonctionnement. La recuperation est automatique.
+> Le circuit breaker détecté le retour à la normale via la requête half-open. Le circuit se referme. Le service revient a 100% de fonctionnement. La récupération est automatique.
 
-### [22:00-25:00] Bonnes pratiques et modele de maturite
+### [22:00-25:00] Bonnes pratiques et modèle de maturite
 
-**Action** : Montrer le modele de maturite.
+**Action** : Montrer le modèle de maturite.
 
 ```typescript
 // Modele de maturite en chaos engineering
@@ -360,13 +360,13 @@ const maturityLevels = [
 ];
 ```
 
-> Commencez au niveau 1. Ne sautez pas directement au chaos en production. Maitrisez d'abord les experiences en environnement de test, puis planifiez des Game Days avec l'equipe, puis automatisez progressivement.
+> Commencez au niveau 1. Ne sautez pas directement au chaos en production. Maitrisez d'abord les experiences en environnement de test, puis planifiez des Game Days avec l'équipe, puis automatisez progressivement.
 
-### [25:00-27:00] Recapitulatif
+### [25:00-27:00] Récapitulatif
 
-> Recapitulons. Le chaos engineering est une discipline scientifique : hypothese, experience, analyse. Le middleware de chaos injecte de la latence et des erreurs de maniere controlee. L'hypothese d'etat stable definit les conditions de succes avant l'experience.
+> Recapitulons. Le chaos engineering est une discipline scientifique : hypothese, experience, analyse. Le middleware de chaos injecte de la latence et des erreurs de manière controlee. L'hypothese d'état stable définit les conditions de succes avant l'experience.
 
-> Le circuit breaker est un pattern de resilience essentiel : il protege le systeme en coupant les appels vers un service defaillant et en retournant un fallback. La recuperation est automatique via l'etat half-open.
+> Le circuit breaker est un pattern de résilience essentiel : il protege le système en coupant les appels vers un service defaillant et en retournant un fallback. La récupération est automatique via l'état half-open.
 
 > Commencez au niveau 1 de maturite et progressez graduellement. Le chaos engineering n'est pas du sabotage — c'est de la prevention.
 
@@ -376,10 +376,10 @@ const maturityLevels = [
 
 ## Points d'attention pour l'enregistrement
 - Le middleware de chaos doit etre explique ligne par ligne — c'est un livrable concret
-- L'hypothese d'etat stable doit etre ecrite AVANT l'experience — c'est la methode scientifique
+- L'hypothese d'état stable doit etre ecrite AVANT l'experience — c'est la méthode scientifique
 - Montrer la baseline (avant chaos) puis l'impact (pendant chaos) dans Grafana
-- Le circuit breaker est le concept cle de ce module — prendre le temps de l'expliquer avec l'analogie du disjoncteur
-- Montrer les trois etats du circuit breaker : closed → open → half-open → closed
-- La recuperation automatique apres desactivation du chaos est un moment satisfaisant
-- L'expiration automatique du chaos (lecon du postmortem) montre la continuite entre les modules
-- Ne pas oublier de stopper le trafic continu a la fin
+- Le circuit breaker est le concept clé de ce module — prendre le temps de l'expliquer avec l'analogie du disjoncteur
+- Montrer les trois états du circuit breaker : closed → open → half-open → closed
+- La récupération automatique après desactivation du chaos est un moment satisfaisant
+- L'expiration automatique du chaos (leçon du postmortem) montre la continuite entre les modules
+- Ne pas oublier de stopper le trafic continu à la fin

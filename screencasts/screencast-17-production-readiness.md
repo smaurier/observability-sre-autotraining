@@ -4,11 +4,11 @@
 - **Duree estimee** : 22-28 min
 - **Module** : `modules/18-production-readiness.md`
 - **Lab associe** : Lab 18
-- **Prerequis** : Screencast 17
+- **Prérequis** : Screencast 17
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] demo-app accessible sur `http://localhost:3000`
 - [ ] Fichier `demo-app/src/routes/health.ts` ouvert
@@ -18,9 +18,9 @@
 
 ### [00:00-02:30] Introduction
 
-> Nous avons instrumente notre application, construit des dashboards, defini des SLOs, configure des alertes et automatise les configurations. La question finale est : "Ce service est-il pret pour la production ?" La Production Readiness Review (PRR) est un processus formel qui repond a cette question.
+> Nous avons instrumente notre application, construit des dashboards, défini des SLOs, configure des alertes et automatise les configurations. La question finale est : "Ce service est-il pret pour la production ?" La Production Readiness Review (PRR) est un processus formel qui repond a cette question.
 
-> L'analogie : avant qu'un avion ne soit autorise a voler, il passe par une checklist de verification exhaustive. Chaque systeme est teste. Chaque procedure de secours est verifiee. La PRR est cette checklist pour vos services.
+> L'analogie : avant qu'un avion ne soit autorise a voler, il passe par une checklist de vérification exhaustive. Chaque système est teste. Chaque procedure de secours est verifiee. La PRR est cette checklist pour vos services.
 
 ### [02:30-07:00] La checklist PRR — Categories
 
@@ -92,11 +92,11 @@ const prrChecklist: PRRChecklist = {
 };
 ```
 
-> Quatre categories : Observabilite, Fiabilite, Securite, Operationnel. Chaque item est evalue : pass, fail, partial ou non applicable. Les "fail" sont des bloquants — le service ne peut pas aller en production tant qu'ils ne sont pas resolus.
+> Quatre categories : Observabilité, Fiabilite, Sécurité, Operationnel. Chaque item est évalué : pass, fail, partial ou non applicable. Les "fail" sont des bloquants — le service ne peut pas aller en production tant qu'ils ne sont pas resolus.
 
 ### [07:00-12:00] Implementer les health checks
 
-> Le health check est un "fail" dans notre checklist. Corrigeons-le. Il y a trois types de health checks, chacun avec un objectif different.
+> Le health check est un "fail" dans notre checklist. Corrigeons-le. Il y a trois types de health checks, chacun avec un objectif différent.
 
 **Action** : Ouvrir `demo-app/src/routes/health.ts` et implementer les trois endpoints.
 
@@ -182,7 +182,7 @@ async function checkCache(): Promise<{ status: string; latency?: number }> {
 export default router;
 ```
 
-> Trois endpoints, trois objectifs. Le liveness dit "je suis vivant" — si le processus est bloque (deadlock, boucle infinie), il repond timeout et Kubernetes redemarrage le pod. Le readiness dit "je peux traiter du trafic" — si la base de donnees est down, le pod est retire du load balancer mais pas redemarrage. Le startup dit "j'ai fini de demarrer" — pour les services avec un long temps de demarrage.
+> Trois endpoints, trois objectifs. Le liveness dit "je suis vivant" — si le processus est bloque (deadlock, boucle infinie), il repond timeout et Kubernetes redemarrage le pod. Le readiness dit "je peux traiter du trafic" — si la base de donnees est down, le pod est retire du load balancer mais pas redemarrage. Le startup dit "j'ai fini de démarrer" — pour les services avec un long temps de démarrage.
 
 **Action** : Tester les endpoints.
 
@@ -202,9 +202,9 @@ curl http://localhost:3000/health/startup
 
 > Tous les endpoints repondent correctement. Le health check passe de "fail" a "pass" dans notre checklist.
 
-### [12:00-16:00] Cartographier les dependances
+### [12:00-16:00] Cartographier les dépendances
 
-**Action** : Dessiner la carte des dependances du service.
+**Action** : Dessiner la carte des dépendances du service.
 
 ```typescript
 // Carte des dependances de la demo-app
@@ -253,7 +253,7 @@ const dependencies: ServiceDependency[] = [
 ];
 ```
 
-> La cartographie des dependances est essentielle pour la PRR. Pour chaque dependance, on documente : le type (synchrone ou asynchrone), la criticite (critique, degradee, cosmetique), le fallback si elle est indisponible, et le timeout configure.
+> La cartographie des dépendances est essentielle pour la PRR. Pour chaque dépendance, on documente : le type (synchrone ou asynchrone), la criticite (critique, degradee, cosmetique), le fallback si elle est indisponible, et le timeout configure.
 
 ```
                     ┌───────────────────┐
@@ -412,22 +412,22 @@ function calculatePRRScore(checklist: PRRChecklist): {
 //   pour les blockers restants dans les 2 semaines suivantes
 ```
 
-> Le score de 79.5% avec 3 blockers donne une recommandation "conditional". Le service peut aller en production si les blockers sont traites dans un delai convenu. Un "no-go" signifie qu'il faut resoudre les blockers avant. Un "go" signifie que tout est bon.
+> Le score de 79.5% avec 3 blockers donne une recommandation "conditional". Le service peut aller en production si les blockers sont traites dans un delai convenu. Un "no-go" signifie qu'il faut résoudre les blockers avant. Un "go" signifie que tout est bon.
 
-### [24:00-26:30] Recapitulatif
+### [24:00-26:30] Récapitulatif
 
-> Recapitulons. La Production Readiness Review est une checklist structuree en quatre categories : Observabilite, Fiabilite, Securite, Operationnel. Les health checks (liveness, readiness, startup) sont un element fondamental de la fiabilite. La cartographie des dependances identifie les points de defaillance et les fallbacks. L'analyse FMEA priorise les risques par RPN.
+> Recapitulons. La Production Readiness Review est une checklist structuree en quatre categories : Observabilité, Fiabilite, Sécurité, Operationnel. Les health checks (liveness, readiness, startup) sont un élément fondamental de la fiabilité. La cartographie des dépendances identifie les points de defaillance et les fallbacks. L'analyse FMEA priorise les risques par RPN.
 
-> Le score global donne une recommandation : go, conditional ou no-go. Ce n'est pas un exercice bureaucratique — c'est un filet de securite qui evite de deployer un service non prepare en production.
+> Le score global donne une recommandation : go, conditional ou no-go. Ce n'est pas un exercice bureaucratique — c'est un filet de sécurité qui evite de déployer un service non prepare en production.
 
 > Dans le prochain et dernier module, nous assemblerons tout dans le projet final. Faites le Lab 18 pour realiser votre propre PRR !
 
 ## Points d'attention pour l'enregistrement
 - La checklist PRR doit etre parcourue methodiquement — ne pas survoler les items
 - L'implementation des health checks est un livrable concret — montrer le code et les tests curl
-- Bien distinguer liveness, readiness et startup — chaque endpoint a un role precis
-- La carte des dependances est visuelle — prendre le temps de la dessiner
-- L'analyse FMEA avec le RPN est une methode industrielle — expliquer le calcul
+- Bien distinguer liveness, readiness et startup — chaque endpoint à un role précis
+- La carte des dépendances est visuelle — prendre le temps de la dessiner
+- L'analyse FMEA avec le RPN est une méthode industrielle — expliquer le calcul
 - Le scoring final avec la recommandation go/conditional/no-go est le point culminant
 - Montrer que la PRR n'est pas bureaucratique mais protectrice
-- Lier les items de la checklist aux modules precedents du cours
+- Lier les items de la checklist aux modules précédents du cours

@@ -1,25 +1,25 @@
-# Projet final — Plateforme d'observabilite complete
+# Projet final — Plateforme d'observabilité complete
 
 ## Objectifs pedagogiques
 
-- Synthetiser l'ensemble des 18 modules precedents dans un projet concret
+- Synthetiser l'ensemble des 18 modules précédents dans un projet concret
 - Construire une application instrumentee de bout en bout (logs, metriques, traces)
-- Deployer un stack d'observabilite complet avec Docker Compose
-- Definir et mesurer des SLOs avec des burn rate alerts
-- Executer des tests de charge et des experiences de chaos
+- Déployer un stack d'observabilité complet avec Docker Compose
+- Définir et mesurer des SLOs avec des burn rate alerts
+- Exécuter des tests de charge et des experiences de chaos
 - Simuler un incident et rediger un postmortem
 - Evaluer la production readiness d'un service
-- Demontrer une maitrise complete de l'observabilite et du SRE
+- Demontrer une maîtrise complete de l'observabilité et du SRE
 
 ---
 
-## Introduction : de la theorie a la pratique
+## Introduction : de la théorie à la pratique
 
-Au cours des 18 modules precedents, vous avez decouvert les fondamentaux de l'observabilite et du Site Reliability Engineering : logging structure, metriques Prometheus, tracing distribue, SLOs, alerting, incident management, chaos engineering, DORA metrics, et bien plus.
+Au cours des 18 modules précédents, vous avez decouvert les fondamentaux de l'observabilité et du Site Reliability Engineering : logging structure, metriques Prometheus, tracing distribue, SLOs, alerting, incident management, chaos engineering, DORA metrics, et bien plus.
 
-Ce projet final est votre opportunite de **tout assembler** dans une plateforme coherente. Vous allez construire, instrumenter, tester et operer une application comme le ferait une equipe SRE en production.
+Ce projet final est votre opportunite de **tout assembler** dans une plateforme coherente. Vous allez construire, instrumenter, tester et operer une application comme le ferait une équipe SRE en production.
 
-L'analogie : ce projet est votre **examen de pilotage**. Vous avez appris la theorie, pratique chaque manoeuvre individuellement dans les labs. Maintenant, vous devez effectuer un vol complet du decollage a l'atterrissage.
+L'analogie : ce projet est votre **examen de pilotage**. Vous avez appris la théorie, pratique chaque manoeuvre individuellement dans les labs. Maintenant, vous devez effectuer un vol complet du decollage a l'atterrissage.
 
 ```typescript
 // Les 18 modules synthetises dans le projet final
@@ -405,7 +405,7 @@ docker compose logs -f api-gateway
 
 ---
 
-## Partie 3 : SLOs definis et mesures
+## Partie 3 : SLOs définis et mesures
 
 ### Definition des SLOs du projet
 
@@ -707,7 +707,7 @@ console.log('Script k6 genere:');
 console.log(k6Script);
 ```
 
-::: warning Executer les tests de charge
+::: warning Exécuter les tests de charge
 ```bash
 # Installer k6
 # https://k6.io/docs/get-started/installation/
@@ -965,7 +965,7 @@ console.log(`Done: ${prrScore.doneCount} | Partial: ${prrScore.partialCount} | M
 
 ---
 
-## Criteres d'evaluation
+## Criteres d'évaluation
 
 ### Grille de notation
 
@@ -1135,7 +1135,7 @@ const oacPipeline: OaCPipelineStep[] = [
 
 ---
 
-## Ressources pour continuer a apprendre
+## Ressources pour continuer à apprendre
 
 ```typescript
 interface LearningResource {
@@ -1217,26 +1217,26 @@ const resources: LearningResource[] = [
 
 ---
 
-## Guide de livraison etape par etape
+## Guide de livraison étape par étape
 
 ::: tip Ordre recommande
-Suivez ces etapes dans l'ordre pour construire le projet de maniere incrementale. Chaque etape ajoute une couche d'observabilite supplementaire.
+Suivez ces étapes dans l'ordre pour construire le projet de manière incrementale. Chaque étape ajoute une couche d'observabilité supplementaire.
 :::
 
-1. **Etape 1 — Setup** : Creer le repository, initialiser Docker Compose avec PostgreSQL et les 3 services Express
-2. **Etape 2 — Logging** : Integrer Pino avec logs structures, log levels, contexte requete et redaction
-3. **Etape 3 — Metriques** : Ajouter prom-client avec metriques RED et endpoint /metrics
-4. **Etape 4 — Tracing** : Integrer OpenTelemetry SDK avec auto-instrumentation et export vers Jaeger
-5. **Etape 5 — Collecte** : Ajouter Prometheus (scraping) et OTel Collector (traces) au Docker Compose
-6. **Etape 6 — Visualisation** : Configurer Grafana avec dashboards provisionnes (service + SLO)
-7. **Etape 7 — SLOs** : Definir les SLOs, configurer les recording rules et le dashboard error budget
-8. **Etape 8 — Alerting** : Ajouter les burn rate alerts multi-window dans Prometheus
-9. **Etape 9 — Health checks** : Implementer liveness, readiness et startup probes
-10. **Etape 10 — Tests de charge** : Ecrire et executer les scripts k6 (ramp-up, steady, spike)
-11. **Etape 11 — Chaos** : Implementer le chaos middleware et executer 2 experiences documentees
-12. **Etape 12 — Incident** : Simuler un incident avec la timeline et rediger le postmortem
-13. **Etape 13 — PRR** : Remplir la checklist de production readiness
-14. **Etape 14 — Polish** : README, git history propre, derniers ajustements
+1. **Étape 1 — Setup** : Créer le repository, initialiser Docker Compose avec PostgreSQL et les 3 services Express
+2. **Étape 2 — Logging** : Intégrer Pino avec logs structures, log levels, contexte requête et redaction
+3. **Étape 3 — Metriques** : Ajouter prom-client avec metriques RED et endpoint /metrics
+4. **Étape 4 — Tracing** : Intégrer OpenTelemetry SDK avec auto-instrumentation et export vers Jaeger
+5. **Étape 5 — Collecte** : Ajouter Prometheus (scraping) et OTel Collector (traces) au Docker Compose
+6. **Étape 6 — Visualisation** : Configurer Grafana avec dashboards provisionnes (service + SLO)
+7. **Étape 7 — SLOs** : Définir les SLOs, configurer les recording rules et le dashboard error budget
+8. **Étape 8 — Alerting** : Ajouter les burn rate alerts multi-window dans Prometheus
+9. **Étape 9 — Health checks** : Implementer liveness, readiness et startup probes
+10. **Étape 10 — Tests de charge** : Écrire et exécuter les scripts k6 (ramp-up, steady, spike)
+11. **Étape 11 — Chaos** : Implementer le chaos middleware et exécuter 2 experiences documentees
+12. **Étape 12 — Incident** : Simuler un incident avec la timeline et rediger le postmortem
+13. **Étape 13 — PRR** : Remplir la checklist de production readiness
+14. **Étape 14 — Polish** : README, git history propre, derniers ajustements
 
 ---
 
@@ -1247,18 +1247,18 @@ Le projet est a livrer en **un repository Git** contenant tout le code source, l
 ---
 
 ::: tip Felicitations !
-Si vous etes arrive jusqu'ici, vous avez parcouru un chemin considerable. Vous maitrisez maintenant les fondamentaux de l'**observabilite** et du **Site Reliability Engineering** :
+Si vous etes arrive jusqu'ici, vous avez parcouru un chemin considerable. Vous maitrisez maintenant les fondamentaux de l'**observabilité** et du **Site Reliability Engineering** :
 
 - Vous savez **instrumenter** une application avec les 3 piliers (logs, metriques, traces)
-- Vous comprenez les **SLOs** et savez les definir, mesurer et alerter dessus
+- Vous comprenez les **SLOs** et savez les définir, mesurer et alerter dessus
 - Vous pouvez **diagnostiquer** un incident en correlant les signaux
-- Vous savez ecrire un **postmortem** blameless et en extraire des actions concretes
-- Vous connaissez le **chaos engineering** et pouvez prouver la resilience de vos systemes
-- Vous pouvez evaluer la **production readiness** d'un service
+- Vous savez écrire un **postmortem** blameless et en extraire des actions concretes
+- Vous connaissez le **chaos engineering** et pouvez prouver la résilience de vos systèmes
+- Vous pouvez évaluer la **production readiness** d'un service
 
-Ces competences sont recherchees par toutes les entreprises qui operent des systemes distribues en production. Que vous deveniez SRE, DevOps engineer, platform engineer ou simplement un developpeur qui comprend la production, ce savoir vous servira tout au long de votre carriere.
+Ces compétences sont recherchees par toutes les entreprises qui operent des systèmes distribues en production. Que vous deveniez SRE, DevOps engineer, platform engineer ou simplement un développeur qui comprend la production, ce savoir vous servira tout au long de votre carriere.
 
-**Bonne chance pour le projet final, et surtout, continuez a apprendre !**
+**Bonne chance pour le projet final, et surtout, continuez à apprendre !**
 :::
 
 ---
@@ -1277,3 +1277,25 @@ Après avoir terminé ce projet final, explorez les modules bonus :
 - OpenTelemetry Documentation : https://opentelemetry.io/docs/
 - Prometheus Documentation : https://prometheus.io/docs/
 - Grafana Documentation : https://grafana.com/docs/
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 19 projet final](../screencasts/screencast-19-projet-final.md)
+2. **Lab** : [lab-19-projet-final](../labs/lab-19-projet-final/README)
+3. **Quiz** : [quiz 19 projet final](../quizzes/quiz-19-projet-final.html)
+:::
+
+---
+
+<!-- navigation-inter-cours -->
+
+::: info Cours suivant
+Bravo, tu as termine le cours **Observabilité & SRE** ! 
+> Ce cours est optionnel (Palier 5 — bonus). Tu peux aussi passer directement au cours suivant.
+Le prochain cours du curriculum est **React Native**.
+
+[Commencer React Native →](../../13-react-native/modules/00-prerequis-et-introduction.md)
+:::

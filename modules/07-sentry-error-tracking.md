@@ -2,18 +2,18 @@
 
 ## Objectifs pedagogiques
 
-- Comprendre le role de l'error tracking dans une strategie d'observabilite
+- Comprendre le role de l'error tracking dans une stratégie d'observabilité
 - Installer et configurer le SDK Sentry pour Node.js et les frameworks front
-- Maitriser les concepts : events, breadcrumbs, contexts, tags, fingerprinting
+- Maîtriser les concepts : events, breadcrumbs, contexts, tags, fingerprinting
 - Configurer les alertes et le triage des issues
-- Integrer Sentry avec OpenTelemetry
+- Intégrer Sentry avec OpenTelemetry
 - Proteger les donnees sensibles (PII scrubbing, RGPD)
 
 ---
 
 ## 1. Pourquoi l'error tracking ?
 
-### Le probleme du logging seul
+### Le problème du logging seul
 
 Le logging (modules 02-03) capture tout ce que vous decidez de logger. Mais en production :
 
@@ -29,7 +29,7 @@ Sans error tracking dedié :
 - L'erreur apparait dans les logs... si vous loggez les erreurs non gerees
 - Pas de stack trace du navigateur client
 - Pas de contexte (quel utilisateur ? quel navigateur ? quelle action precedait ?)
-- Pas de grouping : 1000 occurrences de la meme erreur = 1000 lignes de log separees
+- Pas de grouping : 1000 occurrences de la même erreur = 1000 lignes de log separees
 - Pas d'alerte intelligente (nouvelle erreur vs erreur connue)
 
 ### Error tracking vs Logging vs APM
@@ -261,7 +261,7 @@ export const appConfig = {
 
 ---
 
-## 3. Concepts cles
+## 3. Concepts clés
 
 ### Events et Exceptions
 
@@ -292,7 +292,7 @@ Sentry.captureMessage('Payment timeout after 30s', 'warning');
 
 ### Breadcrumbs
 
-Les breadcrumbs sont un **fil d'Ariane** des actions qui ont precede l'erreur. Sentry en capture automatiquement (clics, navigation, requetes HTTP, console.log).
+Les breadcrumbs sont un **fil d'Ariane** des actions qui ont precede l'erreur. Sentry en capture automatiquement (clics, navigation, requêtes HTTP, console.log).
 
 ```typescript
 // Breadcrumbs automatiques (captures par le SDK)
@@ -416,14 +416,14 @@ Sentry.captureException(error, {
 
 ### Issue states
 
-| Etat | Description |
+| État | Description |
 |------|-------------|
 | **Unresolved** | Nouvelle erreur, a traiter |
 | **Resolved** | Corrigee (re-ouverte si elle revient) |
 | **Ignored** | Connue, pas prioritaire |
 | **Archived** | Ne plus afficher |
 
-La fonctionnalite **Regression** est puissante : si vous marquez une issue comme "resolved in release 1.2.0" et qu'elle reapparait en 1.3.0, Sentry cree une alerte de regression automatiquement.
+La fonctionnalite **Regression** est puissante : si vous marquez une issue comme "resolved in release 1.2.0" et qu'elle reapparait en 1.3.0, Sentry créé une alerte de regression automatiquement.
 
 ---
 
@@ -466,7 +466,7 @@ Metric Alerts (basees sur les metriques)
 
 ## 7. Performance Monitoring
 
-Sentry capture aussi les **transactions** (requetes HTTP, navigations de page) et leurs **spans** (operations individuelles).
+Sentry capture aussi les **transactions** (requêtes HTTP, navigations de page) et leurs **spans** (operations individuelles).
 
 ```typescript
 // Backend — automatique avec l'integration HTTP
@@ -579,7 +579,7 @@ Sentry.init({
 
 ### Data Scrubbing cote serveur
 
-Dans les parametres du projet Sentry :
+Dans les paramètres du projet Sentry :
 - **IP address** : ne pas stocker
 - **User data** : anonymiser
 - **Sensitive fields** : password, secret, token, credit_card, ssn
@@ -661,3 +661,13 @@ Passez au **Lab 23** pour mettre en pratique :
 - [Self-hosted Sentry](https://develop.sentry.dev/self-hosted/)
 - [Sentry + OpenTelemetry](https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/)
 - [Data Management & GDPR](https://docs.sentry.io/security-legal-pii/scrubbing/)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 22 sentry error tracking](../screencasts/screencast-22-sentry-error-tracking.md)
+2. **Lab** : [lab-22-finops-observability](../labs/lab-22-finops-observability/README)
+3. **Quiz** : [quiz 22 sentry error tracking](../quizzes/quiz-22-sentry-error-tracking.html)
+:::

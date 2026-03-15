@@ -3,19 +3,19 @@
 ## Objectifs pedagogiques
 
 - Comprendre pourquoi `console.log` est insuffisant en production
-- Maitriser le concept de logging structure (format JSON)
+- Maîtriser le concept de logging structure (format JSON)
 - Installer et configurer Pino dans un projet TypeScript
 - Utiliser les transports Pino (stdout, file, pino-pretty)
-- Connaitre les niveaux de severite et leur usage
+- Connaître les niveaux de severite et leur usage
 - Implementer des serializers et des redactors pour proteger les donnees sensibles
-- Creer des child loggers pour ajouter du contexte
+- Créer des child loggers pour ajouter du contexte
 - Comparer les performances de Pino, Winston et Bunyan
 
 ---
 
 ## Pourquoi console.log ne suffit pas
 
-En developpement local, `console.log` est pratique. En production, il devient un handicap :
+En développement local, `console.log` est pratique. En production, il devient un handicap :
 
 ```typescript
 // Le probleme avec console.log
@@ -30,7 +30,7 @@ console.log('Order created');
 // - Comment parser automatiquement ?
 ```
 
-Un systeme de log agrege (ELK, Loki, Datadog) recoit des millions de lignes. Si vos logs ne sont pas structures, ils sont **inutilisables** a grande echelle.
+Un système de log agrege (ELK, Loki, Datadog) recoit des millions de lignes. Si vos logs ne sont pas structures, ils sont **inutilisables** a grande echelle.
 
 ### Les limites concretes
 
@@ -66,7 +66,7 @@ Le logging structure consiste a emettre chaque log sous forme d'un objet JSON av
 }
 ```
 
-L'avantage est immediat : chaque champ est indexable, filtrable, et agreable. Dans Kibana ou Grafana Loki, vous pouvez ecrire des requetes comme `userId=42 AND level>=40` en quelques secondes.
+L'avantage est immediat : chaque champ est indexable, filtrable, et agreable. Dans Kibana ou Grafana Loki, vous pouvez écrire des requêtes comme `userId=42 AND level>=40` en quelques secondes.
 
 ---
 
@@ -137,7 +137,7 @@ const logger = pino();
 // L'infrastructure (Docker, K8s) se charge de la collecte
 ```
 
-### Transport pino-pretty (developpement)
+### Transport pino-pretty (développement)
 
 ```typescript
 const logger = pino({
@@ -191,7 +191,7 @@ const logger = pino({
 
 ## Niveaux de severite
 
-Pino utilise des niveaux numeriques (plus le nombre est eleve, plus c'est grave) :
+Pino utilise des niveaux numériques (plus le nombre est eleve, plus c'est grave) :
 
 ```typescript
 // Niveaux Pino par defaut
@@ -253,7 +253,7 @@ logger.error({ err: new Error('Database timeout') }, 'Query failed');
 
 ## Redactors — proteger les donnees sensibles
 
-En production, les logs peuvent contenir des donnees personnelles (PII) ou des secrets. Pino offre un mecanisme de **redaction** integre :
+En production, les logs peuvent contenir des donnees personnelles (PII) ou des secrets. Pino offre un mécanisme de **redaction** intégré :
 
 ```typescript
 const logger = pino({
@@ -283,14 +283,14 @@ logger.info({
 ```
 
 ::: warning Attention
-La redaction par Pino est un filet de securite, pas une garantie absolue. Revoyez regulierement les chemins de redaction et utilisez des revues de code pour verifier que les donnees sensibles ne fuient pas dans les logs.
+La redaction par Pino est un filet de sécurité, pas une garantie absolue. Revoyez regulierement les chemins de redaction et utilisez des revues de code pour vérifier que les donnees sensibles ne fuient pas dans les logs.
 :::
 
 ---
 
 ## Child loggers
 
-Les child loggers heritent de la configuration du parent et ajoutent des champs de contexte permanents. C'est la fonctionnalite la plus puissante de Pino pour l'observabilite.
+Les child loggers heritent de la configuration du parent et ajoutent des champs de contexte permanents. C'est la fonctionnalite la plus puissante de Pino pour l'observabilité.
 
 ```typescript
 import pino from 'pino';
@@ -316,7 +316,7 @@ function handleRequest(requestId: string) {
 }
 ```
 
-C'est fondamental pour la **correlation** : dans un middleware Express, on cree un child logger par requete, et tous les logs de cette requete portent le meme `requestId`.
+C'est fondamental pour la **correlation** : dans un middleware Express, on créé un child logger par requête, et tous les logs de cette requête portent le même `requestId`.
 
 ---
 
@@ -346,7 +346,7 @@ Choisissez Pino si la performance compte (et en production, elle compte toujours
 
 ---
 
-## Integration TypeScript complete
+## Intégration TypeScript complete
 
 Voici un fichier logger complet, pret pour la production, tel que nous l'utiliserons dans la demo-app :
 
@@ -391,12 +391,12 @@ export default logger;
 ## Bonnes pratiques
 
 - **Toujours utiliser du logging structure** en production — jamais de texte libre
-- **Ecrire sur stdout** et laisser l'infrastructure collecter les logs
+- **Écrire sur stdout** et laisser l'infrastructure collecter les logs
 - **Utiliser des child loggers** pour attacher du contexte plutot que de le repeter
-- **Redacter les PII** (emails, numeros de carte, tokens) des les la creation du logger
-- **Ne jamais logger d'objets entiers** sans serializer — risque de donnees sensibles ou de references circulaires
+- **Redacter les PII** (emails, numéros de carte, tokens) des les la création du logger
+- **Ne jamais logger d'objets entiers** sans serializer — risque de donnees sensibles ou de références circulaires
 - **Configurer le niveau via variable d'environnement** (`LOG_LEVEL`) pour pouvoir l'ajuster sans redeployer
-- **Mesurer l'impact du logging** sur les performances — meme Pino a un cout si vous loggez trop
+- **Mesurer l'impact du logging** sur les performances — même Pino à un cout si vous loggez trop
 
 ---
 
@@ -404,9 +404,9 @@ export default logger;
 
 ### L'analogie de la bibliotheque
 
-Imaginez une bibliotheque de 10 millions de livres. `console.log`, c'est jeter vos livres en vrac dans un entrepot. Le logging structure, c'est le systeme Dewey : chaque livre a une categorie, un auteur, une date, un emplacement. Quand vous cherchez "tous les livres sur le reseau publies apres 2020", le systeme Dewey repond en secondes. L'entrepot en vrac ? Bonne chance.
+Imaginez une bibliotheque de 10 millions de livres. `console.log`, c'est jeter vos livres en vrac dans un entrepot. Le logging structure, c'est le système Dewey : chaque livre à une categorie, un auteur, une date, un emplacement. Quand vous cherchez "tous les livres sur le réseau publies après 2020", le système Dewey repond en secondes. L'entrepot en vrac ? Bonne chance.
 
-En production, vos logs arrivent a un rythme de milliers par seconde. Sans structure, chercher un evenement specifique revient a chercher une aiguille dans une botte de foin — pendant une panne, a 3h du matin.
+En production, vos logs arrivent à un rythme de milliers par seconde. Sans structure, chercher un événement spécifique revient a chercher une aiguille dans une botte de foin — pendant une panne, a 3h du matin.
 
 ### Correlation log-trace : le pont entre les piliers
 
@@ -434,7 +434,7 @@ const logger = pino({
 ```
 
 ::: warning Cardinalite des logs
-Ne confondez pas labels de metriques et champs de logs. Un log peut contenir `userId`, `orderId`, `sessionId` sans probleme — chaque log est un evenement individuel. En revanche, mettre `userId` comme label d'une metrique Prometheus creer une explosion de cardinalite. Les logs sont riches en contexte, les metriques sont riches en agregation.
+Ne confondez pas labels de metriques et champs de logs. Un log peut contenir `userId`, `orderId`, `sessionId` sans problème — chaque log est un événement individuel. En revanche, mettre `userId` comme label d'une metrique Prometheus créer une explosion de cardinalite. Les logs sont riches en contexte, les metriques sont riches en agregation.
 :::
 
 ### Pipeline de logs en production
@@ -456,14 +456,25 @@ Le choix de la stack d'agregation est une decision architecturale importante :
 | **Elastic (ELK)** | Full-text search puissant, mature | Gourmand en ressources, complexe |
 | **Datadog Logs** | SaaS, zero maintenance | Cout eleve a grande echelle |
 
-::: tip Reference SRE
-Le Google SRE Book (Chapitre 1) decrit l'observabilite comme "la capacite a poser des questions que vous n'aviez pas prevues". Le logging structure est la base de cette capacite — sans champs parseable, aucune question imprevue ne peut etre posee.
+::: tip Référence SRE
+Le Google SRE Book (Chapitre 1) decrit l'observabilité comme "la capacité a poser des questions que vous n'aviez pas prevues". Le logging structure est la base de cette capacité — sans champs parseable, aucune question imprevue ne peut etre posee.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
 - [Lab 02 — Configurer Pino dans la demo-app](/labs/lab-02-pino-logger/README)
 - [Quiz 02 — Logging structure](/quizzes/quiz-02-logging-structure)
 - [Module suivant — Niveaux de log et contexte](/modules/03-niveaux-de-log-et-contexte)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 02 logging structure](../screencasts/screencast-02-logging-structure.md)
+2. **Lab** : [lab-02-pino-logger](../labs/lab-02-pino-logger/README)
+3. **Visualisation** : [Three Pillars](../visualizations/three-pillars.html)
+4. **Quiz** : [quiz 02 logging structure](../quizzes/quiz-02-logging-structure.html)
+:::

@@ -1,30 +1,30 @@
-# Screencast 06 — Methodes RED & USE
+# Screencast 06 — Méthodes RED & USE
 
 ## Informations
 - **Duree estimee** : 18-22 min
 - **Module** : `modules/06-red-use-methodes.md`
 - **Lab associe** : Lab 06
-- **Prerequis** : Screencast 05
+- **Prérequis** : Screencast 05
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.base.yml up -d`)
 - [ ] Prometheus UI ouvert sur `http://localhost:9090`
 - [ ] demo-app accessible sur `http://localhost:3000`
-- [ ] Script de generation de trafic pret
+- [ ] Script de génération de trafic pret
 
 ## Script
 
 ### [00:00-02:00] Introduction
 
-> Nous avons des metriques et Prometheus. Mais quelles metriques regarder en premier ? Aujourd'hui, nous decouvrons deux methodes eprouvees pour structurer notre reflexion : RED pour les services et USE pour les ressources. Ce sont des modeles mentaux qui repondent a la question : "Par ou commencer quand quelque chose ne va pas ?"
+> Nous avons des metriques et Prometheus. Mais quelles metriques regarder en premier ? Aujourd'hui, nous decouvrons deux méthodes eprouvees pour structurer notre reflexion : RED pour les services et USE pour les ressources. Ce sont des modèles mentaux qui repondent à la question : "Par où commencer quand quelque chose ne va pas ?"
 
-### [02:00-05:00] La methode RED — Rate, Errors, Duration
+### [02:00-05:00] La méthode RED — Rate, Errors, Duration
 
 > RED a ete popularisee par Tom Wilkie de Grafana Labs. Elle se concentre sur les services — ce que vos utilisateurs experimentent.
 
-**Action** : Ecrire les definitions.
+**Action** : Écrire les définitions.
 
 ```typescript
 // RED — Pour chaque service, mesurez :
@@ -36,7 +36,7 @@
 // C'est du point de vue de l'UTILISATEUR du service.
 ```
 
-**Action** : Montrer les requetes PromQL correspondantes dans Prometheus.
+**Action** : Montrer les requêtes PromQL correspondantes dans Prometheus.
 
 ```
 # R — Rate : requetes par seconde
@@ -52,7 +52,7 @@ sum(rate(demo_app_http_requests_total[5m]))
 histogram_quantile(0.99, sum(rate(demo_app_http_request_duration_seconds_bucket[5m])) by (le))
 ```
 
-> Avec ces trois metriques, vous savez si votre service est en bonne sante. Le Rate vous dit si le trafic est normal. Les Errors montrent le pourcentage de requetes qui echouent. La Duration revele si les requetes sont lentes.
+> Avec ces trois metriques, vous savez si votre service est en bonne sante. Le Rate vous dit si le trafic est normal. Les Errors montrent le pourcentage de requêtes qui echouent. La Duration revele si les requêtes sont lentes.
 
 ### [05:00-08:00] Instrumenter la demo-app avec RED
 
@@ -87,13 +87,13 @@ histogram_quantile(0.5, sum(rate(demo_app_http_request_duration_seconds_bucket[5
 histogram_quantile(0.99, sum(rate(demo_app_http_request_duration_seconds_bucket[5m])) by (le, route))
 ```
 
-> Comparez le p50 (median) et le p99. Si le p50 est a 10ms mais le p99 est a 2 secondes, vous avez un probleme de latence en queue de distribution. Certains utilisateurs ont une experience degradee.
+> Comparez le p50 (median) et le p99. Si le p50 est a 10ms mais le p99 est a 2 secondes, vous avez un problème de latence en queue de distribution. Certains utilisateurs ont une experience degradee.
 
-### [08:00-11:00] La methode USE — Utilization, Saturation, Errors
+### [08:00-11:00] La méthode USE — Utilization, Saturation, Errors
 
-> USE a ete creee par Brendan Gregg. Elle se concentre sur les ressources — CPU, memoire, disque, reseau, event loop.
+> USE a ete créée par Brendan Gregg. Elle se concentre sur les ressources — CPU, mémoire, disque, réseau, event loop.
 
-**Action** : Ecrire les definitions.
+**Action** : Écrire les définitions.
 
 ```typescript
 // USE — Pour chaque ressource, mesurez :
@@ -120,7 +120,7 @@ demo_app_nodejs_eventloop_lag_seconds
 rate(demo_app_http_requests_total{status_code="503"}[5m])
 ```
 
-> L'event loop lag est la metrique de saturation la plus importante pour Node.js. Quand le thread principal est surcharge, les requetes s'empilent dans la file d'attente et le lag augmente. Si le lag depasse 100ms, vos utilisateurs le ressentent.
+> L'event loop lag est la metrique de saturation la plus importante pour Node.js. Quand le thread principal est surcharge, les requêtes s'empilent dans la file d'attente et le lag augmente. Si le lag dépasse 100ms, vos utilisateurs le ressentent.
 
 ### [11:00-14:00] Event loop lag en detail
 
@@ -149,7 +149,7 @@ app.get('/api/heavy', async (req, res) => {
 });
 ```
 
-### [14:00-17:00] RED + USE : le modele mental complet
+### [14:00-17:00] RED + USE : le modèle mental complet
 
 > RED et USE sont complementaires. RED vous dit comment vos utilisateurs experimentent le service. USE vous dit pourquoi.
 
@@ -165,7 +165,7 @@ Debit en baisse (Rate)        →    CPU a 100% (Utilization)
 
 **Action** : Montrer un scenario concret.
 
-> Scenario : le taux d'erreur monte a 5%. C'est RED qui vous alerte. Vous regardez USE : l'event loop lag est a 500ms. Saturation. Vous regardez les traces : une requete fait un JSON.parse sur un objet enorme. Cause identifiee.
+> Scenario : le taux d'erreur monte a 5%. C'est RED qui vous alerte. Vous regardez USE : l'event loop lag est a 500ms. Saturation. Vous regardez les traces : une requête fait un JSON.parse sur un objet enorme. Cause identifiee.
 
 ```
 # Dashboard mental en 6 requetes
@@ -199,18 +199,18 @@ rate(demo_app_http_requests_total{status_code="503"}[5m])                      #
 
 > Ce workflow sera la base de nos dashboards Grafana dans le module 09 et de nos SLOs dans le module 10.
 
-### [19:30-21:00] Recapitulatif
+### [19:30-21:00] Récapitulatif
 
-> Recapitulons. RED mesure l'experience utilisateur : Rate, Errors, Duration. USE mesure la sante des ressources : Utilization, Saturation, Errors. Les deux sont complementaires — RED detecte les symptomes, USE identifie les causes.
+> Recapitulons. RED mesure l'experience utilisateur : Rate, Errors, Duration. USE mesure la sante des ressources : Utilization, Saturation, Errors. Les deux sont complementaires — RED détecté les symptomes, USE identifie les causes.
 
 > L'event loop lag est la metrique de saturation la plus critique pour Node.js. Surveillez-le en permanence.
 
 > Dans le prochain module, nous plongeons dans le troisieme pilier : les traces distribuees avec OpenTelemetry. Faites le Lab 06 pour construire votre dashboard RED/USE.
 
 ## Points d'attention pour l'enregistrement
-- Prendre le temps d'expliquer les analogies RED et USE — ce sont des modeles mentaux
-- Montrer les graphiques Prometheus en temps reel avec du trafic
-- Insister sur l'event loop lag — c'est specifique a Node.js et tres important
-- Le lien RED (symptome) → USE (cause) est le point cle du module
+- Prendre le temps d'expliquer les analogies RED et USE — ce sont des modèles mentaux
+- Montrer les graphiques Prometheus en temps réel avec du trafic
+- Insister sur l'event loop lag — c'est spécifique a Node.js et très important
+- Le lien RED (symptome) → USE (cause) est le point clé du module
 - Montrer le workflow de diagnostic RED → USE → Traces → Logs
 - S'assurer que Docker Compose est bien lance avec Prometheus

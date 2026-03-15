@@ -28,21 +28,21 @@ features:
 
 | # | Module | Niveau | Lab | Quiz |
 |---|--------|--------|-----|------|
-| | **Phase 1 — Fondamentaux de l'Observabilite** | | | |
-| 00 | [Prerequis et introduction](/modules/00-prerequis-et-introduction) | Debutant | — | [Quiz](/quizzes/quiz-00-prerequis.html) |
-| 01 | [Pourquoi l'observabilite](/modules/01-pourquoi-observabilite) | Debutant | [Lab 01](/labs/lab-01-console-log-vs-structured/README) | [Quiz](/quizzes/quiz-01-pourquoi-observabilite.html) |
-| 02 | [Logging structure](/modules/02-logging-structure) | Debutant | [Lab 02](/labs/lab-02-pino-logger/README) | [Quiz](/quizzes/quiz-02-logging-structure.html) |
-| 03 | [Niveaux de log et contexte](/modules/03-niveaux-de-log-et-contexte) | Debutant | [Lab 03](/labs/lab-03-correlation-context/README) | [Quiz](/quizzes/quiz-03-niveaux-de-log-et-contexte.html) |
-| 04 | [Introduction aux metriques](/modules/04-introduction-metriques) | Debutant | [Lab 04](/labs/lab-04-metriques-fondamentales/README) | [Quiz](/quizzes/quiz-04-introduction-metriques.html) |
+| | **Phase 1 — Fondamentaux de l'Observabilité** | | | |
+| 00 | [Prérequis et introduction](/modules/00-prerequis-et-introduction) | Débutant | — | [Quiz](/quizzes/quiz-00-prerequis.html) |
+| 01 | [Pourquoi l'observabilité](/modules/01-pourquoi-observabilite) | Débutant | [Lab 01](/labs/lab-01-console-log-vs-structured/README) | [Quiz](/quizzes/quiz-01-pourquoi-observabilite.html) |
+| 02 | [Logging structure](/modules/02-logging-structure) | Débutant | [Lab 02](/labs/lab-02-pino-logger/README) | [Quiz](/quizzes/quiz-02-logging-structure.html) |
+| 03 | [Niveaux de log et contexte](/modules/03-niveaux-de-log-et-contexte) | Débutant | [Lab 03](/labs/lab-03-correlation-context/README) | [Quiz](/quizzes/quiz-03-niveaux-de-log-et-contexte.html) |
+| 04 | [Introduction aux metriques](/modules/04-introduction-metriques) | Débutant | [Lab 04](/labs/lab-04-metriques-fondamentales/README) | [Quiz](/quizzes/quiz-04-introduction-metriques.html) |
 | | **Phase 2 — Instrumentation & Outils** | | | |
-| 05 | [Metriques Prometheus](/modules/05-metriques-prometheus) | Intermediaire | [Lab 05](/labs/lab-05-instrumenter-express/README) | [Quiz](/quizzes/quiz-05-metriques-prometheus.html) |
-| 06 | [Methodes RED & USE](/modules/06-red-use-methodes) | Intermediaire | [Lab 06](/labs/lab-06-red-use-dashboard/README) | [Quiz](/quizzes/quiz-06-red-use-methodes.html) |
-| 07 | [Distributed Tracing](/modules/07-distributed-tracing) | Intermediaire | [Lab 07](/labs/lab-07-tracing-opentelemetry/README) | [Quiz](/quizzes/quiz-07-distributed-tracing.html) |
-| 08 | [OTel Collector Pipeline](/modules/08-otel-collector-pipeline) | Intermediaire | [Lab 08](/labs/lab-08-otel-collector/README) | [Quiz](/quizzes/quiz-08-otel-collector-pipeline.html) |
-| 09 | [Grafana Dashboards](/modules/09-grafana-dashboards) | Intermediaire | [Lab 09](/labs/lab-09-promql-grafana/README) | [Quiz](/quizzes/quiz-09-grafana-dashboards.html) |
+| 05 | [Metriques Prometheus](/modules/05-metriques-prometheus) | Intermédiaire | [Lab 05](/labs/lab-05-instrumenter-express/README) | [Quiz](/quizzes/quiz-05-metriques-prometheus.html) |
+| 06 | [Méthodes RED & USE](/modules/06-red-use-methodes) | Intermédiaire | [Lab 06](/labs/lab-06-red-use-dashboard/README) | [Quiz](/quizzes/quiz-06-red-use-methodes.html) |
+| 07 | [Distributed Tracing](/modules/07-distributed-tracing) | Intermédiaire | [Lab 07](/labs/lab-07-tracing-opentelemetry/README) | [Quiz](/quizzes/quiz-07-distributed-tracing.html) |
+| 08 | [OTel Collector Pipeline](/modules/08-otel-collector-pipeline) | Intermédiaire | [Lab 08](/labs/lab-08-otel-collector/README) | [Quiz](/quizzes/quiz-08-otel-collector-pipeline.html) |
+| 09 | [Grafana Dashboards](/modules/09-grafana-dashboards) | Intermédiaire | [Lab 09](/labs/lab-09-promql-grafana/README) | [Quiz](/quizzes/quiz-09-grafana-dashboards.html) |
 | | **Phase 3 — Pratiques SRE** | | | |
 | 10 | [SLI, SLO, SLA](/modules/10-sli-slo-sla) | Avance | [Lab 10](/labs/lab-10-definir-slos/README) | [Quiz](/quizzes/quiz-10-sli-slo-sla.html) |
-| 11 | [Alerting Strategies](/modules/11-alerting-strategies) | Avance | [Lab 11](/labs/lab-11-burn-rate-alerts/README) | [Quiz](/quizzes/quiz-11-alerting-strategies.html) |
+| 11 | [Alerting Stratégies](/modules/11-alerting-strategies) | Avance | [Lab 11](/labs/lab-11-burn-rate-alerts/README) | [Quiz](/quizzes/quiz-11-alerting-strategies.html) |
 | 12 | [Incident Management](/modules/12-incident-management) | Avance | [Lab 12](/labs/lab-12-incident-simulation/README) | [Quiz](/quizzes/quiz-12-incident-management.html) |
 | 13 | [Postmortems](/modules/13-postmortems) | Avance | [Lab 13](/labs/lab-13-postmortem/README) | [Quiz](/quizzes/quiz-13-postmortems.html) |
 | 14 | [Capacity Planning](/modules/14-capacity-planning) | Avance | [Lab 14](/labs/lab-14-load-testing-k6/README) | [Quiz](/quizzes/quiz-14-capacity-planning.html) |
@@ -54,12 +54,16 @@ features:
 | 19 | [Projet Final](/modules/19-projet-final) | Expert | [Lab 19](/labs/lab-19-projet-final/README) | [Quiz](/quizzes/quiz-19-projet-final.html) |
 | | **Phase 5 — Bonus Expert** | | | |
 | 20 | [Kubernetes & Container Observability](/modules/20-kubernetes-observability) | Expert | [Lab 21](/labs/lab-21-kubernetes-observability/README) | [Quiz](/quizzes/quiz-20-kubernetes-observability.html) |
-| 21 | [FinOps — Cout de l'Observabilite](/modules/21-finops-observability) | Expert | [Lab 22](/labs/lab-22-finops-observability/README) | [Quiz](/quizzes/quiz-21-finops-observability.html) |
+| 21 | [FinOps — Cout de l'Observabilité](/modules/21-finops-observability) | Expert | [Lab 22](/labs/lab-22-finops-observability/README) | [Quiz](/quizzes/quiz-21-finops-observability.html) |
+
+> **Liens avec d'autres cours** :
+> - **06-PostgreSQL module 17** (Monitoring & Observabilité) couvre le monitoring spécifique aux bases de donnees (pg_stat, slow queries). Ce cours couvre l'observabilité applicative et infrastructure.
+> - **11-Distributed Systems module 18** (Observabilité distribuee) couvre le tracing dans un contexte multi-services. Ce cours couvre les fondamentaux et la stack complete (Prometheus, Grafana, OTel).
 
 ## Annexes
 
 | Ressource | Description |
 |-----------|-------------|
-| [Lab 20 — Integration Docker](/labs/lab-20-docker-integration/README) | Lancer la stack complete (Prometheus, Grafana, Jaeger) et observer la demo-app en vrai |
-| [References & Lectures](/modules/99-references-et-lectures) | Google SRE Book, SRE Workbook, outils, communaute — guide de lecture par phase |
-| [Glossaire](/glossaire) | ~65 termes techniques definis et illustres |
+| [Lab 20 — Intégration Docker](/labs/lab-20-docker-integration/README) | Lancer la stack complete (Prometheus, Grafana, Jaeger) et observer la demo-app en vrai |
+| [Références & Lectures](/modules/99-references-et-lectures) | Google SRE Book, SRE Workbook, outils, communaute — guide de lecture par phase |
+| [Glossaire](/glossaire) | ~65 termes techniques définis et illustres |

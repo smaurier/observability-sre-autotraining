@@ -1,17 +1,21 @@
-# Prerequis & Introduction a l'Observabilite
+# Prérequis & Introduction a l'Observabilité
+
+<!-- nav-cours-précédent -->
+> **Cours précédent** : [Systèmes Distribues](../../11-distributed-systems/modules/24-projet-final.md). Si tu arrives ici sans avoir fait les cours précédents, consulte le [guide de démarrage](../../GUIDE-DEMARRAGE.md).
+
 
 ## Objectifs pedagogiques
 
-- Verifier que votre environnement de developpement est pret pour le cours
+- Vérifier que votre environnement de développement est pret pour le cours
 - Comprendre la structure du projet `demo-app` que nous instrumenterons tout au long du parcours
-- Installer les dependances essentielles (tsx, pino, prom-client)
-- Lancer l'application pour la premiere fois et observer sa sortie brute
-- Saisir la difference fondamentale entre **voir** et **comprendre** un systeme
+- Installer les dépendances essentielles (tsx, pino, prom-client)
+- Lancer l'application pour la première fois et observer sa sortie brute
+- Saisir la différence fondamentale entre **voir** et **comprendre** un système
 - Avoir une vision d'ensemble des 20 modules du cours
 
 ---
 
-## Prerequis techniques
+## Prérequis techniques
 
 Avant de commencer, assurez-vous de disposer des outils suivants installes sur votre machine.
 
@@ -35,7 +39,7 @@ Si vous n'avez pas Node.js 20+, rendez-vous sur [nodejs.org](https://nodejs.org)
 Vous devez etre a l'aise avec les concepts suivants :
 
 - Typage statique (`string`, `number`, `boolean`, interfaces, types)
-- Les generiques de base (`Array<T>`, `Promise<T>`)
+- Les génériques de base (`Array<T>`, `Promise<T>`)
 - `async` / `await`
 - Les modules ES (`import` / `export`)
 
@@ -55,7 +59,7 @@ async function fetchUser(id: string): Promise<User> {
 
 ### Express.js — les bases
 
-Nous utiliserons Express comme framework HTTP. Connaitre les concepts de routes, middleware et `Request`/`Response` suffit.
+Nous utiliserons Express comme framework HTTP. Connaître les concepts de routes, middleware et `Request`/`Response` suffit.
 
 ### Docker (optionnel mais recommande)
 
@@ -65,16 +69,16 @@ Docker nous permettra de lancer Prometheus, Grafana et Jaeger sans installation 
 
 ## Docker & Docker Compose — L'essentiel pour ce cours
 
-Tout au long de ce parcours, nous utiliserons Docker pour deployer notre stack d'observabilite : **Prometheus** (metriques), **Grafana** (dashboards), **Jaeger** (traces), et l'**OpenTelemetry Collector** (pipeline de telemetrie). Plutot que d'installer chaque outil nativement, Docker nous permet de lancer l'ensemble en une seule commande, de maniere reproductible et isolee.
+Tout au long de ce parcours, nous utiliserons Docker pour déployer notre stack d'observabilité : **Prometheus** (metriques), **Grafana** (dashboards), **Jaeger** (traces), et l'**OpenTelemetry Collector** (pipeline de telemetrie). Plutot que d'installer chaque outil nativement, Docker nous permet de lancer l'ensemble en une seule commande, de manière reproductible et isolee.
 
 ### Pourquoi Docker dans ce cours
 
-- **Reproductibilite** : tout le monde obtient le meme environnement, quel que soit l'OS
+- **Reproductibilite** : tout le monde obtient le même environnement, quel que soit l'OS
 - **Isolation** : les outils tournent dans leurs propres containers sans polluer votre machine
-- **Simplicite** : une commande `docker-compose up -d` remplace des dizaines d'etapes d'installation
+- **Simplicite** : une commande `docker-compose up -d` remplace des dizaines d'étapes d'installation
 - **Proximite avec la production** : en entreprise, ces outils tournent quasi-systematiquement dans des containers
 
-### Verification de l'installation
+### Vérification de l'installation
 
 Avant d'aller plus loin, verifiez que Docker et Docker Compose sont disponibles :
 
@@ -94,11 +98,11 @@ docker-compose --version
 
 Si ces commandes echouent, installez Docker Desktop depuis [docker.com](https://www.docker.com/products/docker-desktop/) (Windows/macOS) ou le Docker Engine via votre gestionnaire de paquets (Linux).
 
-### Concepts cles
+### Concepts clés
 
 #### Image vs Container
 
-Une **image** est un template en lecture seule (comme un ISO). Un **container** est une instance en cours d'execution de cette image (comme une VM legere).
+Une **image** est un template en lecture seule (comme un ISO). Un **container** est une instance en cours d'exécution de cette image (comme une VM legere).
 
 ```bash
 # Telecharger une image
@@ -113,7 +117,7 @@ docker run -d --name mon-prometheus prom/prometheus:latest
 
 #### Port mapping (`-p hote:container`)
 
-Les containers sont isoles du reseau de votre machine. Le port mapping cree un pont :
+Les containers sont isoles du réseau de votre machine. Le port mapping créé un pont :
 
 ```bash
 # Rendre Prometheus accessible sur http://localhost:9090
@@ -123,7 +127,7 @@ docker run -d -p 9090:9090 prom/prometheus
 docker run -d -p 3001:3000 grafana/grafana
 ```
 
-Le format est `-p PORT_HOTE:PORT_CONTAINER`. Si le port hote est deja utilise, changez-le (ex: `-p 9091:9090`).
+Le format est `-p PORT_HOTE:PORT_CONTAINER`. Si le port hote est déjà utilise, changez-le (ex: `-p 9091:9090`).
 
 #### Volumes (persistance des donnees)
 
@@ -142,7 +146,7 @@ docker volume ls
 
 #### Networks (communication inter-containers)
 
-Les containers sur le meme reseau Docker peuvent communiquer entre eux **par nom de service**, sans utiliser `localhost`.
+Les containers sur le même réseau Docker peuvent communiquer entre eux **par nom de service**, sans utiliser `localhost`.
 
 ```bash
 # Creer un reseau dedie a la stack d'observabilite
@@ -181,7 +185,7 @@ docker rm mon-container
 
 #### Commandes Docker Compose
 
-Docker Compose orchestre plusieurs containers definis dans un fichier `docker-compose.yml` :
+Docker Compose orchestre plusieurs containers définis dans un fichier `docker-compose.yml` :
 
 ```bash
 # Lancer toute la stack en arriere-plan
@@ -240,27 +244,27 @@ volumes:
 
 Points importants :
 - Chaque service est un container
-- Les services sur le meme `network` se voient par leur nom (ex: `demo-app:3000`)
+- Les services sur le même `network` se voient par leur nom (ex: `demo-app:3000`)
 - Les `volumes` nommes persistent les donnees entre les redemarrages
 - `build` construit une image locale, `image` utilise une image du registry
 
 ### Troubleshooting courant
 
-| Probleme | Cause probable | Solution |
+| Problème | Cause probable | Solution |
 |----------|---------------|----------|
 | `port is already allocated` | Un autre processus utilise le port | Changez le port hote (`-p 9091:9090`) ou arretez le processus conflictuel (`lsof -i :9090`) |
 | `Cannot connect to the Docker daemon` | Docker Desktop n'est pas demarre | Lancez Docker Desktop, ou sur Linux : `sudo systemctl start docker` |
 | `no space left on device` | Disque sature par les images/volumes | Nettoyez avec `docker system prune -a` (attention : supprime les images non utilisees) |
-| Container qui redémarre en boucle | Erreur de configuration ou memoire insuffisante | Consultez les logs : `docker logs <container>` et verifiez les limites memoire dans Docker Desktop (>= 4 Go recommande) |
-| `network XXX not found` | Le reseau n'a pas ete cree | Lancez `docker-compose up -d` (il cree les reseaux automatiquement) ou `docker network create XXX` |
+| Container qui redémarre en boucle | Erreur de configuration ou mémoire insuffisante | Consultez les logs : `docker logs <container>` et verifiez les limites mémoire dans Docker Desktop (>= 4 Go recommande) |
+| `network XXX not found` | Le réseau n'a pas ete créé | Lancez `docker-compose up -d` (il créé les réseaux automatiquement) ou `docker network create XXX` |
 
 ::: tip Astuce
-Quand quelque chose ne fonctionne pas, la premiere commande a lancer est toujours `docker logs <nom-du-container>`. 90% des problemes s'expliquent dans les logs.
+Quand quelque chose ne fonctionne pas, la première commande a lancer est toujours `docker logs <nom-du-container>`. 90% des problèmes s'expliquent dans les logs.
 :::
 
 ---
 
-## Installation des dependances du cours
+## Installation des dépendances du cours
 
 Clonez le depot du cours puis installez les paquets :
 
@@ -326,13 +330,13 @@ app.listen(PORT, () => {
 });
 ```
 
-Remarquez : a ce stade, toute notre "observabilite" repose sur `console.log`. Nous allons voir pourquoi c'est insuffisant.
+Remarquez : a ce stade, toute notre "observabilité" repose sur `console.log`. Nous allons voir pourquoi c'est insuffisant.
 
 ---
 
 ## Premier contact : observer la sortie brute
 
-Lancez l'application et envoyez quelques requetes :
+Lancez l'application et envoyez quelques requêtes :
 
 ```bash
 # Terminal 1 — lancer l'app
@@ -353,27 +357,27 @@ Fetching orders...
 Creating order: { item: 'laptop' }
 ```
 
-C'est lisible... pour un humain, dans un terminal, avec 3 requetes. Mais imaginez 10 000 requetes par seconde, 15 services, et un bug en production a 3h du matin.
+C'est lisible... pour un humain, dans un terminal, avec 3 requêtes. Mais imaginez 10 000 requêtes par seconde, 15 services, et un bug en production a 3h du matin.
 
 ---
 
-## Voir vs Comprendre un systeme
+## Voir vs Comprendre un système
 
 L'analogie du tableau de bord d'une voiture est parlante :
 
-- **Voir** = regarder par la fenetre et constater que la voiture roule
+- **Voir** = regarder par la fenêtre et constater que la voiture roule
 - **Comprendre** = lire le compteur de vitesse, la jauge d'essence, la temperature moteur, le temoin d'huile
 
-`console.log` vous permet de **voir**. L'observabilite vous permet de **comprendre**.
+`console.log` vous permet de **voir**. L'observabilité vous permet de **comprendre**.
 
 Avec `console.log`, vous ne savez pas :
-- Combien de temps a pris chaque requete
-- Quel pourcentage de requetes echoue
-- Si la memoire augmente de facon anormale
-- Quel parcours a suivi une requete a travers vos services
+- Combien de temps a pris chaque requête
+- Quel pourcentage de requêtes echoue
+- Si la mémoire augmente de façon anormale
+- Quel parcours a suivi une requête a travers vos services
 
 ::: tip A retenir
-L'observabilite n'est pas un outil — c'est une **propriete** de votre systeme. Un systeme est observable quand vous pouvez comprendre son etat interne en examinant ses sorties (logs, metriques, traces).
+L'observabilité n'est pas un outil — c'est une **propriété** de votre système. Un système est observable quand vous pouvez comprendre son état interne en examinant ses sorties (logs, metriques, traces).
 :::
 
 ---
@@ -384,13 +388,13 @@ Le cours est structure en 20 modules progressifs :
 
 | Module | Sujet | Difficulte |
 |--------|-------|------------|
-| 00 | Prerequis & Introduction | 1 |
-| 01 | Pourquoi l'Observabilite | 1 |
+| 00 | Prérequis & Introduction | 1 |
+| 01 | Pourquoi l'Observabilité | 1 |
 | 02 | Logging structure avec Pino | 2 |
 | 03 | Niveaux de log et contexte | 2 |
 | 04 | Introduction aux metriques | 2 |
 | 05 | prom-client & Prometheus | 3 |
-| 06 | Methodes RED & USE | 3 |
+| 06 | Méthodes RED & USE | 3 |
 | 07 | Distributed Tracing & OpenTelemetry | 3 |
 | 08 | OTel Collector & Pipeline | 3 |
 | 09 | Grafana Dashboards & PromQL | 3 |
@@ -399,24 +403,33 @@ Le cours est structure en 20 modules progressifs :
 Chaque module comprend :
 - Un **cours** (ce que vous lisez maintenant)
 - Un **lab** pratique (exercices guides)
-- Un **quiz** d'auto-evaluation
+- Un **quiz** d'auto-évaluation
 
 ---
 
 ## Bonnes pratiques pour suivre ce cours
 
-- **Tapez le code vous-meme** plutot que de copier-coller. La memoire musculaire aide a retenir.
-- **Experimentez** : modifiez les exemples, cassez des choses, observez les resultats.
-- **Faites les labs** : la theorie sans pratique ne sert a rien en observabilite.
+- **Tapez le code vous-même** plutot que de copier-coller. La mémoire musculaire aide à retenir.
+- **Experimentez** : modifiez les exemples, cassez des choses, observez les résultats.
+- **Faites les labs** : la théorie sans pratique ne sert a rien en observabilité.
 - **Prenez des notes** sur les patterns que vous reconnaissez dans vos propres projets.
 
 ::: warning Attention
-Ne sautez pas les premiers modules meme si vous connaissez deja les bases. Chaque module construit sur le precedent et introduit des conventions que nous reutiliserons jusqu'a la fin.
+Ne sautez pas les premiers modules même si vous connaissez déjà les bases. Chaque module construit sur le précédent et introduit des conventions que nous reutiliserons jusqu'à la fin.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
-- [Quiz 00 — Prerequis & Introduction](/quizzes/quiz-00-prerequis)
-- [Module suivant — Pourquoi l'Observabilite](/modules/01-pourquoi-observabilite)
+- [Quiz 00 — Prérequis & Introduction](/quizzes/quiz-00-prerequis)
+- [Module suivant — Pourquoi l'Observabilité](/modules/01-pourquoi-observabilite)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 00 prérequis et introduction](../screencasts/screencast-00-prerequis-et-introduction.md)
+2. **Quiz** : [quiz 00 prérequis](../quizzes/quiz-00-prerequis.html)
+:::

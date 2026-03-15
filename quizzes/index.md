@@ -1,11 +1,11 @@
 # Quizzes
 
-Testez vos connaissances apres chaque module avec ces quizzes interactifs.
+Testez vos connaissances après chaque module avec ces quizzes interactifs.
 
 | Quiz | Module | Difficulte |
 |------|--------|------------|
-| [Quiz 00 — Prerequis](/quizzes/quiz-00-prerequis.html) | Module 00 | 1 |
-| [Quiz 01 — Pourquoi l'Observabilite](/quizzes/quiz-01-pourquoi-observabilite.html) | Module 01 | 1 |
+| [Quiz 00 — Prérequis](/quizzes/quiz-00-prerequis.html) | Module 00 | 1 |
+| [Quiz 01 — Pourquoi l'Observabilité](/quizzes/quiz-01-pourquoi-observabilite.html) | Module 01 | 1 |
 | [Quiz 02 — Logging structure](/quizzes/quiz-02-logging-structure.html) | Module 02 | 2 |
 | [Quiz 03 — Niveaux de log](/quizzes/quiz-03-niveaux-de-log-et-contexte.html) | Module 03 | 2 |
 | [Quiz 04 — Metriques](/quizzes/quiz-04-introduction-metriques.html) | Module 04 | 2 |
@@ -25,4 +25,4 @@ Testez vos connaissances apres chaque module avec ces quizzes interactifs.
 | [Quiz 18 — Production](/quizzes/quiz-18-production-readiness.html) | Module 18 | 5 |
 | [Quiz 19 — Projet final](/quizzes/quiz-19-projet-final.html) | Module 19 | 5 |
 | 20 | [Kubernetes & Container Observability](/quizzes/quiz-20-kubernetes-observability.html) | Expert |
-| 21 | [FinOps — Cout de l'Observabilite](/quizzes/quiz-21-finops-observability.html) | Expert |
+| 21 | [FinOps — Cout de l'Observabilité](/quizzes/quiz-21-finops-observability.html) | Expert |

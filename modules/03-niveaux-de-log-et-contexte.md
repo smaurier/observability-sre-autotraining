@@ -2,20 +2,20 @@
 
 ## Objectifs pedagogiques
 
-- Maitriser chaque niveau de log et savoir quand l'utiliser
+- Maîtriser chaque niveau de log et savoir quand l'utiliser
 - Comprendre le concept de Correlation ID et son importance
 - Implementer un `requestId` avec `AsyncLocalStorage`
 - Decouvrir le W3C Trace Context et sa relation avec les logs
 - Appliquer le logging contextuel (orderId, tenantId, userId)
 - Savoir ce qu'il faut logger — et ce qu'il ne faut surtout pas logger
-- Comprendre les strategies de log sampling
+- Comprendre les stratégies de log sampling
 - Construire un middleware Express complet pour la correlation
 
 ---
 
 ## Les niveaux de log en profondeur
 
-Chaque niveau a un role precis. Utiliser le mauvais niveau est aussi grave que de ne pas logger du tout : trop de bruit tue le signal.
+Chaque niveau à un role précis. Utiliser le mauvais niveau est aussi grave que de ne pas logger du tout : trop de bruit tue le signal.
 
 ### trace (10) — Le microscope
 
@@ -34,10 +34,10 @@ logger.trace({
 }, 'Executing SQL query');
 ```
 
-**Quand l'utiliser** : Debugging d'un algorithme precis, investigation d'un probleme tres specifique.
-**En production** : Desactive par defaut. Active temporairement via `LOG_LEVEL=trace` sur un pod specifique.
+**Quand l'utiliser** : Debugging d'un algorithme précis, investigation d'un problème très spécifique.
+**En production** : Desactive par defaut. Active temporairement via `LOG_LEVEL=trace` sur un pod spécifique.
 
-### debug (20) — Le mode developpeur
+### debug (20) — Le mode développeur
 
 ```typescript
 // DEBUG : informations utiles pendant le developpement
@@ -56,8 +56,8 @@ logger.debug({
 }, 'Retrying failed request');
 ```
 
-**Quand l'utiliser** : Flow d'execution, etats intermediaires, resultats de cache.
-**En production** : Desactive par defaut. Utile pour diagnostiquer un probleme complexe.
+**Quand l'utiliser** : Flow d'exécution, états intermédiaires, résultats de cache.
+**En production** : Desactive par defaut. Utile pour diagnostiquer un problème complexe.
 
 ### info (30) — Le journal de bord
 
@@ -71,7 +71,7 @@ logger.info({ jobName: 'cleanup', duration: 1234 }, 'Scheduled job completed');
 logger.info({ version: '2.1.0' }, 'Application deployed');
 ```
 
-**Quand l'utiliser** : Demarrage/arret du service, evenements metier importants, fins de jobs.
+**Quand l'utiliser** : Démarrage/arret du service, événements metier importants, fins de jobs.
 **En production** : Toujours active. C'est votre source principale d'information.
 
 ### warn (40) — Le signal d'alerte
@@ -99,7 +99,7 @@ logger.warn({
 **Quand l'utiliser** : Degradation de performance, approche d'une limite, usage d'API deprecated, fallbacks actives.
 **En production** : Toujours active. Surveillez la tendance — une augmentation des warnings precede souvent une panne.
 
-### error (50) — Le probleme reel
+### error (50) — Le problème réel
 
 ```typescript
 // ERROR : une operation a echoue et necessite une attention
@@ -138,16 +138,16 @@ logger.fatal({
 }, 'Out of memory — process will exit');
 ```
 
-**Quand l'utiliser** : Echec de demarrage, corruption de donnees irreparable, impossibilite de continuer.
+**Quand l'utiliser** : Echec de démarrage, corruption de donnees irreparable, impossibilite de continuer.
 **En production** : Doit toujours declencher une alerte immediate.
 
 ---
 
 ## Correlation IDs — le fil d'Ariane
 
-### Le probleme
+### Le problème
 
-Imaginez 100 requetes simultanees generant chacune 10 logs. Vous avez 1 000 lignes melangees dans votre terminal. Comment savoir quels logs appartiennent a la meme requete ?
+Imaginez 100 requêtes simultanees generant chacune 10 logs. Vous avez 1 000 lignes melangees dans votre terminal. Comment savoir quels logs appartiennent à la même requête ?
 
 ```typescript
 // Sans correlation ID — un melange indechiffrable
@@ -159,7 +159,7 @@ Imaginez 100 requetes simultanees generant chacune 10 logs. Vous avez 1 000 lign
 // {"msg":"User authenticated"}          ← mais pour quelle requete ?
 ```
 
-### La solution : un identifiant unique par requete
+### La solution : un identifiant unique par requête
 
 ```typescript
 import { randomUUID } from 'crypto';
@@ -178,7 +178,7 @@ import { randomUUID } from 'crypto';
 
 ## AsyncLocalStorage — le contexte sans prop drilling
 
-Node.js offre `AsyncLocalStorage` pour propager un contexte a travers toute la chaine asynchrone sans le passer explicitement en parametre.
+Node.js offre `AsyncLocalStorage` pour propager un contexte a travers toute la chaine asynchrone sans le passer explicitement en paramètre.
 
 ```typescript
 // src/context.ts
@@ -308,7 +308,7 @@ const reqLogger = logger.child({
 ```
 
 ::: tip A retenir
-Le `traceId` est la cle de correlation universelle. En l'incluant dans vos logs, vous pouvez passer d'un log dans Grafana Loki a la trace correspondante dans Jaeger en un clic.
+Le `traceId` est la clé de correlation universelle. En l'incluant dans vos logs, vous pouvez passer d'un log dans Grafana Loki à la trace correspondante dans Jaeger en un clic.
 :::
 
 ---
@@ -340,7 +340,7 @@ orderLogger.info({ status: 'confirmed' }, 'Order status updated');
 
 ---
 
-## Ce qu'il faut logger — et ce qu'il faut eviter
+## Ce qu'il faut logger — et ce qu'il faut éviter
 
 ### A logger
 
@@ -377,14 +377,14 @@ logger.info({ count: thousandItems.length }, 'Processing batch started');
 ```
 
 ::: warning Attention
-Un log qui contient un mot de passe ou un token est une faille de securite, meme s'il est "juste dans les logs". Les logs sont souvent accessibles a de nombreuses personnes et stockes longtemps. Utilisez les redactors de Pino comme filet de securite.
+Un log qui contient un mot de passe ou un token est une faille de sécurité, même s'il est "juste dans les logs". Les logs sont souvent accessibles a de nombreuses personnes et stockes longtemps. Utilisez les redactors de Pino comme filet de sécurité.
 :::
 
 ---
 
-## Strategies de log sampling
+## Stratégies de log sampling
 
-En haute charge, logger chaque requete peut etre trop couteux. Le sampling permet de n'enregistrer qu'un echantillon :
+En haute charge, logger chaque requête peut etre trop couteux. Le sampling permet de n'enregistrer qu'un echantillon :
 
 ```typescript
 // Sampling simple : 1 log sur 100
@@ -505,16 +505,16 @@ function extractTraceId(req: Request): string | undefined {
 
 ## Bonnes pratiques
 
-- **Un seul requestId par requete** — genere a l'entree du systeme, propage a tous les services
+- **Un seul requestId par requête** — généré a l'entree du système, propage a tous les services
 - **Niveau info par defaut en production** — debug et trace uniquement pour les investigations
 - **Contexte metier dans les logs** — orderId, userId, tenantId rendent le filtrage puissant
-- **Ne jamais logger de PII** sans redaction — emails, numeros de telephone, tokens
-- **Logger les entrees et sorties** des operations importantes (debut/fin de requete, debut/fin de job)
+- **Ne jamais logger de PII** sans redaction — emails, numéros de telephone, tokens
+- **Logger les entrees et sorties** des operations importantes (debut/fin de requête, debut/fin de job)
 - **Utiliser le champ `err`** pour les erreurs — le serializer standard de Pino les formate correctement
 - **Logger la duree des operations** — c'est une metrique gratuite dans vos logs
 
 ::: tip A retenir
-Le Correlation ID est le concept le plus important de ce module. Sans lui, vos logs sont un tas de feuilles mortes melanges par le vent. Avec lui, chaque feuille porte un numero et vous pouvez reconstituer l'arbre entier.
+Le Correlation ID est le concept le plus important de ce module. Sans lui, vos logs sont un tas de feuilles mortes melanges par le vent. Avec lui, chaque feuille porte un numéro et vous pouvez reconstituer l'arbre entier.
 :::
 
 ---
@@ -523,7 +523,7 @@ Le Correlation ID est le concept le plus important de ce module. Sans lui, vos l
 
 ### Log sampling : quand vous loggez trop
 
-A grande echelle (10 000+ requetes/seconde), logger chaque requete en `info` peut couter cher en stockage et en bande passante. Le log sampling permet de n'emettre qu'un echantillon des logs tout en gardant une vue representative :
+A grande echelle (10 000+ requêtes/seconde), logger chaque requête en `info` peut couter cher en stockage et en bande passante. Le log sampling permet de n'emettre qu'un echantillon des logs tout en gardant une vue representative :
 
 ```typescript
 import pino from 'pino';
@@ -545,12 +545,12 @@ function shouldSample(level: string): boolean {
 ```
 
 ::: warning Anti-pattern : log-and-forget
-Logger sans jamais relire ses logs est un gaspillage. Chaque champ que vous ajoutez a un log devrait repondre a un besoin de filtrage ou d'investigation concret. Posez-vous la question : "Est-ce que je vais chercher ce champ un jour ?" Si non, ne le loggez pas.
+Logger sans jamais relire ses logs est un gaspillage. Chaque champ que vous ajoutez à un log devrait repondre à un besoin de filtrage ou d'investigation concret. Posez-vous la question : "Est-ce que je vais chercher ce champ un jour ?" Si non, ne le loggez pas.
 :::
 
 ### Structured error logging : capturer le contexte d'une erreur
 
-Les erreurs en production sont les logs les plus precieux. Un log d'erreur expert capture tout le contexte necessaire pour reproduire le probleme :
+Les erreurs en production sont les logs les plus precieux. Un log d'erreur expert capture tout le contexte nécessaire pour reproduire le problème :
 
 ```typescript
 try {
@@ -574,25 +574,35 @@ try {
 }
 ```
 
-Ce log unique contient tout ce qu'un ingenieur d'astreinte a besoin pour comprendre le probleme sans devoir reproduire le bug.
+Ce log unique contient tout ce qu'un ingenieur d'astreinte a besoin pour comprendre le problème sans devoir reproduire le bug.
 
 ### Le concept de "Observability Tax"
 
-Chaque log, metrique et trace a un cout : CPU, memoire, reseau, stockage. Le Google SRE Workbook (Chapitre 5) recommande de traiter l'observabilite comme un budget :
+Chaque log, metrique et trace à un cout : CPU, mémoire, réseau, stockage. Le Google SRE Workbook (Chapitre 5) recommande de traiter l'observabilité comme un budget :
 
 - **Mesurez le cout** de votre telemetrie (Go/jour, $/mois)
 - **Fixez un budget** par service (ex: max 5% du CPU pour le logging)
 - **Optimisez** : sampling, filtrage, compression, retention reduite pour les donnees peu utiles
-- **Renegociez** quand le budget est depasse
+- **Renegociez** quand le budget est dépasse
 
-::: tip Reference SRE
-Le Google SRE Workbook, Chapitre 5 ("Alerting on SLOs"), et le Chapitre 6 ("Eliminating Toil") abordent en detail le cout de l'observabilite et comment l'optimiser. Un systeme sur-instrumente est aussi problematique qu'un systeme sous-instrumente.
+::: tip Référence SRE
+Le Google SRE Workbook, Chapitre 5 ("Alerting on SLOs"), et le Chapitre 6 ("Eliminating Toil") abordent en detail le cout de l'observabilité et comment l'optimiser. Un système sur-instrumente est aussi problematique qu'un système sous-instrumente.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
 - [Lab 03 — Implementer la correlation dans la demo-app](/labs/lab-03-correlation-context/README)
 - [Quiz 03 — Niveaux de log et contexte](/quizzes/quiz-03-niveaux-de-log-et-contexte)
 - [Module suivant — Introduction aux metriques](/modules/04-introduction-metriques)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 03 niveaux de log et contexte](../screencasts/screencast-03-niveaux-de-log-et-contexte.md)
+2. **Lab** : [lab-03-correlation-context](../labs/lab-03-correlation-context/README)
+3. **Quiz** : [quiz 03 niveaux de log et contexte](../quizzes/quiz-03-niveaux-de-log-et-contexte.html)
+:::

@@ -1,8 +1,8 @@
 # Observability & SRE Course
 
-Formation complete Observabilite & SRE : logging, metriques, tracing, SLOs, incidents, chaos engineering (debutant vers expert).
+Formation complete Observabilité & SRE : logging, metriques, tracing, SLOs, incidents, chaos engineering (débutant vers expert).
 
-## Demarrage rapide
+## Démarrage rapide
 
 ```bash
 npm install

@@ -1,11 +1,11 @@
-# Lab 20 — Guide pas a pas : Integration Docker
+# Lab 20 — Guide pas a pas : Intégration Docker
 
-Ce lab est un guide pratique (walkthrough). Il n'y a pas de fichier TypeScript a ecrire :
+Ce lab est un guide pratique (walkthrough). Il n'y a pas de fichier TypeScript à écrire :
 vous allez manipuler Docker, Prometheus, Grafana et Jaeger directement.
 
 ---
 
-## Etape 1 : Verifier les prerequis
+## Étape 1 : Vérifier les prérequis
 
 Avant de commencer, assurez-vous que Docker et Docker Compose sont installes et fonctionnels.
 
@@ -17,14 +17,14 @@ docker compose version
 # Docker Compose version v2.x ou superieur attendu
 ```
 
-Ensuite, positionnez-vous a la racine du projet et installez les dependances :
+Ensuite, positionnez-vous à la racine du projet et installez les dépendances :
 
 ```bash
 cd observability-sre-course
 npm install
 ```
 
-Puis installez les dependances de la demo-app :
+Puis installez les dépendances de la demo-app :
 
 ```bash
 cd demo-app
@@ -32,11 +32,11 @@ npm install
 ```
 
 > **Astuce** : Si `npm install` echoue, verifiez votre version de Node.js (`node --version`).
-> Le projet necessite Node.js 18 ou superieur.
+> Le projet nécessité Node.js 18 ou superieur.
 
 ---
 
-## Etape 2 : Lancer la stack de base (Prometheus + Grafana)
+## Étape 2 : Lancer la stack de base (Prometheus + Grafana)
 
 On commence par lancer uniquement Prometheus et Grafana, sans la demo-app dans Docker.
 La demo-app tournera en local sur votre machine.
@@ -46,7 +46,7 @@ La demo-app tournera en local sur votre machine.
 docker compose -f docker-compose.base.yml up -d
 ```
 
-Verifiez que les conteneurs sont en cours d'execution :
+Verifiez que les conteneurs sont en cours d'exécution :
 
 ```bash
 docker compose -f docker-compose.base.yml ps
@@ -62,14 +62,14 @@ Ouvrez les interfaces dans votre navigateur :
 | Grafana    | http://localhost:3001       | admin / admin    |
 
 > **Note** : La demo-app n'est pas encore lancee. Prometheus ne trouvera pas sa target
-> pour l'instant — c'est normal. On la lance a l'etape suivante.
+> pour l'instant — c'est normal. On la lance a l'étape suivante.
 
-> **Attention** : Lors de la premiere connexion a Grafana, il vous sera demande de changer
+> **Attention** : Lors de la première connexion a Grafana, il vous sera demandé de changer
 > le mot de passe. Vous pouvez cliquer sur "Skip" pour le moment.
 
 ---
 
-## Etape 3 : Lancer la demo-app localement
+## Étape 3 : Lancer la demo-app localement
 
 Ouvrez un nouveau terminal et lancez la demo-app :
 
@@ -78,7 +78,7 @@ cd demo-app
 npm run dev
 ```
 
-L'application devrait demarrer sur le port 3000. Testez-la :
+L'application devrait démarrer sur le port 3000. Testez-la :
 
 ```bash
 # Lister les produits
@@ -113,23 +113,23 @@ http_requests_in_flight 0
 
 **Que signifie cette sortie ?**
 
-- `http_requests_total` : un **compteur** (counter) qui s'incremente a chaque requete. Il est segmente par methode HTTP, route et code de statut.
-- `http_request_duration_seconds` : un **histogramme** qui mesure la distribution des durees de requetes. Les `_bucket` representent les seuils (le = "less or equal").
-- `http_requests_in_flight` : une **jauge** (gauge) qui indique le nombre de requetes en cours de traitement a cet instant.
+- `http_requests_total` : un **compteur** (counter) qui s'incremente à chaque requête. Il est segmente par méthode HTTP, route et code de statut.
+- `http_request_duration_seconds` : un **histogramme** qui mesure la distribution des durees de requêtes. Les `_bucket` representent les seuils (le = "less or equal").
+- `http_requests_in_flight` : une **jauge** (gauge) qui indique le nombre de requêtes en cours de traitement a cet instant.
 
 Ce sont les metriques que Prometheus va scraper regulierement.
 
 ---
 
-## Etape 4 : Verifier le scraping Prometheus
+## Étape 4 : Vérifier le scraping Prometheus
 
 Ouvrez Prometheus dans votre navigateur : http://localhost:9090/targets
 
-Vous devriez voir une target pour la demo-app. Son etat doit etre **UP** (en vert).
+Vous devriez voir une target pour la demo-app. Son état doit etre **UP** (en vert).
 
 ### Depannage : Prometheus ne voit pas la demo-app
 
-> **Si la target est DOWN ou absente**, c'est probablement un probleme de reseau.
+> **Si la target est DOWN ou absente**, c'est probablement un problème de réseau.
 > Prometheus tourne dans Docker, mais la demo-app tourne sur votre machine hote.
 >
 > Sur **macOS** et **Windows** (Docker Desktop), utilisez `host.docker.internal` comme
@@ -150,7 +150,7 @@ scrape_configs:
         # si Prometheus tourne dans Docker et la demo-app en local
 ```
 
-Apres modification, rechargez la configuration Prometheus sans redemarrer le conteneur :
+Après modification, rechargez la configuration Prometheus sans redemarrer le conteneur :
 
 ```bash
 # Option 1 : via l'API HTTP (si --web.enable-lifecycle est active)
@@ -162,24 +162,24 @@ docker compose -f docker-compose.base.yml restart prometheus
 
 Retournez sur http://localhost:9090/targets et verifiez que la target est maintenant **UP**.
 
-### Premiere requete PromQL
+### Premiere requête PromQL
 
 Dans l'interface Prometheus (http://localhost:9090), allez dans l'onglet **Graph** et
-executez la requete suivante :
+executez la requête suivante :
 
 ```promql
 rate(http_requests_total[1m])
 ```
 
-Cette requete calcule le **taux de requetes par seconde** sur la derniere minute.
-Si vous n'avez envoye qu'une seule requete jusqu'ici, le resultat sera proche de zero.
-C'est normal — on va generer du trafic a l'etape suivante.
+Cette requête calcule le **taux de requêtes par seconde** sur la dernière minute.
+Si vous n'avez envoye qu'une seule requête jusqu'ici, le résultat sera proche de zero.
+C'est normal — on va générer du trafic a l'étape suivante.
 
 ---
 
-## Etape 5 : Generer du trafic
+## Étape 5 : Générer du trafic
 
-Il est temps d'envoyer des requetes pour avoir des metriques interessantes.
+Il est temps d'envoyer des requêtes pour avoir des metriques interessantes.
 
 ### Trafic normal (100 iterations)
 
@@ -194,12 +194,12 @@ for i in $(seq 1 100); do
 done
 ```
 
-Ce script envoie 300 requetes au total (3 par iteration) :
+Ce script envoie 300 requêtes au total (3 par iteration) :
 - 100 GET sur `/api/products`
 - 100 GET sur `/api/products/prod-001`
 - 100 POST sur `/api/orders`
 
-### Generer des erreurs 404
+### Générer des erreurs 404
 
 ```bash
 for i in $(seq 1 20); do
@@ -207,7 +207,7 @@ for i in $(seq 1 20); do
 done
 ```
 
-### Generer des erreurs 500 (si la demo-app le supporte)
+### Générer des erreurs 500 (si la demo-app le supporte)
 
 ```bash
 for i in $(seq 1 10); do
@@ -217,35 +217,35 @@ for i in $(seq 1 10); do
 done
 ```
 
-> **Attendez 30 secondes** apres avoir envoye le trafic. Prometheus scrape les metriques
+> **Attendez 30 secondes** après avoir envoye le trafic. Prometheus scrape les metriques
 > toutes les 15 secondes par defaut. Deux cycles de scrape suffisent pour que les donnees
 > soient disponibles dans l'interface.
 
 ---
 
-## Etape 6 : Explorer les metriques dans Prometheus
+## Étape 6 : Explorer les metriques dans Prometheus
 
-Retournez sur http://localhost:9090 et essayez les requetes suivantes dans l'onglet **Graph**.
-Pour chaque requete, cliquez sur l'onglet **Graph** (pas **Table**) pour voir l'evolution
+Retournez sur http://localhost:9090 et essayez les requêtes suivantes dans l'onglet **Graph**.
+Pour chaque requête, cliquez sur l'onglet **Graph** (pas **Table**) pour voir l'evolution
 dans le temps.
 
-### 6.1 — Taux de requetes global
+### 6.1 — Taux de requêtes global
 
 ```promql
 rate(http_requests_total[5m])
 ```
 
-**Explication** : Affiche le taux de requetes par seconde, par serie (chaque combinaison
+**Explication** : Affiche le taux de requêtes par seconde, par serie (chaque combinaison
 unique de labels). Vous verrez plusieurs lignes, une par combinaison `{method, route, status}`.
 
-### 6.2 — Taux de requetes reussies uniquement
+### 6.2 — Taux de requêtes reussies uniquement
 
 ```promql
 rate(http_requests_total{status="200"}[5m])
 ```
 
-**Explication** : Filtre uniquement les requetes avec un code HTTP 200. Les 404 et 500 sont
-exclues. Comparez avec la requete precedente pour voir la proportion d'erreurs.
+**Explication** : Filtre uniquement les requêtes avec un code HTTP 200. Les 404 et 500 sont
+exclues. Comparez avec la requête précédente pour voir la proportion d'erreurs.
 
 ### 6.3 — Latence au 99e percentile
 
@@ -253,9 +253,9 @@ exclues. Comparez avec la requete precedente pour voir la proportion d'erreurs.
 histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
 ```
 
-**Explication** : Calcule le temps de reponse en dessous duquel 99 % des requetes se situent.
-C'est le **p99** — un indicateur cle en SRE. Si votre p99 est a 200 ms, cela signifie que
-99 % de vos utilisateurs voient un temps de reponse inferieur a 200 ms.
+**Explication** : Calcule le temps de réponse en dessous duquel 99 % des requêtes se situent.
+C'est le **p99** — un indicateur clé en SRE. Si votre p99 est a 200 ms, cela signifie que
+99 % de vos utilisateurs voient un temps de réponse inferieur a 200 ms.
 
 ### 6.4 — Requetes en cours
 
@@ -263,8 +263,8 @@ C'est le **p99** — un indicateur cle en SRE. Si votre p99 est a 200 ms, cela s
 http_requests_in_flight
 ```
 
-**Explication** : Jauge instantanee du nombre de requetes actuellement en cours de traitement.
-En conditions normales, cette valeur devrait etre proche de zero (les requetes sont traitees
+**Explication** : Jauge instantanee du nombre de requêtes actuellement en cours de traitement.
+En conditions normales, cette valeur devrait etre proche de zero (les requêtes sont traitees
 rapidement). Sous charge, elle augmente.
 
 ### 6.5 — Commandes creees
@@ -274,17 +274,17 @@ orders_created_total
 ```
 
 **Explication** : Compteur du nombre total de commandes creees. Cette metrique est un exemple
-de **metrique metier** — elle mesure un evenement fonctionnel, pas uniquement technique.
+de **metrique metier** — elle mesure un événement fonctionnel, pas uniquement technique.
 
 > **Astuce** : Utilisez `sum()` pour agreger les series.
-> Par exemple : `sum(rate(http_requests_total[5m]))` donne le taux de requetes total,
+> Par exemple : `sum(rate(http_requests_total[5m]))` donne le taux de requêtes total,
 > toutes routes et statuts confondus.
 
 ---
 
-## Etape 7 : Creer un dashboard Grafana
+## Étape 7 : Créer un dashboard Grafana
 
-C'est ici que l'observabilite prend tout son sens : on va construire un **dashboard RED**
+C'est ici que l'observabilité prend tout son sens : on va construire un **dashboard RED**
 (Rate, Errors, Duration) dans Grafana.
 
 ### 7.1 — Se connecter a Grafana
@@ -301,20 +301,20 @@ Ouvrez http://localhost:3001 et connectez-vous :
 4. Dans le champ **Prometheus server URL**, entrez : `http://prometheus:9090`
 
 > **Important** : On utilise `prometheus` (le nom du service Docker) et non `localhost`,
-> car Grafana tourne dans le meme reseau Docker que Prometheus.
+> car Grafana tourne dans le même réseau Docker que Prometheus.
 
 5. Cliquez **Save & Test** — vous devez voir "Successfully queried the Prometheus API"
 
-### 7.3 — Creer un nouveau dashboard
+### 7.3 — Créer un nouveau dashboard
 
 1. Menu lateral gauche → **Dashboards**
 2. Cliquez **New** → **New Dashboard**
 3. Cliquez **Add visualization**
 
-### Panel 1 : Request Rate (Taux de requetes)
+### Panel 1 : Request Rate (Taux de requêtes)
 
 - **Datasource** : Prometheus
-- **Requete PromQL** :
+- **Requête PromQL** :
 
 ```promql
 rate(http_requests_total[5m])
@@ -327,7 +327,7 @@ rate(http_requests_total[5m])
 ### Panel 2 : Error Rate (Taux d'erreurs en %)
 
 - Cliquez **Add** → **Visualization**
-- **Requete PromQL** :
+- **Requête PromQL** :
 
 ```promql
 sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100
@@ -338,16 +338,16 @@ sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total
 - Dans les options du panel, section **Standard options**, changez l'unite en **Percent (0-100)**
 - Cliquez **Apply**
 
-> **Explication de la requete** :
+> **Explication de la requête** :
 > - `status=~"5.."` est une regex qui matche tous les codes 5xx (500, 502, 503...)
 > - Le numerateur est le taux d'erreurs 5xx
-> - Le denominateur est le taux total de requetes
+> - Le denominateur est le taux total de requêtes
 > - On multiplie par 100 pour obtenir un pourcentage
 
 ### Panel 3 : Latency p99 (Duree au 99e percentile)
 
 - Cliquez **Add** → **Visualization**
-- **Requete PromQL** :
+- **Requête PromQL** :
 
 ```promql
 histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
@@ -358,7 +358,7 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 - Dans les options du panel, section **Standard options**, changez l'unite en **seconds (s)**
 - Cliquez **Apply**
 
-> **Pourquoi `sum(...) by (le)` ?** L'histogramme Prometheus a un label `le` (less or equal)
+> **Pourquoi `sum(...) by (le)` ?** L'histogramme Prometheus à un label `le` (less or equal)
 > pour chaque bucket. On doit agreger toutes les autres dimensions (method, route...) tout en
 > gardant le label `le`, sinon `histogram_quantile` ne peut pas calculer le percentile.
 
@@ -369,14 +369,14 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 3. Cliquez **Save**
 
 > **Astuce** : Configurez l'auto-refresh a 10s (menu deroulant en haut a droite) pour voir
-> les metriques evoluer en temps reel pendant que vous generez du trafic.
+> les metriques evoluer en temps réel pendant que vous generez du trafic.
 
-Votre dashboard RED est pret. Relancez le script de trafic de l'etape 5 et observez les
-courbes bouger en temps reel.
+Votre dashboard RED est pret. Relancez le script de trafic de l'étape 5 et observez les
+courbes bouger en temps réel.
 
 ---
 
-## Etape 8 : Ajouter le tracing (stack complete)
+## Étape 8 : Ajouter le tracing (stack complete)
 
 Jusqu'ici, on avait uniquement des metriques. Ajoutons maintenant le **tracing distribue**
 avec Jaeger.
@@ -395,7 +395,7 @@ docker compose -f docker-compose.full.yml up -d
 
 Cette stack ajoute **Jaeger** (collecteur et UI de traces) en plus de Prometheus et Grafana.
 
-Verifiez que tous les services sont en cours d'execution :
+Verifiez que tous les services sont en cours d'exécution :
 
 ```bash
 docker compose -f docker-compose.full.yml ps
@@ -421,7 +421,7 @@ npm run dev
 
 Ouvrez Jaeger dans votre navigateur : http://localhost:16686
 
-Envoyez quelques requetes pour generer des traces :
+Envoyez quelques requêtes pour générer des traces :
 
 ```bash
 curl http://localhost:3000/api/products
@@ -435,31 +435,31 @@ Dans Jaeger :
 
 1. Dans le menu deroulant **Service**, selectionnez le service de la demo-app
 2. Cliquez **Find Traces**
-3. Vous devriez voir les traces de vos requetes recentes
+3. Vous devriez voir les traces de vos requêtes recentes
 
 ### 8.5 — Lire une trace (vue waterfall)
 
 Cliquez sur une trace pour voir la **vue waterfall** (cascade). Chaque barre horizontale
 represente un **span** (une unite de travail) :
 
-- Le span racine represente la requete HTTP entrante
+- Le span racine represente la requête HTTP entrante
 - Les spans enfants representent les operations internes (appels BDD, appels HTTP sortants, etc.)
 - La largeur de chaque barre est proportionnelle a sa duree
 
 **Ce que vous pouvez observer :**
-- Le temps total de la requete
+- Le temps total de la requête
 - Quelle operation prend le plus de temps
 - S'il y a des appels sequentiels qui pourraient etre parallelises
 - Les erreurs eventuelles (spans en rouge)
 
-> **Astuce** : Comparez une requete GET simple (`/api/products`) avec une requete POST
+> **Astuce** : Comparez une requête GET simple (`/api/products`) avec une requête POST
 > (`/api/orders`) — la commande devrait avoir plus de spans car elle implique plus d'operations.
 
 ---
 
-## Etape 9 : Connecter les piliers
+## Étape 9 : Connecter les piliers
 
-L'observabilite, c'est la **correlation** entre metriques, traces et logs.
+L'observabilité, c'est la **correlation** entre metriques, traces et logs.
 Connectons Grafana a Jaeger pour pouvoir naviguer entre ces piliers.
 
 ### 9.1 — Ajouter Jaeger comme datasource dans Grafana
@@ -471,9 +471,9 @@ Connectons Grafana a Jaeger pour pouvoir naviguer entre ces piliers.
 5. Dans le champ **URL**, entrez : `http://jaeger:16686`
 6. Cliquez **Save & Test**
 
-### 9.2 — La boucle d'observabilite
+### 9.2 — La boucle d'observabilité
 
-Voici le workflow concret d'un SRE face a un incident :
+Voici le workflow concret d'un SRE face à un incident :
 
 ```
  METRIQUES              TRACES                LOGS
@@ -504,7 +504,7 @@ Voici le workflow concret d'un SRE face a un incident :
    Le taux d'erreurs passe de 0 % a 15 %.
 
 2. **Traces (POURQUOI)** : Dans Jaeger, filtrez les traces entre 14h30 et 14h35
-   avec le tag `error=true`. Vous trouvez que les requetes POST sur `/api/orders`
+   avec le tag `error=true`. Vous trouvez que les requêtes POST sur `/api/orders`
    echouent systematiquement avec une erreur de base de donnees.
 
 3. **Logs (COMMENT)** : Le span en erreur contient le message exact :
@@ -512,20 +512,20 @@ Voici le workflow concret d'un SRE face a un incident :
 
 ### 9.3 — Exercice pratique
 
-Essayez cette boucle vous-meme :
+Essayez cette boucle vous-même :
 
-1. Relancez le script de trafic de l'etape 5 (y compris les erreurs)
-2. Dans Grafana, observez le dashboard RED — repez le moment ou les erreurs apparaissent
-3. Notez la fenetre temporelle
-4. Ouvrez Jaeger et cherchez les traces dans cette fenetre temporelle
+1. Relancez le script de trafic de l'étape 5 (y compris les erreurs)
+2. Dans Grafana, observez le dashboard RED — repez le moment où les erreurs apparaissent
+3. Notez la fenêtre temporelle
+4. Ouvrez Jaeger et cherchez les traces dans cette fenêtre temporelle
 5. Explorez les spans en erreur
 
 > **Felicitations** : Vous venez de realiser une investigation d'incident en utilisant les
-> trois piliers de l'observabilite.
+> trois piliers de l'observabilité.
 
 ---
 
-## Etape 10 : Nettoyage
+## Étape 10 : Nettoyage
 
 Une fois le lab termine, arretez et nettoyez tout :
 
@@ -544,15 +544,15 @@ Arretez egalement la demo-app (Ctrl+C dans le terminal ou elle tourne).
 
 ---
 
-## Recapitulatif
+## Récapitulatif
 
-| Etape | Ce que vous avez fait                                      |
+| Étape | Ce que vous avez fait                                      |
 |-------|------------------------------------------------------------|
-| 1     | Verifie les prerequis (Docker, Node.js)                    |
+| 1     | Verifie les prérequis (Docker, Node.js)                    |
 | 2     | Lance Prometheus + Grafana avec Docker Compose              |
-| 3     | Lance la demo-app localement et verifie `/metrics`          |
-| 4     | Verifie le scraping Prometheus et execute une requete PromQL|
-| 5     | Genere 300+ requetes de trafic (dont des erreurs)           |
+| 3     | Lance la demo-app localement et vérifié `/metrics`          |
+| 4     | Verifie le scraping Prometheus et exécuté une requête PromQL|
+| 5     | Genere 300+ requêtes de trafic (dont des erreurs)           |
 | 6     | Explore les metriques PromQL (rate, quantile, gauge)        |
 | 7     | Cree un dashboard RED dans Grafana (3 panels)               |
 | 8     | Ajoute Jaeger pour le tracing distribue                     |
@@ -561,11 +561,11 @@ Arretez egalement la demo-app (Ctrl+C dans le terminal ou elle tourne).
 
 ## Pour aller plus loin
 
-- Ajoutez un panel **Saturation** au dashboard (CPU, memoire) pour transformer le RED en **USE**
+- Ajoutez un panel **Saturation** au dashboard (CPU, mémoire) pour transformer le RED en **USE**
 - Configurez des **alertes Grafana** sur le taux d'erreurs (> 5 % pendant 5 minutes)
 - Exportez votre dashboard en JSON et committez-le dans le repo
 - Ajoutez **Loki** pour centraliser les logs et completer les trois piliers dans Grafana
-- Essayez de creer un **SLO** (Service Level Objective) : 99.9 % de requetes sous 500 ms
+- Essayez de créer un **SLO** (Service Level Objective) : 99.9 % de requêtes sous 500 ms
 
 ---
 
@@ -587,11 +587,11 @@ Arretez egalement la demo-app (Ctrl+C dans le terminal ou elle tourne).
 
 **Solutions** :
 1. Utilisez `http://prometheus:9090` (nom du service Docker), pas `http://localhost:9090`
-2. Verifiez que les deux services sont dans le meme reseau Docker : `docker network ls`
+2. Verifiez que les deux services sont dans le même réseau Docker : `docker network ls`
 
 ### Jaeger ne montre pas de traces
 
-**Symptome** : Aucune trace dans Jaeger apres avoir envoye des requetes
+**Symptome** : Aucune trace dans Jaeger après avoir envoye des requêtes
 
 **Solutions** :
 1. Verifiez que la demo-app est configuree pour envoyer des traces (variable `OTEL_EXPORTER_OTLP_ENDPOINT`)
@@ -599,7 +599,7 @@ Arretez egalement la demo-app (Ctrl+C dans le terminal ou elle tourne).
 3. Attendez quelques secondes — les traces ne sont pas instantanees
 4. Verifiez les logs de la demo-app pour des erreurs d'export de traces
 
-### Les ports sont deja utilises
+### Les ports sont déjà utilises
 
 **Symptome** : `bind: address already in use`
 

@@ -1,31 +1,31 @@
-# Methodes RED & USE — Metriques qui comptent
+# Méthodes RED & USE — Metriques qui comptent
 
 ## Objectifs pedagogiques
 
-- Maitriser la methode RED (Rate, Errors, Duration) pour les services orientes requetes
-- Maitriser la methode USE (Utilization, Saturation, Errors) pour les ressources systeme
-- Connaitre les Golden Signals du livre Google SRE
+- Maîtriser la méthode RED (Rate, Errors, Duration) pour les services orientes requêtes
+- Maîtriser la méthode USE (Utilization, Saturation, Errors) pour les ressources système
+- Connaître les Golden Signals du livre Google SRE
 - Instrumenter les metriques de saturation Node.js (event loop lag, heap, active handles)
 - Identifier les anti-patterns courants (vanity metrics, explosion de labels)
-- Construire un modele mental d'un dashboard avec les 5-10 metriques essentielles
-- Instrumenter la demo-app avec les methodes RED et USE
-- Calculer les percentiles et creer des fonctions utilitaires TypeScript
+- Construire un modèle mental d'un dashboard avec les 5-10 metriques essentielles
+- Instrumenter la demo-app avec les méthodes RED et USE
+- Calculer les percentiles et créer des fonctions utilitaires TypeScript
 
 ---
 
-## La methode RED
+## La méthode RED
 
-La methode RED, creee par Tom Wilkie (Grafana Labs), est concue pour les **services orientes requetes** — exactement ce que sont les APIs REST, les microservices, et les applications web.
+La méthode RED, créée par Tom Wilkie (Grafana Labs), est concue pour les **services orientes requêtes** — exactement ce que sont les APIs REST, les microservices, et les applications web.
 
 RED signifie :
 
-- **R**ate — le nombre de requetes par seconde
-- **E**rrors — le nombre de requetes qui echouent
-- **D**uration — le temps que prennent les requetes
+- **R**ate — le nombre de requêtes par seconde
+- **E**rrors — le nombre de requêtes qui echouent
+- **D**uration — le temps que prennent les requêtes
 
-### Rate (taux de requetes)
+### Rate (taux de requêtes)
 
-Le rate repond a la question : "A quelle vitesse mon service travaille-t-il ?"
+Le rate repond à la question : "A quelle vitesse mon service travaille-t-il ?"
 
 ```typescript
 import { Counter } from 'prom-client';
@@ -52,7 +52,7 @@ Un changement brusque du rate est un signal fort :
 
 ### Errors (taux d'erreur)
 
-Le taux d'erreur repond a la question : "Quelle proportion de requetes echoue ?"
+Le taux d'erreur repond à la question : "Quelle proportion de requêtes echoue ?"
 
 ```typescript
 // Le counter d'erreurs
@@ -80,7 +80,7 @@ Un taux d'erreur de 0% ne signifie pas que tout va bien. Si votre rate est aussi
 
 ### Duration (latence)
 
-La duree repond a la question : "Combien de temps met mon service a repondre ?"
+La duree repond à la question : "Combien de temps met mon service a repondre ?"
 
 ```typescript
 import { Histogram } from 'prom-client';
@@ -127,9 +127,9 @@ console.log('P99       :', percentile(latencies, 0.99)); // 5000ms — le proble
 
 ---
 
-## La methode USE
+## La méthode USE
 
-La methode USE, creee par Brendan Gregg, est concue pour les **ressources systeme** (CPU, memoire, disque, reseau, pool de connexions).
+La méthode USE, créée par Brendan Gregg, est concue pour les **ressources système** (CPU, mémoire, disque, réseau, pool de connexions).
 
 USE signifie :
 
@@ -231,13 +231,13 @@ const timeoutErrors = new Counter({
 
 ## Golden Signals (Google SRE)
 
-Le livre *Site Reliability Engineering* de Google definit 4 signaux essentiels. Ils recoupent RED et USE :
+Le livre *Site Reliability Engineering* de Google définit 4 signaux essentiels. Ils recoupent RED et USE :
 
 | Golden Signal | Equivalent RED/USE | Description |
 |--------------|-------------------|-------------|
-| **Latency** | Duration (RED) | Temps de reponse des requetes |
-| **Traffic** | Rate (RED) | Volume de requetes |
-| **Errors** | Errors (RED + USE) | Taux de requetes echouees |
+| **Latency** | Duration (RED) | Temps de réponse des requêtes |
+| **Traffic** | Rate (RED) | Volume de requêtes |
+| **Errors** | Errors (RED + USE) | Taux de requêtes echouees |
 | **Saturation** | Saturation (USE) | Niveau de "remplissage" des ressources |
 
 ```typescript
@@ -277,7 +277,7 @@ export const systemSaturation = new Gauge({
 
 ## Metriques de saturation Node.js
 
-Node.js etant single-threaded, la saturation se manifeste principalement par le **lag de l'event loop** et la **pression memoire**.
+Node.js etant single-threaded, la saturation se manifeste principalement par le **lag de l'event loop** et la **pression mémoire**.
 
 ```typescript
 // src/metrics/nodejs-saturation.ts
@@ -330,7 +330,7 @@ export function startNodejsSaturationMetrics(intervalMs = 2000): NodeJS.Timeout 
 ```
 
 ::: tip A retenir
-Pour Node.js, l'event loop lag est l'equivalent du load average pour un systeme Unix. Un lag superieur a 100ms signifie que votre application est saturee et que les requetes commencent a s'accumuler. Au-dela de 1 seconde, c'est une urgence.
+Pour Node.js, l'event loop lag est l'équivalent du load average pour un système Unix. Un lag superieur a 100ms signifie que votre application est saturee et que les requêtes commencent a s'accumuler. Au-dela de 1 seconde, c'est une urgence.
 :::
 
 ---
@@ -578,22 +578,33 @@ app.get('/health/detailed', (_req, res) => {
 ## Bonnes pratiques
 
 - **Commencez par RED** pour chaque service expose — c'est le minimum vital
-- **Ajoutez USE** pour les ressources critiques (DB pool, event loop, memoire)
-- **Preferez les percentiles** (p50, p95, p99) a la moyenne pour la latence
-- **Limitez a 5-10 metriques cle** par service dans vos dashboards
+- **Ajoutez USE** pour les ressources critiques (DB pool, event loop, mémoire)
+- **Preferez les percentiles** (p50, p95, p99) à la moyenne pour la latence
+- **Limitez a 5-10 metriques clé** par service dans vos dashboards
 - **Chaque metrique doit etre actionnable** : si vous ne savez pas quoi faire quand elle change, elle est inutile
 - **Surveillez la cardinalite** : auditez regulierement le nombre de series temporelles
 - **Documentez vos metriques** dans le code et dans un runbook
 - **Testez vos metriques** : envoyez du trafic et verifiez que les valeurs correspondent
 
 ::: tip A retenir
-RED pour les services, USE pour les ressources, Golden Signals pour la vue d'ensemble. Ces methodes ne sont pas en competition — elles sont complementaires. Ensemble, elles forment le vocabulaire universel de l'observabilite des metriques. Si vous ne savez pas par ou commencer, commencez par RED : Rate, Errors, Duration.
+RED pour les services, USE pour les ressources, Golden Signals pour la vue d'ensemble. Ces méthodes ne sont pas en competition — elles sont complementaires. Ensemble, elles forment le vocabulaire universel de l'observabilité des metriques. Si vous ne savez pas par où commencer, commencez par RED : Rate, Errors, Duration.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
 - [Lab 06 — Implementer RED et USE dans la demo-app](/labs/lab-06-red-use-dashboard/README)
-- [Quiz 06 — Methodes RED & USE](/quizzes/quiz-06-red-use-methodes)
+- [Quiz 06 — Méthodes RED & USE](/quizzes/quiz-06-red-use-methodes)
 - [Module suivant — Distributed Tracing & OpenTelemetry](/modules/07-distributed-tracing)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 06 red use méthodes](../screencasts/screencast-06-red-use-methodes.md)
+2. **Lab** : [lab-06-red-use-dashboard](../labs/lab-06-red-use-dashboard/README)
+3. **Visualisation** : [Metric Types](../visualizations/metric-types.html)
+4. **Quiz** : [quiz 06 red use méthodes](../quizzes/quiz-06-red-use-methodes.html)
+:::

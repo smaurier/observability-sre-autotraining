@@ -3,23 +3,23 @@
 ## Objectifs pedagogiques
 
 - Comprendre pourquoi le tracing distribue est indispensable dans les architectures microservices
-- Maitriser les concepts fondamentaux : Trace, Span, SpanContext
+- Maîtriser les concepts fondamentaux : Trace, Span, SpanContext
 - Apprehender les relations parent-enfant entre spans
-- Connaitre le standard W3C Trace Context et la propagation du contexte
+- Connaître le standard W3C Trace Context et la propagation du contexte
 - Installer et configurer l'OpenTelemetry SDK pour Node.js
 - Utiliser l'auto-instrumentation pour tracer automatiquement les appels HTTP, DB, etc.
-- Creer des spans manuels pour le code metier
+- Créer des spans manuels pour le code metier
 - Enrichir les spans avec des attributs et des events
-- Deployer Jaeger comme backend de traces
+- Déployer Jaeger comme backend de traces
 - Instrumenter la demo-app avec OpenTelemetry de bout en bout
 
 ---
 
 ## Pourquoi le tracing distribue ?
 
-### Le probleme des microservices
+### Le problème des microservices
 
-Quand une requete utilisateur traverse 5, 10 ou 15 services, identifier la cause d'une erreur ou d'un ralentissement devient un casse-tete.
+Quand une requête utilisateur traverse 5, 10 ou 15 services, identifier la cause d'une erreur ou d'un ralentissement devient un casse-tete.
 
 ```typescript
 // Parcours d'une commande dans notre architecture
@@ -40,7 +40,7 @@ Quand une requete utilisateur traverse 5, 10 ou 15 services, identifier la cause
 
 ### L'analogie FedEx
 
-Imaginez un colis FedEx. A chaque etape, il est scanne :
+Imaginez un colis FedEx. A chaque étape, il est scanne :
 
 1. **Depart** : entrepot Paris → scan (timestamp, lieu, statut)
 2. **Transit** : centre de tri CDG → scan
@@ -48,9 +48,9 @@ Imaginez un colis FedEx. A chaque etape, il est scanne :
 4. **Livraison** : camion local → scan
 5. **Arrive** : porte du client → scan final
 
-Chaque scan est un **span**. L'ensemble des scans forme la **trace**. Le numero de suivi est le **traceId**. A tout moment, vous pouvez voir exactement ou en est le colis et combien de temps chaque etape a pris.
+Chaque scan est un **span**. L'ensemble des scans forme la **trace**. Le numéro de suivi est le **traceId**. A tout moment, vous pouvez voir exactement ou en est le colis et combien de temps chaque étape a pris.
 
-Le tracing distribue fait exactement la meme chose pour vos requetes.
+Le tracing distribue fait exactement la même chose pour vos requêtes.
 
 ---
 
@@ -58,7 +58,7 @@ Le tracing distribue fait exactement la meme chose pour vos requetes.
 
 ### Trace
 
-Une trace represente le **parcours complet** d'une requete a travers le systeme. C'est un arbre de spans.
+Une trace represente le **parcours complet** d'une requête a travers le système. C'est un arbre de spans.
 
 ```typescript
 // Representation conceptuelle d'une trace
@@ -72,7 +72,7 @@ interface Trace {
 
 ### Span
 
-Un span represente une **unite de travail** : un appel HTTP, une requete SQL, un appel de fonction. Il a un debut, une fin, et des metadonnees.
+Un span represente une **unite de travail** : un appel HTTP, une requête SQL, un appel de fonction. Il à un debut, une fin, et des metadonnees.
 
 ```typescript
 // Structure conceptuelle d'un span
@@ -133,7 +133,7 @@ Trace: 4bf92f3577b34da6a3ce929d0e0e4736
 
 ## W3C Trace Context
 
-Le standard [W3C Trace Context](https://www.w3.org/TR/trace-context/) definit comment propager le contexte de trace entre services via des headers HTTP.
+Le standard [W3C Trace Context](https://www.w3.org/TR/trace-context/) définit comment propager le contexte de trace entre services via des headers HTTP.
 
 ### Le header traceparent
 
@@ -172,7 +172,7 @@ traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 tracestate: vendor1=value1,vendor2=value2
 ```
 
-Le `tracestate` permet a chaque vendor d'ajouter ses propres metadonnees sans casser la propagation.
+Le `tracestate` permet à chaque vendor d'ajouter ses propres metadonnees sans casser la propagation.
 
 ---
 
@@ -242,7 +242,7 @@ process.on('SIGTERM', () => {
 export default sdk;
 ```
 
-### Charger le tracing au demarrage
+### Charger le tracing au démarrage
 
 ```typescript
 // demo-app/index.ts
@@ -261,7 +261,7 @@ L'import de la configuration OTel **doit** etre le tout premier import de votre 
 
 ## Auto-instrumentation
 
-L'auto-instrumentation est la magie d'OpenTelemetry : sans modifier votre code, le SDK patch automatiquement les bibliotheques courantes pour creer des spans.
+L'auto-instrumentation est la magie d'OpenTelemetry : sans modifier votre code, le SDK patch automatiquement les bibliotheques courantes pour créer des spans.
 
 ```typescript
 // Biblioteques auto-instrumentees par @opentelemetry/auto-instrumentations-node :
@@ -289,7 +289,7 @@ L'auto-instrumentation est la magie d'OpenTelemetry : sans modifier votre code, 
 
 ## Spans manuels (custom instrumentation)
 
-L'auto-instrumentation couvre les appels I/O, mais pour le code metier, vous devez creer des spans manuellement.
+L'auto-instrumentation couvre les appels I/O, mais pour le code metier, vous devez créer des spans manuellement.
 
 ```typescript
 // src/services/order.service.ts
@@ -416,14 +416,14 @@ tracer.startActiveSpan('processOrder', async (span) => {
 ```
 
 ::: tip A retenir
-Les **attributs** decrivent le span dans son ensemble (comme des colonnes dans une base de donnees). Les **events** marquent des moments specifiques au sein du span (comme des logs horodates). Utilisez les attributs pour le filtrage et les events pour le detail chronologique.
+Les **attributs** decrivent le span dans son ensemble (comme des colonnes dans une base de donnees). Les **events** marquent des moments spécifiques au sein du span (comme des logs horodates). Utilisez les attributs pour le filtrage et les events pour le detail chronologique.
 :::
 
 ---
 
 ## Jaeger comme backend de traces
 
-[Jaeger](https://www.jaegertracing.io/) est un systeme de tracing distribue open-source, cree par Uber. C'est l'un des backends les plus populaires pour OpenTelemetry.
+[Jaeger](https://www.jaegertracing.io/) est un système de tracing distribue open-source, créé par Uber. C'est l'un des backends les plus populaires pour OpenTelemetry.
 
 ### Docker Compose avec Jaeger
 
@@ -459,7 +459,7 @@ Accedez a `http://localhost:16686` pour l'interface Jaeger :
 2. **Trace Detail** : cliquez sur une trace pour voir l'arbre de spans
 3. **Span Detail** : cliquez sur un span pour voir ses attributs et events
 4. **Compare** : selectionnez deux traces pour comparer leurs structures
-5. **Dependencies** : visualisez le graphe de dependances entre services
+5. **Dependencies** : visualisez le graphe de dépendances entre services
 
 ```
 Jaeger UI — Vue d'une trace :
@@ -548,12 +548,12 @@ export default sdk;
 - **Ajoutez des attributs metier** : orderId, userId, amount — ils permettent de filtrer dans Jaeger
 - **Enregistrez les exceptions** avec `span.recordException()` pour voir les erreurs dans la trace
 - **Terminez toujours vos spans** avec `span.end()` — un span non termine est un span perdu
-- **Utilisez `startActiveSpan`** plutot que `startSpan` — il gere automatiquement le contexte parent
+- **Utilisez `startActiveSpan`** plutot que `startSpan` — il géré automatiquement le contexte parent
 - **Configurez le BatchSpanProcessor** pour la production — il envoie les traces par lots plutot qu'une par une
 - **Ne tracez pas les health checks** — ils polluent les traces sans valeur ajoutee
 
 ::: tip A retenir
-Le tracing distribue est le troisieme pilier de l'observabilite. Il repond a la question que ni les logs ni les metriques ne peuvent resoudre : "Quel chemin a pris cette requete specifique, et ou a-t-elle ralenti ou echoue ?". OpenTelemetry est le standard. Jaeger est le backend. Le `traceId` est le fil qui relie tout.
+Le tracing distribue est le troisieme pilier de l'observabilité. Il repond à la question que ni les logs ni les metriques ne peuvent résoudre : "Quel chemin a pris cette requête spécifique, et ou a-t-elle ralenti ou echoue ?". OpenTelemetry est le standard. Jaeger est le backend. Le `traceId` est le fil qui relie tout.
 :::
 
 ---
@@ -562,7 +562,7 @@ Le tracing distribue est le troisieme pilier de l'observabilite. Il repond a la 
 
 ### Head-based vs Tail-based sampling
 
-Le sampling est la decision la plus critique en tracing a grande echelle. A 10 000 requetes/seconde, stocker toutes les traces est impossible. Deux strategies existent :
+Le sampling est la decision la plus critique en tracing a grande echelle. A 10 000 requêtes/seconde, stocker toutes les traces est impossible. Deux stratégies existent :
 
 **Head-based sampling** (decision au debut de la trace) :
 
@@ -576,9 +576,9 @@ const sampler = new TraceIdRatioBasedSampler(0.1);
 // Inconvenient : vous ratez 90% des traces, y compris les erreurs rares
 ```
 
-Le probleme ? Si une erreur survient dans 0.01% des requetes et que vous echantillonnez 10%, vous ne verrez qu'une erreur sur 100. Les pannes rares — les plus difficiles a debugger — disparaissent.
+Le problème ? Si une erreur survient dans 0.01% des requêtes et que vous echantillonnez 10%, vous ne verrez qu'une erreur sur 100. Les pannes rares — les plus difficiles a debugger — disparaissent.
 
-**Tail-based sampling** (decision a la fin de la trace) :
+**Tail-based sampling** (decision à la fin de la trace) :
 
 ```typescript
 // Configuration du Collector OTel — tail_sampling processor
@@ -627,12 +627,12 @@ function decideSampling(trace: CompletedTrace): SamplingDecision {
 ```
 
 ::: warning Cout du tail-based sampling
-Le tail-based sampling exige que le Collector bufferise toutes les traces en memoire pendant une fenetre (typiquement 30-60s). Cela consomme beaucoup de RAM. Pour 50 000 traces/seconde avec 30s de buffer, comptez 4-8 Go de memoire. C'est un compromis a evaluer serieusement.
+Le tail-based sampling exige que le Collector bufferise toutes les traces en mémoire pendant une fenêtre (typiquement 30-60s). Cela consomme beaucoup de RAM. Pour 50 000 traces/seconde avec 30s de buffer, comptez 4-8 Go de mémoire. C'est un compromis a évaluer sérieusement.
 :::
 
-### Propagation dans les systemes non-HTTP
+### Propagation dans les systèmes non-HTTP
 
-Le tracing ne se limite pas aux appels HTTP. En production, les requetes traversent aussi des files de messages, des caches, des bases de donnees :
+Le tracing ne se limite pas aux appels HTTP. En production, les requêtes traversent aussi des files de messages, des caches, des bases de donnees :
 
 ```typescript
 // Propagation via Kafka/RabbitMQ : injecter le contexte dans les headers du message
@@ -664,7 +664,7 @@ function consumeMessage(msg: { payload: unknown; headers: Record<string, string>
 
 ### Le tracing en pratique : patterns avances
 
-**Pattern 1 — Trace-based testing** : utiliser les traces pour valider le comportement en integration :
+**Pattern 1 — Trace-based testing** : utiliser les traces pour valider le comportement en intégration :
 
 ```typescript
 // Verifier qu'une requete API genere bien les spans attendus
@@ -677,7 +677,7 @@ function assertTraceShape(trace: Trace): void {
 }
 ```
 
-**Pattern 2 — Span links** : relier des traces independantes (ex: une requete API qui declenche un job asynchrone) :
+**Pattern 2 — Span links** : relier des traces independantes (ex: une requête API qui declenche un job asynchrone) :
 
 ```typescript
 import { SpanKind } from '@opentelemetry/api';
@@ -694,14 +694,26 @@ const workerSpan = tracer.startSpan('process_order_async', {
 });
 ```
 
-::: tip Reference SRE
-Le Google SRE Workbook (Chapitre 11, "Managing Load") explique comment les traces sont utilisees pour identifier les "long tail latencies" — ces requetes qui prennent 10x plus longtemps que la mediane. Sans tracing, ces anomalies sont invisibles dans les metriques agregees. Le sampling tail-based est la cle pour les capturer.
+::: tip Référence SRE
+Le Google SRE Workbook (Chapitre 11, "Managing Load") explique comment les traces sont utilisees pour identifier les "long tail latencies" — ces requêtes qui prennent 10x plus longtemps que la mediane. Sans tracing, ces anomalies sont invisibles dans les metriques agregees. Le sampling tail-based est la clé pour les capturer.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
 - [Lab 07 — Instrumenter la demo-app avec OpenTelemetry et Jaeger](/labs/lab-07-tracing-opentelemetry/README)
 - [Quiz 07 — Distributed Tracing](/quizzes/quiz-07-distributed-tracing)
 - [Module suivant — OTel Collector & Pipeline](/modules/08-otel-collector-pipeline)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 07 distributed tracing](../screencasts/screencast-07-distributed-tracing.md)
+2. **Lab** : [lab-07-tracing-opentelemetry](../labs/lab-07-tracing-opentelemetry/README)
+3. **Visualisation** : [Three Pillars](../visualizations/three-pillars.html)
+4. **Visualisation** : [Distributed Trace](../visualizations/distributed-trace.html)
+5. **Quiz** : [quiz 07 distributed tracing](../quizzes/quiz-07-distributed-tracing.html)
+:::

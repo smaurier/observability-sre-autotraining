@@ -1,23 +1,23 @@
-# Screencast 01 — Pourquoi l'Observabilite ?
+# Screencast 01 — Pourquoi l'Observabilité ?
 
 ## Informations
 - **Duree estimee** : 12-15 min
 - **Module** : `modules/01-pourquoi-observabilite.md`
 - **Lab associe** : Lab 01
-- **Prerequis** : Screencast 00
+- **Prérequis** : Screencast 00
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert
+- [ ] Terminal intégré ouvert
 - [ ] demo-app prete a etre lancee (`npx tsx demo-app/src/index.ts`)
 - [ ] Navigateur ouvert sur un onglet vide
 - [ ] Fichier `modules/01-pourquoi-observabilite.md` ouvert dans un onglet
 
 ## Script
 
-### [00:00-01:30] Introduction : le probleme
+### [00:00-01:30] Introduction : le problème
 
-> Dans le module precedent, nous avons lance la demo-app et observe ses sorties. Aujourd'hui, nous allons comprendre pourquoi l'observabilite est devenue indispensable en ingenierie logicielle moderne, et decouvrir les 3 piliers qui la composent.
+> Dans le module précédent, nous avons lance la demo-app et observe ses sorties. Aujourd'hui, nous allons comprendre pourquoi l'observabilité est devenue indispensable en ingenierie logicielle moderne, et découvrir les 3 piliers qui la composent.
 
 **Action** : Afficher un schema simple dans le navigateur ou en commentaire — un monolithe vs une architecture microservices.
 
@@ -35,9 +35,9 @@
 
 > Quand vous aviez un seul serveur, surveiller le CPU et le disque suffisait. Avec des dizaines de services, le monitoring traditionnel ne repond plus aux bonnes questions.
 
-### [01:30-04:00] Debugging SANS observabilite
+### [01:30-04:00] Debugging SANS observabilité
 
-> Simulons un scenario realiste : un utilisateur signale que "ca ne marche pas".
+> Simulons un scenario realiste : un utilisateur signale que "ça ne marche pas".
 
 **Action** : Lancer la demo-app.
 
@@ -45,7 +45,7 @@
 npx tsx demo-app/src/index.ts
 ```
 
-**Action** : Envoyer quelques requetes normales et une requete qui echoue.
+**Action** : Envoyer quelques requêtes normales et une requête qui echoue.
 
 ```bash
 # Requetes normales
@@ -58,7 +58,7 @@ curl http://localhost:3000/api/orders/nonexistent-id
 
 > Imaginez que vous n'avez que du console.log. Vous recevez un ticket : "La commande ne passe pas". Que faites-vous ? Vous ouvrez les logs, vous voyez des milliers de lignes, vous cherchez avec grep... sans savoir quel moment, quel utilisateur, quel service.
 
-**Action** : Montrer un exemple de logs non structures (ecrire dans un fichier temporaire).
+**Action** : Montrer un exemple de logs non structures (écrire dans un fichier temporaire).
 
 ```typescript
 // Sans observabilite — le processus de debugging
@@ -70,13 +70,13 @@ curl http://localhost:3000/api/orders/nonexistent-id
 // 6. Temps de resolution : heures, voire jours
 ```
 
-### [04:00-06:30] Debugging AVEC observabilite
+### [04:00-06:30] Debugging AVEC observabilité
 
-> Maintenant, voyons la meme situation avec une application instrumentee.
+> Maintenant, voyons la même situation avec une application instrumentee.
 
 **Action** : Montrer la sortie structuree de la demo-app dans le terminal.
 
-> Regardez les logs structures. Chaque ligne est du JSON avec un timestamp, un niveau, un requestId, la methode HTTP, l'URL. Si un utilisateur me dit que sa commande ne passe pas et me donne son requestId, je peux filtrer tous les logs de cette requete en une seconde.
+> Regardez les logs structures. Chaque ligne est du JSON avec un timestamp, un niveau, un requestId, la méthode HTTP, l'URL. Si un utilisateur me dit que sa commande ne passe pas et me donne son requestId, je peux filtrer tous les logs de cette requête en une seconde.
 
 **Action** : Ouvrir `/metrics` dans le navigateur.
 
@@ -84,7 +84,7 @@ curl http://localhost:3000/api/orders/nonexistent-id
 curl http://localhost:3000/metrics
 ```
 
-> Les metriques me donnent une vue d'ensemble. Je vois le nombre de requetes par seconde, le taux d'erreur, la distribution des latences. Si le taux d'erreur monte, je le vois immediatement — avant meme que les utilisateurs ne se plaignent.
+> Les metriques me donnent une vue d'ensemble. Je vois le nombre de requêtes par seconde, le taux d'erreur, la distribution des latences. Si le taux d'erreur monte, je le vois immediatement — avant même que les utilisateurs ne se plaignent.
 
 ```typescript
 // Avec observabilite — le processus de debugging
@@ -96,15 +96,15 @@ curl http://localhost:3000/metrics
 // 6. Temps de resolution : minutes
 ```
 
-> La difference est dramatique : des heures ou des jours deviennent des minutes.
+> La différence est dramatique : des heures ou des jours deviennent des minutes.
 
-### [06:30-09:30] Les 3 piliers de l'observabilite
+### [06:30-09:30] Les 3 piliers de l'observabilité
 
-> L'observabilite repose sur 3 piliers complementaires. Aucun ne suffit seul.
+> L'observabilité repose sur 3 piliers complementaires. Aucun ne suffit seul.
 
 **Action** : Ouvrir `demo-app/src/lib/logger.ts` pour montrer le pilier Logs.
 
-> Premier pilier : les Logs. Ce sont des evenements horodates et structures. Ils donnent le detail de chaque evenement individuel. Notre demo-app utilise Pino pour generer des logs JSON exploitables.
+> Premier pilier : les Logs. Ce sont des événements horodates et structures. Ils donnent le detail de chaque événement individuel. Notre demo-app utilise Pino pour générer des logs JSON exploitables.
 
 **Action** : Ouvrir `demo-app/src/lib/metrics.ts` pour montrer le pilier Metriques.
 
@@ -125,7 +125,7 @@ const httpRequestDuration = new Histogram({
 });
 ```
 
-> Deuxieme pilier : les Metriques. Des valeurs numeriques agregees dans le temps. Peu couteuses, ideales pour les alertes et les dashboards. On voit ici un Counter pour compter les requetes et un Histogram pour mesurer leur duree.
+> Deuxieme pilier : les Metriques. Des valeurs numériques agregees dans le temps. Peu couteuses, ideales pour les alertes et les dashboards. On voit ici un Counter pour compter les requêtes et un Histogram pour mesurer leur duree.
 
 **Action** : Ouvrir `demo-app/src/lib/tracing.ts` pour montrer le pilier Traces.
 
@@ -146,11 +146,11 @@ async function createOrder(userId: string, items: string[]) {
 }
 ```
 
-> Troisieme pilier : les Traces distribuees. Elles suivent le parcours d'une requete a travers tous les services. Quand une requete traverse 5 services, la trace montre exactement ou le temps est passe.
+> Troisieme pilier : les Traces distribuees. Elles suivent le parcours d'une requête a travers tous les services. Quand une requête traverse 5 services, la trace montre exactement ou le temps est passe.
 
 ### [09:30-11:30] Comment les 3 piliers fonctionnent ensemble
 
-> La puissance de l'observabilite vient de la correlation entre les 3 piliers.
+> La puissance de l'observabilité vient de la correlation entre les 3 piliers.
 
 **Action** : Dessiner ou montrer un schema du flux.
 
@@ -164,11 +164,11 @@ async function createOrder(userId: string, items: string[]) {
 [Log correle]        →    "Connection pool exhausted (requestId: abc-123)"
 ```
 
-> Les metriques detectent le probleme. Les traces localisent le goulot d'etranglement. Les logs fournissent le detail pour comprendre la cause racine. Le lien entre les trois ? Le traceId, present dans chaque log, chaque metrique, chaque trace.
+> Les metriques detectent le problème. Les traces localisent le goulot d'etranglement. Les logs fournissent le detail pour comprendre la cause racine. Le lien entre les trois ? Le traceId, present dans chaque log, chaque metrique, chaque trace.
 
 **Action** : Montrer les logs de la demo-app avec les requestId.
 
-> Regardez : chaque log porte un requestId. C'est le meme identifiant qui apparait dans la trace. Cela permet de passer d'un log dans Grafana Loki a la trace correspondante dans Jaeger en un seul clic.
+> Regardez : chaque log porte un requestId. C'est le même identifiant qui apparait dans la trace. Cela permet de passer d'un log dans Grafana Loki à la trace correspondante dans Jaeger en un seul clic.
 
 ### [11:30-13:00] Le concept de cardinalite
 
@@ -192,24 +192,24 @@ const badMetric = new Counter({
 });
 ```
 
-> Chaque combinaison unique de labels cree une serie temporelle en memoire dans Prometheus. 100 series, pas de probleme. 1 million de series, votre Prometheus s'ecroule. Regle d'or : ne mettez en label que des valeurs a cardinalite bornee et faible.
+> Chaque combinaison unique de labels créé une serie temporelle en mémoire dans Prometheus. 100 series, pas de problème. 1 million de series, votre Prometheus s'ecroule. Regle d'or : ne mettez en label que des valeurs a cardinalite bornee et faible.
 
-### [13:00-14:30] Recapitulatif
+### [13:00-14:30] Récapitulatif
 
-> Recapitulons. Le monitoring repond a "Est-ce que ca marche ?". L'observabilite repond a "Pourquoi est-ce que ca ne marche pas ?" — meme pour des problemes que vous n'aviez jamais envisages.
+> Recapitulons. Le monitoring repond a "Est-ce que ça marche ?". L'observabilité repond a "Pourquoi est-ce que ça ne marche pas ?" — même pour des problèmes que vous n'aviez jamais envisages.
 
-> Les 3 piliers — Logs, Metriques, Traces — sont complementaires. Les metriques pour la vue d'ensemble et les alertes. Les logs pour le detail des evenements. Les traces pour le parcours a travers les services.
+> Les 3 piliers — Logs, Metriques, Traces — sont complementaires. Les metriques pour la vue d'ensemble et les alertes. Les logs pour le detail des événements. Les traces pour le parcours a travers les services.
 
-> Attention a la cardinalite : chaque label dans vos metriques est un multiplicateur de series temporelles.
+> Attention à la cardinalite : chaque label dans vos metriques est un multiplicateur de series temporelles.
 
 > Dans le prochain module, nous plongerons dans le premier pilier : le logging structure avec Pino. A bientot !
 
 **Action** : Arreter la demo-app.
 
 ## Points d'attention pour l'enregistrement
-- Prendre le temps de bien montrer la difference entre debugging avec et sans observabilite
+- Prendre le temps de bien montrer la différence entre debugging avec et sans observabilité
 - Utiliser des exemples concrets de pannes (le "mardi lent", le memory leak)
 - Insister sur la correlation entre les 3 piliers — c'est le point le plus important
-- Ne pas survoler le concept de cardinalite — c'est l'erreur numero 1 des debutants
-- Montrer les fichiers reels de la demo-app plutot que des exemples abstraits
-- L'analogie medicale est tres parlante : monitoring = prise de temperature, observabilite = IRM
+- Ne pas survoler le concept de cardinalite — c'est l'erreur numéro 1 des débutants
+- Montrer les fichiers réels de la demo-app plutot que des exemples abstraits
+- L'analogie medicale est très parlante : monitoring = prise de temperature, observabilité = IRM

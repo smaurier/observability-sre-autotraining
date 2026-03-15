@@ -1,14 +1,14 @@
-# Screencast 21 — FinOps : Cout de l'Observabilite
+# Screencast 21 — FinOps : Cout de l'Observabilité
 
 ## Informations
 - **Duree estimee** : 8-10 min
 - **Module** : `modules/21-finops-observability.md`
 - **Lab associe** : Lab 22
-- **Prerequis** : Screencast 20
+- **Prérequis** : Screencast 20
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert
+- [ ] Terminal intégré ouvert
 - [ ] Tableur ou calculatrice pour les demonstrations de cout
 - [ ] Dashboard Grafana avec les metriques de cardinalite (optionnel)
 
@@ -16,13 +16,13 @@
 
 ### [00:00-01:30] Introduction
 
-> Nous avons construit une stack d'observabilite complete : metriques, logs, traces, alertes, dashboards. Mais cette stack a un cout — et ce cout peut devenir le deuxieme ou troisieme poste de depense apres le compute et le stockage. Aujourd'hui, nous allons apprendre a mesurer, auditer et optimiser le cout de l'observabilite.
+> Nous avons construit une stack d'observabilité complete : metriques, logs, traces, alertes, dashboards. Mais cette stack à un cout — et ce cout peut devenir le deuxieme ou troisieme poste de depense après le compute et le stockage. Aujourd'hui, nous allons apprendre a mesurer, auditer et optimiser le cout de l'observabilité.
 
-> Le FinOps applique a l'observabilite ne consiste pas a couper dans le signal — c'est optimiser le rapport cout/valeur. L'objectif : garder ce qui compte pour les SLOs et le debugging, eliminer le bruit.
+> Le FinOps applique a l'observabilité ne consiste pas a couper dans le signal — c'est optimiser le rapport cout/valeur. L'objectif : garder ce qui compte pour les SLOs et le debugging, eliminer le bruit.
 
 ### [01:30-03:30] Calculer la cardinalite des metriques
 
-> Le premier levier est la cardinalite des metriques. La cardinalite, c'est le nombre de series temporelles uniques. Chaque combinaison unique de labels cree une serie.
+> Le premier levier est la cardinalite des metriques. La cardinalite, c'est le nombre de series temporelles uniques. Chaque combinaison unique de labels créé une serie.
 
 **Action** : Montrer un calcul de cardinalite.
 
@@ -43,7 +43,7 @@ const cardinalityExplosion = 10 * 50 * 5 * 4 * 100_000;
 // = 1 000 000 000 series — EXPLOSION !
 ```
 
-> Voyez le probleme : ajouter un seul label a haute cardinalite multiplie le nombre de series par 100 000. C'est l'explosion de cardinalite — le piege le plus couteux en observabilite. Un user_id, un request_id, un trace_id ne doivent JAMAIS etre des labels Prometheus.
+> Voyez le problème : ajouter un seul label a haute cardinalite multiplie le nombre de series par 100 000. C'est l'explosion de cardinalite — le piege le plus couteux en observabilité. Un user_id, un request_id, un trace_id ne doivent JAMAIS etre des labels Prometheus.
 
 > Pour identifier les metriques problematiques dans votre cluster :
 
@@ -59,7 +59,7 @@ topk(10, count by (__name__)({__name__=~".+"}))
 
 > Le deuxieme levier est le sampling des logs. Les logs sont souvent le poste le plus cher car le volume est enorme.
 
-**Action** : Montrer une strategie de sampling intelligente.
+**Action** : Montrer une stratégie de sampling intelligente.
 
 ```typescript
 // Strategie de sampling intelligente
@@ -84,7 +84,7 @@ const samplingRules = {
 };
 ```
 
-> La regle d'or : ne jamais perdre les erreurs. Les erreurs representent generalement moins de 1% du volume mais 90% de la valeur diagnostique. On peut echantillonner le reste agressivement.
+> La regle d'or : ne jamais perdre les erreurs. Les erreurs representent généralement moins de 1% du volume mais 90% de la valeur diagnostique. On peut echantillonner le reste agressivement.
 
 > Avec ces regles, on passe de 50 Go/jour a environ 7 Go/jour. A $0.50/Go d'ingestion, c'est une economie de $21.50 par jour, soit $645 par mois.
 
@@ -178,15 +178,15 @@ const after = calculateMonthlyCost({
 
 > L'economie est considerable : de $1,879 a $381 par mois, soit $18,000 par an. Et le signal n'est pas degrade — on garde toutes les erreurs, toutes les traces lentes, et suffisamment de metriques pour les SLOs.
 
-### [08:30-09:30] Recapitulatif
+### [08:30-09:30] Récapitulatif
 
-> Recapitulons. L'explosion de cardinalite est le piege numero un : un label a haute cardinalite peut multiplier vos couts par 1000. Auditez regulierement avec `count by (__name__)`.
+> Recapitulons. L'explosion de cardinalite est le piege numéro un : un label a haute cardinalite peut multiplier vos couts par 1000. Auditez regulierement avec `count by (__name__)`.
 
 > Le sampling intelligent des logs preserve les erreurs (100%) tout en echantillonnant le reste. Le tail-based sampling des traces est superieur au head-based car il garde ce qui est interessant.
 
 > Les trois leviers d'optimisation sont : reduire la cardinalite des metriques, sampler les logs et les traces intelligemment, et ajuster les periodes de retention.
 
-> Le FinOps applique a l'observabilite, c'est optimiser le cout sans perdre le signal. Ce n'est pas couper dans le vif — c'est eliminer le bruit.
+> Le FinOps applique a l'observabilité, c'est optimiser le cout sans perdre le signal. Ce n'est pas couper dans le vif — c'est eliminer le bruit.
 
 > Faites le Lab 22 pour calculer la cardinalite, implementer le sampling, et construire votre propre calculateur de cout !
 
@@ -194,6 +194,6 @@ const after = calculateMonthlyCost({
 - Le calcul de cardinalite doit etre fait en direct, pas juste montre — l'etudiant doit voir la multiplication
 - L'explosion de cardinalite avec user_id est le moment "aha" du screencast — insister sur le danger
 - Les formules de cout doivent etre montrees clairement avec les unites
-- Le calcul avant/apres optimisation est le moment cle — montrer les chiffres concrets
-- Ne pas diaboliser l'observabilite — le message est "optimiser", pas "reduire a tout prix"
+- Le calcul avant/après optimisation est le moment clé — montrer les chiffres concrets
+- Ne pas diaboliser l'observabilité — le message est "optimiser", pas "reduire a tout prix"
 - Le lab associe est le Lab 22 qui implemente ces calculs en TypeScript

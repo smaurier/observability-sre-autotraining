@@ -4,11 +4,11 @@
 - **Duree estimee** : 25-30 min
 - **Module** : `modules/19-projet-final.md`
 - **Lab associe** : Lab 19
-- **Prerequis** : Screencast 18
+- **Prérequis** : Screencast 18
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (3 terminaux)
+- [ ] Terminal intégré ouvert (3 terminaux)
 - [ ] Docker Desktop lance avec suffisamment de ressources (4 Go RAM minimum)
 - [ ] Fichier `docker-compose.full.yml` ouvert
 - [ ] Navigateur ouvert avec onglets prets pour : demo-app (`:3000`), Prometheus (`:9090`), Grafana (`:3001`), Jaeger (`:16686`)
@@ -20,9 +20,9 @@
 
 ### [00:00-03:00] Introduction
 
-> Nous voici au module final. En 18 modules, nous avons construit un systeme d'observabilite complet : logging structure, metriques Prometheus, traces OpenTelemetry, dashboards Grafana, SLOs, alerting, incident management, postmortems, tests de charge, chaos engineering, metriques DORA, observability as code, production readiness.
+> Nous voici au module final. En 18 modules, nous avons construit un système d'observabilité complet : logging structure, metriques Prometheus, traces OpenTelemetry, dashboards Grafana, SLOs, alerting, incident management, postmortems, tests de charge, chaos engineering, metriques DORA, observability as code, production readiness.
 
-> Aujourd'hui, nous assemblons tout. Ce screencast est une demonstration de bout en bout : de l'infrastructure au chaos, en passant par la mesure, l'alerte et la resolution. C'est la validation de tout ce que vous avez appris.
+> Aujourd'hui, nous assemblons tout. Ce screencast est une demonstration de bout en bout : de l'infrastructure au chaos, en passant par la mesure, l'alerte et la résolution. C'est la validation de tout ce que vous avez appris.
 
 ### [03:00-06:00] Lancer la stack complete avec Docker Compose
 
@@ -50,13 +50,13 @@ Stack complete :
 docker compose -f docker-compose.full.yml up -d
 ```
 
-**Action** : Verifier que tous les services sont up.
+**Action** : Vérifier que tous les services sont up.
 
 ```bash
 docker compose -f docker-compose.full.yml ps
 ```
 
-> Cinq services : demo-app, prometheus, grafana, otel-collector, jaeger. Tous en etat running. Verifions chacun.
+> Cinq services : demo-app, prometheus, grafana, otel-collector, jaeger. Tous en état running. Verifions chacun.
 
 **Action** : Tester chaque service.
 
@@ -81,7 +81,7 @@ curl -s http://localhost:3000/metrics | head -5
 
 ### [06:00-10:00] Montrer l'instrumentation — Logs, Metriques, Traces
 
-**Action** : Envoyer des requetes et observer les trois piliers.
+**Action** : Envoyer des requêtes et observer les trois piliers.
 
 ```bash
 # Generer du trafic varie
@@ -100,7 +100,7 @@ done
 docker compose -f docker-compose.full.yml logs demo-app --tail 10
 ```
 
-> Les logs sont structures en JSON avec Pino : timestamp, level, requestId, method, route, statusCode, duration. Chaque requete est tracable grace au requestId. C'est le premier pilier — logging structure (modules 02-03).
+> Les logs sont structures en JSON avec Pino : timestamp, level, requestId, method, route, statusCode, duration. Chaque requête est tracable grace au requestId. C'est le premier pilier — logging structure (modules 02-03).
 
 **Action** : Montrer les metriques dans Prometheus.
 
@@ -125,9 +125,9 @@ rate(demo_app_http_requests_total{status_code="503"}[5m])
 
 ### [10:00-14:00] SLOs configures et mesures
 
-**Action** : Ouvrir Grafana et montrer le dashboard RED genere.
+**Action** : Ouvrir Grafana et montrer le dashboard RED généré.
 
-> Voici le dashboard RED que nous avons genere automatiquement dans le module 17. Les cinq panels : Request Rate, Error Rate, Latency Percentiles, SLO Availability, Error Budget Consumption. Tout est au vert.
+> Voici le dashboard RED que nous avons généré automatiquement dans le module 17. Les cinq panels : Request Rate, Error Rate, Latency Percentiles, SLO Availability, Error Budget Consumption. Tout est au vert.
 
 **Action** : Montrer les SLOs dans Prometheus.
 
@@ -148,15 +148,15 @@ sum(rate(demo_app_http_request_duration_seconds_count[30m]))
 # 0% — budget intact
 ```
 
-> Les SLOs sont definis (module 10), mesures en continu et affiches dans le dashboard. L'error budget est intact — 0% consomme.
+> Les SLOs sont définis (module 10), mesures en continu et affiches dans le dashboard. L'error budget est intact — 0% consomme.
 
-**Action** : Verifier les alertes dans Prometheus.
+**Action** : Vérifier les alertes dans Prometheus.
 
 ```bash
 curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[].rules[] | {alert: .name, state: .state}'
 ```
 
-> Toutes les alertes sont en etat "inactive" — aucune violation du burn rate. Les regles sont celles generees automatiquement dans le module 17.
+> Toutes les alertes sont en état "inactive" — aucune violation du burn rate. Les regles sont celles generees automatiquement dans le module 17.
 
 ### [14:00-18:00] Test de charge avec k6
 
@@ -166,11 +166,11 @@ curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[].rules[] | {alert
 k6 run scripts/k6/load-test.ts
 ```
 
-**Action** : Observer en temps reel dans Grafana.
+**Action** : Observer en temps réel dans Grafana.
 
 > Pendant le test, observez le dashboard RED. Le Request Rate monte pendant le ramp-up. La latence augmente legerement sous charge. Le taux d'erreur reste a 0%. Le SLO est maintenu.
 
-**Action** : Analyser les resultats k6.
+**Action** : Analyser les résultats k6.
 
 ```
 # Resultats typiques
@@ -193,7 +193,7 @@ curl -X POST http://localhost:3000/admin/chaos \
   -d '{"enabled": true, "errorRate": 0.3, "latencyMs": 200, "latencyJitter": 100}'
 ```
 
-**Action** : Generer du trafic continu.
+**Action** : Générer du trafic continu.
 
 ```bash
 # Terminal 2 : trafic continu
@@ -210,13 +210,13 @@ done
 
 **Action** : Montrer l'alerte firing dans Prometheus.
 
-> L'alerte `HighErrorBudgetBurn_Page_Fast` passe en firing. Le burn rate est largement superieur a 14.4x. C'est l'alerte qui declencherait un appel a la personne d'astreinte (module 11).
+> L'alerte `HighErrorBudgetBurn_Page_Fast` passe en firing. Le burn rate est largement superieur a 14.4x. C'est l'alerte qui declencherait un appel à la personne d'astreinte (module 11).
 
 **Action** : Pratiquer le triage rapide.
 
 > Workflow de triage : le dashboard RED montre un error rate de 30%. Jaeger montre des traces en erreur avec le message "Chaos injection". Les logs confirment le chaos middleware actif. Cause identifiee en moins de 5 minutes.
 
-**Action** : Desactiver le chaos et observer la recuperation.
+**Action** : Desactiver le chaos et observer la récupération.
 
 ```bash
 curl -X POST http://localhost:3000/admin/chaos \
@@ -224,9 +224,9 @@ curl -X POST http://localhost:3000/admin/chaos \
   -d '{"enabled": false}'
 ```
 
-> Le service se retablit. Le taux d'erreur redescend a 0%. L'alerte passe de "firing" a "resolved". Le circuit breaker, s'il etait actif, revient en etat "closed". La recuperation est complete (module 15).
+> Le service se retablit. Le taux d'erreur redescend a 0%. L'alerte passe de "firing" a "resolved". Le circuit breaker, s'il etait actif, revient en état "closed". La récupération est complete (module 15).
 
-### [23:00-26:00] Postmortem et evaluation de la production readiness
+### [23:00-26:00] Postmortem et évaluation de la production readiness
 
 **Action** : Esquisser le postmortem de l'incident simule.
 
@@ -261,7 +261,7 @@ const quickPostmortem = {
 };
 ```
 
-> Le postmortem suit la structure du module 13 : timeline, analyse de cause racine avec 5 Whys, lecons apprises et action items SMART.
+> Le postmortem suit la structure du module 13 : timeline, analyse de cause racine avec 5 Whys, leçons apprises et action items SMART.
 
 **Action** : Evaluer rapidement la production readiness.
 
@@ -278,7 +278,7 @@ const prrScore = {
 
 > Score de 84% — recommandation "conditional". Le service peut aller en production avec un plan d'action pour les items restants.
 
-### [26:00-29:00] Resume du cours complet
+### [26:00-29:00] Résumé du cours complet
 
 **Action** : Recapituler chaque module.
 
@@ -320,13 +320,13 @@ const courseJourney = {
 };
 ```
 
-> Ce cours vous a emmene du `console.log` a une stack d'observabilite complete en production. Chaque module a construit sur le precedent. Les logs donnent du contexte. Les metriques donnent des tendances. Les traces donnent le parcours de chaque requete. Les SLOs donnent un objectif. Les alertes detectent les degradations. Les incidents sont geres avec methode. Les postmortems generent de l'apprentissage. Les tests de charge anticipent les limites. Le chaos valide la resilience. Les metriques DORA mesurent la progression de l'equipe. L'observability as code scale l'automatisation. La PRR valide la production readiness.
+> Ce cours vous a emmene du `console.log` à une stack d'observabilité complete en production. Chaque module a construit sur le précédent. Les logs donnent du contexte. Les metriques donnent des tendances. Les traces donnent le parcours de chaque requête. Les SLOs donnent un objectif. Les alertes detectent les degradations. Les incidents sont geres avec méthode. Les postmortems generent de l'apprentissage. Les tests de charge anticipent les limites. Le chaos valide la résilience. Les metriques DORA mesurent la progression de l'équipe. L'observability as code scale l'automatisation. La PRR valide la production readiness.
 
 ### [29:00-30:00] Conclusion
 
-> Felicitations. Vous avez parcouru les 20 modules de cette formation. Vous maitrisez les trois piliers de l'observabilite, le framework SLI/SLO/SLA, le cycle de vie des incidents, le chaos engineering et la production readiness.
+> Felicitations. Vous avez parcouru les 20 modules de cette formation. Vous maitrisez les trois piliers de l'observabilité, le framework SLI/SLO/SLA, le cycle de vie des incidents, le chaos engineering et la production readiness.
 
-> La prochaine etape est d'appliquer tout cela a vos propres projets. Commencez petit : ajoutez du logging structure. Puis des metriques. Puis des traces. Definissez un SLO. Configurez une alerte. Chaque etape rend votre systeme un peu plus observable, un peu plus fiable, un peu plus resilient.
+> La prochaine étape est d'appliquer tout cela a vos propres projets. Commencez petit : ajoutez du logging structure. Puis des metriques. Puis des traces. Definissez un SLO. Configurez une alerte. Chaque étape rend votre système un peu plus observable, un peu plus fiable, un peu plus resilient.
 
 > Bonne route en production.
 
@@ -338,12 +338,12 @@ docker compose -f docker-compose.full.yml down
 
 ## Points d'attention pour l'enregistrement
 - Ce screencast est la synthese de tout le cours — il doit etre fluide et rythme
-- Chaque etape (logs, metriques, traces, SLOs, chaos) doit rappeler le module correspondant
-- La stack Docker Compose doit demarrer sans erreur — tester avant l'enregistrement
+- Chaque étape (logs, metriques, traces, SLOs, chaos) doit rappeler le module correspondant
+- La stack Docker Compose doit démarrer sans erreur — tester avant l'enregistrement
 - Avoir suffisamment de RAM pour les 5 conteneurs (4 Go minimum)
-- Le test k6 doit montrer le dashboard RED en temps reel — split screen recommande
+- Le test k6 doit montrer le dashboard RED en temps réel — split screen recommande
 - L'injection de chaos et l'observation de l'alerte firing sont le point culminant
-- Le postmortem eclair montre que la methode fonctionne meme en quelques minutes
-- Le recapitulatif final doit lier tous les modules — c'est la conclusion du cours
+- Le postmortem eclair montre que la méthode fonctionne même en quelques minutes
+- Le récapitulatif final doit lier tous les modules — c'est la conclusion du cours
 - Terminer sur une note positive et motivante — les apprenants ont accompli un parcours complet
-- Ne pas oublier d'arreter Docker Compose a la fin
+- Ne pas oublier d'arreter Docker Compose à la fin

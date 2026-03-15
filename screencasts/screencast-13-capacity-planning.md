@@ -4,11 +4,11 @@
 - **Duree estimee** : 20-25 min
 - **Module** : `modules/14-capacity-planning.md`
 - **Lab associe** : Lab 14
-- **Prerequis** : Screencast 13
+- **Prérequis** : Screencast 13
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (3 terminaux)
+- [ ] Terminal intégré ouvert (3 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] Grafana ouvert avec le dashboard RED (`http://localhost:3001`)
 - [ ] Prometheus ouvert (`http://localhost:9090`)
@@ -19,7 +19,7 @@
 
 ### [00:00-02:30] Introduction
 
-> Nous savons mesurer la fiabilite (SLOs), alerter sur les degradations (burn rate), gerer les incidents et ecrire des postmortems. Mais comment anticiper les problemes avant qu'ils ne surviennent ? Le capacity planning repond a deux questions : quand nos ressources seront-elles insuffisantes ? Et combien de charge notre systeme peut-il supporter avant de degrader ?
+> Nous savons mesurer la fiabilité (SLOs), alerter sur les degradations (burn rate), gérer les incidents et écrire des postmortems. Mais comment anticiper les problèmes avant qu'ils ne surviennent ? Le capacity planning repond a deux questions : quand nos ressources seront-elles insuffisantes ? Et combien de charge notre système peut-il supporter avant de degrader ?
 
 > L'analogie du parking : vous gerez un parking de 100 places. Chaque jour, 10 nouvelles voitures s'inscrivent. Si vous ne faites rien, dans 10 jours le parking est plein. Le capacity planning, c'est regarder la tendance aujourd'hui pour agir avant la saturation.
 
@@ -35,9 +35,9 @@
 predict_linear(demo_app_nodejs_heap_size_used_bytes[6h], 86400)
 ```
 
-> Cette requete dit : "En regardant la tendance des 6 dernieres heures, quelle sera la memoire heap dans 24 heures ?" Si la valeur projetee depasse votre capacite, il est temps d'agir.
+> Cette requête dit : "En regardant la tendance des 6 dernières heures, quelle sera la mémoire heap dans 24 heures ?" Si la valeur projetee dépasse votre capacité, il est temps d'agir.
 
-**Action** : Creer des alertes predictives.
+**Action** : Créer des alertes predictives.
 
 ```
 # Alerte : le disque sera plein dans moins de 4 heures
@@ -47,7 +47,7 @@ predict_linear(node_filesystem_avail_bytes[6h], 4 * 3600) < 0
 predict_linear(demo_app_nodejs_heap_size_used_bytes[6h], 86400) > 500 * 1024 * 1024
 ```
 
-> Les alertes predictives sont un game-changer. Au lieu de reagir quand le disque est plein a 95%, vous etes prevenu 4 heures avant. Ca vous laisse le temps d'agir pendant les heures de bureau, pas a 3h du matin.
+> Les alertes predictives sont un game-changer. Au lieu de reagir quand le disque est plein a 95%, vous etes prevenu 4 heures avant. Ça vous laisse le temps d'agir pendant les heures de bureau, pas a 3h du matin.
 
 **Action** : Montrer le graphique dans Prometheus avec la projection.
 
@@ -62,9 +62,9 @@ predict_linear(demo_app_nodejs_heap_size_used_bytes[6h], 86400)
 
 ### [06:00-10:00] Introduction a k6 — Tests de charge en TypeScript
 
-> k6 est un outil de tests de charge open-source. Il utilise JavaScript/TypeScript pour definir les scenarios. Contrairement a JMeter ou Locust, k6 est concu pour les developpeurs — le script est du code, versionne dans Git, et executable en CI/CD.
+> k6 est un outil de tests de charge open-source. Il utilise JavaScript/TypeScript pour définir les scenarios. Contrairement a JMeter ou Locust, k6 est concu pour les développeurs — le script est du code, versionne dans Git, et executable en CI/CD.
 
-**Action** : Ecrire un premier script k6.
+**Action** : Écrire un premier script k6.
 
 ```typescript
 // scripts/k6/load-test.ts
@@ -114,9 +114,9 @@ export default function () {
 }
 ```
 
-> Les Virtual Users (VUs) simulent des utilisateurs concurrents. Chaque VU execute la fonction `default` en boucle. Le `sleep(1)` simule le temps de reflexion entre les actions — un vrai utilisateur ne clique pas 100 fois par seconde.
+> Les Virtual Users (VUs) simulent des utilisateurs concurrents. Chaque VU exécuté la fonction `default` en boucle. Le `sleep(1)` simule le temps de reflexion entre les actions — un vrai utilisateur ne clique pas 100 fois par seconde.
 
-### [10:00-14:00] Executer le test et observer en temps reel
+### [10:00-14:00] Exécuter le test et observer en temps réel
 
 **Action** : Lancer le test k6.
 
@@ -128,11 +128,11 @@ k6 run scripts/k6/load-test.ts
 
 > Pendant que k6 envoie du trafic, observons le dashboard RED. Le Request Rate monte progressivement pendant le ramp-up. A 10 VUs, le debit est stable. A 50 VUs, le debit augmente encore — mais surveillez la latence et les erreurs.
 
-**Action** : Commenter les resultats k6 en temps reel.
+**Action** : Commenter les résultats k6 en temps réel.
 
-> k6 affiche les resultats en live : le nombre de VUs, les requetes par seconde, la latence p95 et p99. Si un threshold est viole, k6 le signale avec un indicateur rouge.
+> k6 affiche les résultats en live : le nombre de VUs, les requêtes par seconde, la latence p95 et p99. Si un threshold est viole, k6 le signale avec un indicateur rouge.
 
-**Action** : Attendre la fin du test et analyser le resume.
+**Action** : Attendre la fin du test et analyser le résumé.
 
 ```
 # Sortie typique de k6
@@ -143,11 +143,11 @@ k6 run scripts/k6/load-test.ts
      vus............................: 50      min=0    max=50
 ```
 
-> Analyse : p95 a 210ms, p99 a 450ms, 0% d'erreurs. Les thresholds sont respectes. Notre application supporte 50 VUs sans probleme.
+> Analyse : p95 a 210ms, p99 a 450ms, 0% d'erreurs. Les thresholds sont respectes. Notre application supporte 50 VUs sans problème.
 
 ### [14:00-18:00] Scenarios avances — Steady-state et Spike
 
-**Action** : Ecrire un scenario de spike test.
+**Action** : Écrire un scenario de spike test.
 
 ```typescript
 // scripts/k6/spike-test.ts
@@ -195,11 +195,11 @@ k6 run scripts/k6/spike-test.ts
 
 **Action** : Observer dans Grafana le comportement pendant le spike.
 
-> Pendant le spike a 200 VUs, observez la latence qui augmente brutalement. L'event loop lag de Node.js monte. Le taux d'erreur peut apparaitre si l'application n'arrive plus a traiter toutes les requetes. C'est exactement ce qu'on cherche — le point de rupture.
+> Pendant le spike a 200 VUs, observez la latence qui augmente brutalement. L'event loop lag de Node.js monte. Le taux d'erreur peut apparaître si l'application n'arrive plus a traiter toutes les requêtes. C'est exactement ce qu'on cherche — le point de rupture.
 
-### [18:00-21:00] Analyser les resultats — Trouver les limites
+### [18:00-21:00] Analyser les résultats — Trouver les limites
 
-**Action** : Comparer les resultats avant et pendant le spike.
+**Action** : Comparer les résultats avant et pendant le spike.
 
 ```typescript
 // Analyse des resultats
@@ -264,20 +264,20 @@ const capacityPlan = {
 
 > Le capacity planning n'est pas un exercice ponctuel. C'est un processus continu : tester regulierement, comparer avec les projections de trafic, et planifier les actions en avance.
 
-### [23:00-24:30] Recapitulatif
+### [23:00-24:30] Récapitulatif
 
-> Recapitulons. Le capacity planning anticipe les problemes avant qu'ils ne surviennent. `predict_linear()` en PromQL projette les tendances dans le futur. k6 permet de tester les limites de votre systeme avec des scenarios realistes : ramp-up progressif, palier stable, spike brutal.
+> Recapitulons. Le capacity planning anticipe les problèmes avant qu'ils ne surviennent. `predict_linear()` en PromQL projette les tendances dans le futur. k6 permet de tester les limites de votre système avec des scenarios realistes : ramp-up progressif, palier stable, spike brutal.
 
-> L'analyse des resultats identifie le point de degradation et le point de rupture. Combiner les projections de trafic et les resultats de charge permet de planifier les actions : optimisation, scaling, caching.
+> L'analyse des résultats identifie le point de degradation et le point de rupture. Combiner les projections de trafic et les résultats de charge permet de planifier les actions : optimisation, scaling, caching.
 
-> Dans le prochain module, nous passons au chaos engineering — casser volontairement pour mieux construire. Faites le Lab 14 pour ecrire et executer vos propres tests k6 !
+> Dans le prochain module, nous passons au chaos engineering — casser volontairement pour mieux construire. Faites le Lab 14 pour écrire et exécuter vos propres tests k6 !
 
 ## Points d'attention pour l'enregistrement
-- Installer k6 AVANT le screencast et verifier qu'il fonctionne
-- Avoir Grafana ouvert en parallele pendant l'execution de k6 pour montrer l'impact en temps reel
+- Installer k6 AVANT le screencast et vérifier qu'il fonctionne
+- Avoir Grafana ouvert en parallele pendant l'exécution de k6 pour montrer l'impact en temps réel
 - Le ramp-up progressif est visuellement parlant dans Grafana — le montrer
-- Le spike test est le moment "wow" — la latence qui explose est tres visuelle
-- Expliquer les VUs (Virtual Users) clairement — ce n'est pas des requetes par seconde
+- Le spike test est le moment "wow" — la latence qui explose est très visuelle
+- Expliquer les VUs (Virtual Users) clairement — ce n'est pas des requêtes par seconde
 - Le think time (sleep) est important pour la realisme des scenarios
 - predict_linear est une fonction puissante mais simple — montrer le graphique
-- La synthese finale (combiner prediction et load test) est le delivrable cle
+- La synthese finale (combiner prediction et load test) est le delivrable clé

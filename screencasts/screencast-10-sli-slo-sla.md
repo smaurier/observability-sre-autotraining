@@ -4,30 +4,30 @@
 - **Duree estimee** : 20-25 min
 - **Module** : `modules/10-sli-slo-sla.md`
 - **Lab associe** : Lab 10
-- **Prerequis** : Screencast 09
+- **Prérequis** : Screencast 09
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] Prometheus accessible sur `http://localhost:9090`
 - [ ] Grafana accessible sur `http://localhost:3001`
 - [ ] demo-app accessible sur `http://localhost:3000`
-- [ ] Script de generation de trafic pret pour simuler des erreurs
+- [ ] Script de génération de trafic pret pour simuler des erreurs
 
 ## Script
 
 ### [00:00-02:30] Introduction
 
-> Nous avons des dashboards, des metriques et des traces. Mais comment savoir si notre service est "assez fiable" ? Viser 100% de disponibilite est impossible et ruineux. Ne rien mesurer, c'est naviguer a l'aveugle. Aujourd'hui, nous decouvrons le framework SLI/SLO/SLA, popularise par Google dans le livre Site Reliability Engineering. C'est le langage commun entre equipes produit, developpement et operations.
+> Nous avons des dashboards, des metriques et des traces. Mais comment savoir si notre service est "assez fiable" ? Viser 100% de disponibilité est impossible et ruineux. Ne rien mesurer, c'est naviguer a l'aveugle. Aujourd'hui, nous decouvrons le framework SLI/SLO/SLA, popularise par Google dans le livre Site Reliability Engineering. C'est le langage commun entre équipes produit, développement et operations.
 
-> L'analogie du restaurant : vous ne dites pas "la nourriture est bonne". Vous mesurez le temps d'attente moyen, le taux de satisfaction client, le nombre de plats renvoyes. Les SLIs, SLOs et SLAs font exactement la meme chose pour vos services numeriques.
+> L'analogie du restaurant : vous ne dites pas "la nourriture est bonne". Vous mesurez le temps d'attente moyen, le taux de satisfaction client, le nombre de plats renvoyes. Les SLIs, SLOs et SLAs font exactement la même chose pour vos services numériques.
 
-### [02:30-06:00] Definir les SLIs — Que mesurons-nous ?
+### [02:30-06:00] Définir les SLIs — Que mesurons-nous ?
 
-> Un SLI — Service Level Indicator — est une mesure quantitative d'un aspect du service tel que percu par l'utilisateur. La formule generique est simple : nombre d'evenements "bons" divise par nombre total d'evenements.
+> Un SLI — Service Level Indicator — est une mesure quantitative d'un aspect du service tel que percu par l'utilisateur. La formule générique est simple : nombre d'événements "bons" divise par nombre total d'événements.
 
-**Action** : Ecrire les SLIs pour la demo-app.
+**Action** : Écrire les SLIs pour la demo-app.
 
 ```typescript
 // SLIs pour la demo-app
@@ -49,9 +49,9 @@ interface LatencySLI {
 }
 ```
 
-> Deux points importants. Premierement, le SLI est toujours un ratio entre 0 et 1 (ou 0% et 100%). Deuxiemement, il mesure ce que l'utilisateur ressent — pas la CPU du serveur, pas la memoire, mais le resultat de la requete tel que l'utilisateur le voit.
+> Deux points importants. Premierement, le SLI est toujours un ratio entre 0 et 1 (où 0% et 100%). Deuxiemement, il mesure ce que l'utilisateur ressent — pas la CPU du serveur, pas la mémoire, mais le résultat de la requête tel que l'utilisateur le voit.
 
-**Action** : Montrer les requetes PromQL pour calculer chaque SLI.
+**Action** : Montrer les requêtes PromQL pour calculer chaque SLI.
 
 ```
 # SLI Disponibilite en PromQL
@@ -69,13 +69,13 @@ sum(rate(demo_app_http_request_duration_seconds_bucket{le="0.5"}[30m]))
 sum(rate(demo_app_http_request_duration_seconds_count[30m]))
 ```
 
-> Pour la latence, on utilise le bucket `le="0.5"` de l'histogram. Ce bucket contient le nombre de requetes dont la duree est inferieure ou egale a 0.5 seconde (500ms). Divise par le nombre total, ca donne le pourcentage de requetes rapides.
+> Pour la latence, on utilise le bucket `le="0.5"` de l'histogram. Ce bucket contient le nombre de requêtes dont la duree est inferieure ou egale a 0.5 seconde (500ms). Divise par le nombre total, ça donne le pourcentage de requêtes rapides.
 
 ### [06:00-09:00] Fixer les SLOs — Quel niveau visons-nous ?
 
-> Un SLO — Service Level Objective — est la cible que vous fixez pour un SLI. C'est la reponse a : "Quel niveau de fiabilite est acceptable ?"
+> Un SLO — Service Level Objective — est la cible que vous fixez pour un SLI. C'est la réponse a : "Quel niveau de fiabilité est acceptable ?"
 
-**Action** : Definir les SLOs pour la demo-app.
+**Action** : Définir les SLOs pour la demo-app.
 
 ```typescript
 // SLOs pour la demo-app
@@ -101,13 +101,13 @@ const slos = {
 // Sur 1 000 000 de requetes, 10 000 peuvent depasser 500ms
 ```
 
-> 99.9% semble eleve, mais ca autorise 43 minutes de downtime par mois. 99.99% ne laisse que 4.3 minutes. Chaque "9" supplementaire coute exponentiellement plus cher a atteindre.
+> 99.9% semble eleve, mais ça autorise 43 minutes de downtime par mois. 99.99% ne laisse que 4.3 minutes. Chaque "9" supplementaire coute exponentiellement plus cher a atteindre.
 
 ### [09:00-13:00] Calculer l'error budget
 
-> L'error budget est le complement du SLO. Si votre SLO est 99.9%, votre error budget est 0.1%. C'est le budget de "droit a l'erreur" — la quantite de fiabilite que vous pouvez sacrifier pour innover.
+> L'error budget est le complement du SLO. Si votre SLO est 99.9%, votre error budget est 0.1%. C'est le budget de "droit a l'erreur" — la quantite de fiabilité que vous pouvez sacrifier pour innover.
 
-**Action** : Ecrire le calcul d'error budget.
+**Action** : Écrire le calcul d'error budget.
 
 ```typescript
 interface ErrorBudget {
@@ -150,9 +150,9 @@ const budget = {
 // Budget restant   : 21.6 minutes
 ```
 
-> L'error budget est un outil de decision. S'il reste beaucoup de budget, l'equipe peut deployer plus rapidement, prendre plus de risques. Si le budget est presque epuise, on ralentit les deployments et on investit dans la fiabilite.
+> L'error budget est un outil de decision. S'il reste beaucoup de budget, l'équipe peut déployer plus rapidement, prendre plus de risques. Si le budget est presque epuise, on ralentit les deployments et on investit dans la fiabilité.
 
-**Action** : Montrer le calcul en PromQL sur une fenetre glissante.
+**Action** : Montrer le calcul en PromQL sur une fenêtre glissante.
 
 ```
 # Error budget consomme (en pourcentage du budget total)
@@ -168,9 +168,9 @@ const budget = {
 * 100
 ```
 
-> Cette requete calcule le pourcentage du budget consomme. Si le resultat est 50, vous avez utilise la moitie de votre budget. Si c'est 100 ou plus, le SLO est viole.
+> Cette requête calcule le pourcentage du budget consomme. Si le résultat est 50, vous avez utilise la moitie de votre budget. Si c'est 100 ou plus, le SLO est viole.
 
-### [13:00-17:00] Observer la consommation d'error budget en temps reel
+### [13:00-17:00] Observer la consommation d'error budget en temps réel
 
 **Action** : Envoyer du trafic normal d'abord.
 
@@ -182,11 +182,11 @@ for i in $(seq 1 500); do
 done
 ```
 
-**Action** : Ouvrir Grafana et afficher le SLI de disponibilite.
+**Action** : Ouvrir Grafana et afficher le SLI de disponibilité.
 
 > Le SLI est a 100%. L'error budget est intact. Maintenant, injectons des erreurs.
 
-**Action** : Envoyer du trafic qui genere des erreurs 5xx.
+**Action** : Envoyer du trafic qui généré des erreurs 5xx.
 
 ```bash
 # Trafic mixte — incluant des requetes qui echouent
@@ -197,9 +197,9 @@ for i in $(seq 1 100); do
 done
 ```
 
-**Action** : Observer en temps reel dans Grafana.
+**Action** : Observer en temps réel dans Grafana.
 
-> Regardez le graphique. Le SLI de disponibilite commence a descendre. L'error budget se consomme. Si on continue a ce rythme, le SLO sera viole dans quelques minutes.
+> Regardez le graphique. Le SLI de disponibilité commence a descendre. L'error budget se consomme. Si on continue a ce rythme, le SLO sera viole dans quelques minutes.
 
 **Action** : Montrer dans Prometheus la consommation du budget.
 
@@ -210,11 +210,11 @@ sum(rate(demo_app_http_requests_total{status_code!~"5.."}[5m]))
 sum(rate(demo_app_http_requests_total[5m]))
 ```
 
-> On voit le SLI passer de 1.0 a 0.98, puis 0.95. Chaque point de pourcentage perdu consomme une portion du budget. C'est exactement ce mecanisme qui permet aux equipes de prendre des decisions basees sur des donnees, pas sur des impressions.
+> On voit le SLI passer de 1.0 a 0.98, puis 0.95. Chaque point de pourcentage perdu consomme une portion du budget. C'est exactement ce mécanisme qui permet aux équipes de prendre des decisions basees sur des donnees, pas sur des impressions.
 
 ### [17:00-20:00] Rolling window et composite SLO
 
-> En production, le SLO est calcule sur une fenetre glissante de 30 jours — pas un mois calendaire. Chaque minute, la fenetre avance : les vieilles erreurs sortent, les nouvelles entrent.
+> En production, le SLO est calcule sur une fenêtre glissante de 30 jours — pas un mois calendaire. Chaque minute, la fenêtre avance : les vieilles erreurs sortent, les nouvelles entrent.
 
 **Action** : Montrer le concept de rolling window.
 
@@ -231,7 +231,7 @@ sum(rate(demo_app_http_requests_total[5m]))
 // SLI sur 30 jours : 100% — le budget se regenere !
 ```
 
-> Un composite SLO combine plusieurs SLIs. Par exemple : "99.9% des requetes reussissent ET 99% des requetes sont servies en moins de 500ms". Si l'un ou l'autre est viole, le SLO global est viole.
+> Un composite SLO combine plusieurs SLIs. Par exemple : "99.9% des requêtes reussissent ET 99% des requêtes sont servies en moins de 500ms". Si l'un ou l'autre est viole, le SLO global est viole.
 
 ### [20:00-23:00] SLA — l'engagement contractuel
 
@@ -249,22 +249,22 @@ sum(rate(demo_app_http_requests_total[5m]))
 // Marge de securite : 0.4% entre les deux
 ```
 
-> Si votre SLA est au meme niveau que votre SLO, vous n'avez aucune marge. La moindre violation du SLO declenchera des penalites financieres.
+> Si votre SLA est au même niveau que votre SLO, vous n'avez aucune marge. La moindre violation du SLO declenchera des penalites financieres.
 
-### [23:00-24:30] Recapitulatif
+### [23:00-24:30] Récapitulatif
 
-> Recapitulons. Le SLI mesure ce que l'utilisateur ressent — c'est un ratio. Le SLO fixe la cible de fiabilite — 99.9%, 99.99%. L'error budget est le complement — 0.1% de droit a l'erreur. Le SLA est le contrat — avec des consequences financieres.
+> Recapitulons. Le SLI mesure ce que l'utilisateur ressent — c'est un ratio. Le SLO fixe la cible de fiabilité — 99.9%, 99.99%. L'error budget est le complement — 0.1% de droit a l'erreur. Le SLA est le contrat — avec des consequences financieres.
 
-> L'error budget est un outil de decision : beaucoup de budget restant = plus de risques autorises. Budget epuise = on freine et on investit dans la fiabilite. La fenetre glissante de 30 jours permet au budget de se regenerer naturellement.
+> L'error budget est un outil de decision : beaucoup de budget restant = plus de risques autorises. Budget epuise = on freine et on investit dans la fiabilité. La fenêtre glissante de 30 jours permet au budget de se regenerer naturellement.
 
-> Dans le prochain module, nous apprendrons a creer des alertes basees sur le burn rate — la vitesse a laquelle l'error budget est consomme. Faites le Lab 10 !
+> Dans le prochain module, nous apprendrons a créer des alertes basees sur le burn rate — la vitesse a laquelle l'error budget est consomme. Faites le Lab 10 !
 
 ## Points d'attention pour l'enregistrement
-- Prendre le temps sur les definitions SLI/SLO/SLA — c'est le vocabulaire fondamental du SRE
+- Prendre le temps sur les définitions SLI/SLO/SLA — c'est le vocabulaire fondamental du SRE
 - L'analogie du restaurant est parlante — l'utiliser en introduction
-- Le calcul d'error budget en minutes est tres concret — bien detailler l'arithmetique
-- Montrer en temps reel la consommation de l'error budget en injectant des erreurs
+- Le calcul d'error budget en minutes est très concret — bien detailler l'arithmetique
+- Montrer en temps réel la consommation de l'error budget en injectant des erreurs
 - Le bucket `le="0.5"` pour le SLI de latence est un point technique important
-- La fenetre glissante (rolling window) est un concept subtil — prendre le temps
-- La hierarchie SLI → SLO → SLA → error budget doit etre claire a la fin du screencast
+- La fenêtre glissante (rolling window) est un concept subtil — prendre le temps
+- La hiérarchie SLI → SLO → SLA → error budget doit etre claire à la fin du screencast
 - Ne pas oublier de montrer la marge entre SLO et SLA

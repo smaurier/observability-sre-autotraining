@@ -1,9 +1,9 @@
-# Strategies d'alerting (Multi-window Burn Rate)
+# Stratégies d'alerting (Multi-window Burn Rate)
 
 ## Objectifs pedagogiques
 
 - Comprendre le concept de burn rate et son lien avec l'error budget
-- Maitriser la strategie multi-window multi-burn-rate
+- Maîtriser la stratégie multi-window multi-burn-rate
 - Savoir distinguer les niveaux de severite d'alerte (page vs ticket)
 - Combattre l'alert fatigue avec des alertes pertinentes
 - Configurer des regles d'alerting Prometheus et Alertmanager
@@ -11,11 +11,11 @@
 
 ---
 
-## Introduction : le probleme de l'alerting classique
+## Introduction : le problème de l'alerting classique
 
-Imaginez un detecteur de fumee qui sonne chaque fois que vous faites cuire un toast. Au bout de quelques semaines, vous le debranchez. C'est exactement ce qui se passe avec un alerting mal configure : les equipes finissent par **ignorer les alertes** (alert fatigue), y compris les vraies urgences.
+Imaginez un detecteur de fumee qui sonne chaque fois que vous faites cuire un toast. Au bout de quelques semaines, vous le debranchez. C'est exactement ce qui se passe avec un alerting mal configure : les équipes finissent par **ignorer les alertes** (alert fatigue), y compris les vraies urgences.
 
-L'alerting base sur les SLOs et le burn rate resout ce probleme en repondant a une question simple : **"A quelle vitesse consommons-nous notre error budget ?"**
+L'alerting base sur les SLOs et le burn rate resout ce problème en repondant à une question simple : **"A quelle vitesse consommons-nous notre error budget ?"**
 
 ---
 
@@ -23,7 +23,7 @@ L'alerting base sur les SLOs et le burn rate resout ce probleme en repondant a u
 
 ### Definition
 
-Le **burn rate** mesure la vitesse a laquelle vous consommez votre error budget par rapport a un taux constant. Un burn rate de **1** signifie que vous consommez votre budget exactement au rythme prevu (vous l'epuiserez a la fin de la fenetre).
+Le **burn rate** mesure la vitesse a laquelle vous consommez votre error budget par rapport à un taux constant. Un burn rate de **1** signifie que vous consommez votre budget exactement au rythme prévu (vous l'epuiserez à la fin de la fenêtre).
 
 ```
 burn_rate = taux_erreur_observe / taux_erreur_autorise
@@ -103,17 +103,17 @@ Pour un SLO de 99.9% sur 30 jours :
 
 ## Multi-window Multi-Burn-Rate Alerting
 
-### Le probleme des fenetres uniques
+### Le problème des fenetres uniques
 
-Une seule fenetre de temps ne suffit pas :
+Une seule fenêtre de temps ne suffit pas :
 - **Fenetre courte** (5 min) : trop de faux positifs (un pic de latence bref)
 - **Fenetre longue** (24h) : detection trop lente pour les incidents graves
 
 ### La solution Google SRE Workbook
 
-La strategie **multi-window multi-burn-rate** utilise deux fenetres pour chaque alerte :
-1. **Fenetre longue** : detecte la tendance
-2. **Fenetre courte** : confirme que le probleme est **toujours en cours**
+La stratégie **multi-window multi-burn-rate** utilise deux fenetres pour chaque alerte :
+1. **Fenetre longue** : détecté la tendance
+2. **Fenetre courte** : confirme que le problème est **toujours en cours**
 
 ```typescript
 interface AlertWindow {
@@ -189,7 +189,7 @@ const checker: MultiWindowCheck = {
 // => ALERTE (le probleme est toujours actif)
 ```
 
-Cela elimine les **faux positifs** : un pic temporaire ne declenche pas d'alerte car la fenetre courte retourne a la normale.
+Cela elimine les **faux positifs** : un pic temporaire ne declenche pas d'alerte car la fenêtre courte retourne à la normale.
 
 ---
 
@@ -229,8 +229,8 @@ const alertConfigs: Record<AlertSeverity, AlertConfig> = {
 
 ### Regles d'or pour la severite
 
-1. **Page** : l'utilisateur est impacte **maintenant** et ca ne se resoudra pas tout seul
-2. **Ticket** : une degradation lente qui necessite attention mais pas urgence
+1. **Page** : l'utilisateur est impacte **maintenant** et ça ne se resoudra pas tout seul
+2. **Ticket** : une degradation lente qui nécessité attention mais pas urgence
 3. **Ni l'un ni l'autre** : observable sur un dashboard, pas besoin d'alerte
 
 ---
@@ -241,10 +241,10 @@ const alertConfigs: Record<AlertSeverity, AlertConfig> = {
 
 - Les ingenieurs ignorent les notifications
 - Le channel d'alertes Slack est mute
-- Les incidents reels sont detectes par les clients, pas par les alertes
-- Le nombre d'alertes par semaine depasse 20
+- Les incidents réels sont detectes par les clients, pas par les alertes
+- Le nombre d'alertes par semaine dépasse 20
 
-### Comment l'eviter
+### Comment l'éviter
 
 ```typescript
 interface AlertHygieneChecklist {
@@ -286,7 +286,7 @@ const checklist: AlertHygieneChecklist[] = [
 
 ## Runbooks
 
-Un **runbook** est un document qui guide l'ingenieur d'astreinte etape par etape pour diagnostiquer et resoudre un probleme signale par une alerte.
+Un **runbook** est un document qui guide l'ingenieur d'astreinte étape par étape pour diagnostiquer et résoudre un problème signale par une alerte.
 
 ```typescript
 interface Runbook {
@@ -456,7 +456,7 @@ receivers:
 
 ### Routing avance
 
-Le **routing** permet de diriger les alertes vers les bonnes equipes :
+Le **routing** permet de diriger les alertes vers les bonnes équipes :
 
 ```typescript
 interface AlertRoute {
@@ -510,7 +510,7 @@ const maintenanceSilence: AlertSilence = {
 ```
 
 ::: warning Attention
-N'utilisez les silences que pour des maintenances **planifiees**. Silencer une alerte parce qu'elle est "bruyante" masque un vrai probleme — corrigez plutot le seuil ou la cause racine.
+N'utilisez les silences que pour des maintenances **planifiees**. Silencer une alerte parce qu'elle est "bruyante" masque un vrai problème — corrigez plutot le seuil ou la cause racine.
 :::
 
 ---
@@ -600,19 +600,19 @@ console.log(`Budget restant: ${result.finalBudgetPercent.toFixed(2)}%`);
 ## Bonnes pratiques
 
 1. **Basez vos alertes sur les SLOs** : pas sur des metriques arbitraires
-2. **Utilisez le multi-window** : toujours une fenetre longue + une fenetre courte
+2. **Utilisez le multi-window** : toujours une fenêtre longue + une fenêtre courte
 3. **Limitez les pages** : maximum 2 par rotation d'astreinte de 12h
 4. **Chaque alerte = un runbook** : si l'ingenieur ne sait pas quoi faire, l'alerte est inutile
 5. **Revue trimestrielle** : supprimez les alertes non actionnees, ajustez les seuils
-6. **Evitez les alertes "a titre informatif"** : utilisez des dashboards pour ca
-7. **Testez vos alertes** : injectez des erreurs pour verifier que les alertes se declenchent correctement
-8. **Documentez les escalations** : qui contacter si le premier intervenant ne peut pas resoudre
+6. **Evitez les alertes "a titre informatif"** : utilisez des dashboards pour ça
+7. **Testez vos alertes** : injectez des erreurs pour vérifier que les alertes se declenchent correctement
+8. **Documentez les escalations** : qui contacter si le premier intervenant ne peut pas résoudre
 
 ---
 
 ::: tip A retenir
 - Le **burn rate** mesure la vitesse de consommation de l'error budget (1x = rythme normal)
-- La strategie **multi-window multi-burn-rate** utilise 2 fenetres pour reduire les faux positifs
+- La stratégie **multi-window multi-burn-rate** utilise 2 fenetres pour reduire les faux positifs
 - **Page** = intervention immediate, **Ticket** = traitement pendant les heures de bureau
 - L'**alert fatigue** est le premier ennemi d'un bon alerting : moins d'alertes, mais meilleures
 - Chaque alerte doit etre **actionnable** et accompagnee d'un **runbook**
@@ -624,6 +624,17 @@ console.log(`Budget restant: ${result.finalBudgetPercent.toFixed(2)}%`);
 ## Pour aller plus loin
 
 - [Lab 11 — Configurer des alertes burn rate](/labs/lab-11-burn-rate-alerts/README)
-- [Quiz 11 — Strategies d'alerting](/quizzes/quiz-11-alerting-strategies)
+- [Quiz 11 — Stratégies d'alerting](/quizzes/quiz-11-alerting-strategies)
 - Google SRE Workbook, Chapitre 5 : "Alerting on SLOs"
 - Prometheus documentation : "Alerting Rules"
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 11 alerting stratégies](../screencasts/screencast-11-alerting-strategies.md)
+2. **Lab** : [lab-11-burn-rate-alerts](../labs/lab-11-burn-rate-alerts/README)
+3. **Visualisation** : [SLO Error Budget](../visualizations/slo-error-budget.html)
+4. **Quiz** : [quiz 11 alerting stratégies](../quizzes/quiz-11-alerting-strategies.html)
+:::

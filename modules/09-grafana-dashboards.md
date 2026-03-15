@@ -2,11 +2,11 @@
 
 ## Objectifs pedagogiques
 
-- Maitriser PromQL en profondeur (selecteurs, vecteurs, fonctions d'agregation, prediction)
+- Maîtriser PromQL en profondeur (selecteurs, vecteurs, fonctions d'agregation, prediction)
 - Comprendre les concepts Grafana (datasources, panels, variables, annotations)
-- Construire un dashboard RED etape par etape
+- Construire un dashboard RED étape par étape
 - Configurer des regles d'alerte dans Grafana
-- Gerer les dashboards as code (modele JSON)
+- Gérer les dashboards as code (modèle JSON)
 - Utiliser des template variables pour des dashboards multi-services
 - Appliquer les bonnes pratiques de conception de dashboards
 
@@ -18,7 +18,7 @@
 
 ## PromQL en profondeur
 
-PromQL (Prometheus Query Language) est le langage de requete de Prometheus. C'est un langage fonctionnel specialise pour les series temporelles.
+PromQL (Prometheus Query Language) est le langage de requête de Prometheus. C'est un langage fonctionnel specialise pour les series temporelles.
 
 ### Selecteurs
 
@@ -321,9 +321,9 @@ interface GrafanaPanels {
 
 ---
 
-## Construire un dashboard RED etape par etape
+## Construire un dashboard RED étape par étape
 
-### Etape 1 : Panneau Rate (trafic)
+### Étape 1 : Panneau Rate (trafic)
 
 ```
 # Panel : Time Series
@@ -338,7 +338,7 @@ sum by (method) (rate(http_requests_total[5m]))
 # Legend : {{ method }}
 ```
 
-### Etape 2 : Panneau Errors (taux d'erreur)
+### Étape 2 : Panneau Errors (taux d'erreur)
 
 ```
 # Panel : Time Series + seuil a 1%
@@ -354,7 +354,7 @@ sum(rate(http_errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100
 # - Rouge : > 5%
 ```
 
-### Etape 3 : Panneau Duration (latence)
+### Étape 3 : Panneau Duration (latence)
 
 ```
 # Panel : Time Series
@@ -375,7 +375,7 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 # Unite de l'axe Y : secondes
 ```
 
-### Etape 4 : Panneaux complementaires
+### Étape 4 : Panneaux complementaires
 
 ```
 # Panel Stat : "Requetes en cours"
@@ -421,9 +421,9 @@ topk(5,
 
 ## Regles d'alerte dans Grafana
 
-Grafana permet de definir des alertes directement sur les requetes PromQL.
+Grafana permet de définir des alertes directement sur les requêtes PromQL.
 
-### Creer une alerte pour le taux d'erreur
+### Créer une alerte pour le taux d'erreur
 
 ```yaml
 # Alerte : taux d'erreur HTTP 5xx > 1% pendant 5 minutes
@@ -490,9 +490,9 @@ up{job="demo-app"} == 0
 
 ---
 
-## Dashboard as code (modele JSON)
+## Dashboard as code (modèle JSON)
 
-Grafana permet d'exporter et d'importer des dashboards en JSON. C'est la meilleure approche pour le versionning et le deploiement automatise.
+Grafana permet d'exporter et d'importer des dashboards en JSON. C'est la meilleure approche pour le versionning et le déploiement automatise.
 
 ```typescript
 // Structure simplifiee d'un dashboard Grafana en JSON
@@ -588,7 +588,7 @@ interface Panel {
 
 ## Template variables pour dashboards multi-services
 
-Les variables de template rendent un dashboard reutilisable pour plusieurs services, environnements ou instances.
+Les variables de template rendent un dashboard réutilisable pour plusieurs services, environnements ou instances.
 
 ```
 # Variable "service" — liste des services disponibles
@@ -631,7 +631,7 @@ Usage : rate(http_requests_total[${interval}])
 
 ## Annotations
 
-Les annotations marquent des evenements ponctuels sur les graphiques (deploiements, incidents, etc.).
+Les annotations marquent des événements ponctuels sur les graphiques (deploiements, incidents, etc.).
 
 ```yaml
 # Annotation automatique basee sur une requete
@@ -672,29 +672,39 @@ annotations:
 ### PromQL
 
 - **Utilisez `$__rate_interval`** au lieu de valeurs codees en dur dans Grafana
-- **Toujours `sum by`** plutot que `sum without` pour eviter les surprises
-- **Testez vos requetes** dans l'onglet Explore avant de les mettre dans un dashboard
-- **Documentez les requetes** complexes avec des commentaires dans le titre ou la description du panel
+- **Toujours `sum by`** plutot que `sum without` pour éviter les surprises
+- **Testez vos requêtes** dans l'onglet Explore avant de les mettre dans un dashboard
+- **Documentez les requêtes** complexes avec des commentaires dans le titre ou la description du panel
 
 ### Alertes
 
-- **Chaque alerte doit avoir un runbook** : un lien vers la procedure de resolution
+- **Chaque alerte doit avoir un runbook** : un lien vers la procedure de résolution
 - **Evitez les alertes trop sensibles** : un `for: 5m` reduit les faux positifs
 - **Regroupez les alertes par severite** : critical (pager), warning (email), info (dashboard)
-- **Testez vos alertes** : simulez des pannes pour verifier qu'elles se declenchent
+- **Testez vos alertes** : simulez des pannes pour vérifier qu'elles se declenchent
 
 ::: tip A retenir
-Grafana + PromQL forment le couple de visualisation et d'interrogation le plus puissant de l'ecosysteme open-source. La cle est de maitriser 5 fonctions PromQL (`rate`, `increase`, `histogram_quantile`, `sum by`, `predict_linear`) et de structurer vos dashboards autour de la methode RED. Versionez vos dashboards en JSON et utilisez les template variables pour les rendre reutilisables.
+Grafana + PromQL forment le couple de visualisation et d'interrogation le plus puissant de l'ecosysteme open-source. La clé est de maîtriser 5 fonctions PromQL (`rate`, `increase`, `histogram_quantile`, `sum by`, `predict_linear`) et de structurer vos dashboards autour de la méthode RED. Versionez vos dashboards en JSON et utilisez les template variables pour les rendre réutilisables.
 :::
 
 ::: warning Attention
-Un dashboard avec 50 panels et 200 requetes PromQL sera lent et illisible. Visez 8-12 panels maximum par dashboard. Creez plusieurs dashboards specialises plutot qu'un mega-dashboard qui fait tout.
+Un dashboard avec 50 panels et 200 requêtes PromQL sera lent et illisible. Visez 8-12 panels maximum par dashboard. Creez plusieurs dashboards specialises plutot qu'un mega-dashboard qui fait tout.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
 - [Lab 09 — Construire un dashboard RED dans Grafana](/labs/lab-09-promql-grafana/README)
 - [Quiz 09 — Grafana & PromQL](/quizzes/quiz-09-grafana-dashboards)
 - [Module suivant — SLI, SLO & SLA](/modules/10-sli-slo-sla)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 09 grafana dashboards](../screencasts/screencast-09-grafana-dashboards.md)
+2. **Lab** : [lab-09-promql-grafana](../labs/lab-09-promql-grafana/README)
+3. **Quiz** : [quiz 09 grafana dashboards](../quizzes/quiz-09-grafana-dashboards.html)
+:::

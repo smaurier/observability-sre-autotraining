@@ -1,14 +1,14 @@
-# Screencast 11 — Strategies d'alerting (Multi-window Burn Rate)
+# Screencast 11 — Stratégies d'alerting (Multi-window Burn Rate)
 
 ## Informations
 - **Duree estimee** : 20-25 min
 - **Module** : `modules/11-alerting-strategies.md`
 - **Lab associe** : Lab 11
-- **Prerequis** : Screencast 10
+- **Prérequis** : Screencast 10
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] Prometheus accessible sur `http://localhost:9090` avec l'onglet Alerts ouvert
 - [ ] Grafana accessible sur `http://localhost:3001`
@@ -19,15 +19,15 @@
 
 ### [00:00-02:30] Introduction
 
-> Dans le module precedent, nous avons defini nos SLOs et calcule l'error budget. Maintenant, il faut etre alerte quand le budget est consomme trop vite. Mais attention — un detecteur de fumee qui sonne pour un toast, ca se debranche. C'est exactement ce qui arrive avec un alerting mal configure : alert fatigue. Les equipes finissent par ignorer les alertes, y compris les vraies urgences.
+> Dans le module précédent, nous avons défini nos SLOs et calcule l'error budget. Maintenant, il faut etre alerte quand le budget est consomme trop vite. Mais attention — un detecteur de fumee qui sonne pour un toast, ça se debranche. C'est exactement ce qui arrive avec un alerting mal configure : alert fatigue. Les équipes finissent par ignorer les alertes, y compris les vraies urgences.
 
-> L'alerting base sur le burn rate resout ce probleme. Au lieu de demander "est-ce que le taux d'erreur depasse 1% ?", on demande "a quelle vitesse consommons-nous notre error budget ?". C'est une question bien plus pertinente.
+> L'alerting base sur le burn rate resout ce problème. Au lieu de demander "est-ce que le taux d'erreur dépasse 1% ?", on demandé "a quelle vitesse consommons-nous notre error budget ?". C'est une question bien plus pertinente.
 
 ### [02:30-06:00] Comprendre le burn rate
 
-> Le burn rate mesure la vitesse de consommation de l'error budget par rapport a un rythme constant. Un burn rate de 1 signifie que vous consommez le budget au rythme exact pour l'epuiser a la fin de la fenetre de 30 jours. Un burn rate de 2 signifie que vous le consommerez en 15 jours.
+> Le burn rate mesure la vitesse de consommation de l'error budget par rapport à un rythme constant. Un burn rate de 1 signifie que vous consommez le budget au rythme exact pour l'epuiser à la fin de la fenêtre de 30 jours. Un burn rate de 2 signifie que vous le consommerez en 15 jours.
 
-**Action** : Ecrire les calculs de burn rate.
+**Action** : Écrire les calculs de burn rate.
 
 ```typescript
 // Burn Rate = taux d'erreur observe / taux d'erreur autorise
@@ -69,9 +69,9 @@ Error Budget (%)
 
 ### [06:00-10:00] Multi-window burn rate alerts
 
-> Le probleme avec un seul seuil de burn rate, c'est les faux positifs. Un pic de 2 minutes a burn rate 50, suivi d'un retour a la normale, ne devrait pas declencher une alerte page. C'est la que la strategie multi-window entre en jeu.
+> Le problème avec un seul seuil de burn rate, c'est les faux positifs. Un pic de 2 minutes a burn rate 50, suivi d'un retour à la normale, ne devrait pas declencher une alerte page. C'est la que la stratégie multi-window entre en jeu.
 
-**Action** : Expliquer la strategie multi-window.
+**Action** : Expliquer la stratégie multi-window.
 
 ```typescript
 // Multi-window : combiner une fenetre longue et une fenetre courte
@@ -97,9 +97,9 @@ const alertConfigs = [
 ];
 ```
 
-> La premiere regle page dit : "Si le burn rate est 14.4 sur la derniere heure ET sur les 5 dernieres minutes, c'est une urgence — reveillez quelqu'un." Un burn rate de 14.4 sur 1 heure consomme 2% du budget mensuel en une heure. La deuxieme regle page est moins urgente mais plus longue : burn rate 6 sur 6 heures.
+> La première regle page dit : "Si le burn rate est 14.4 sur la dernière heure ET sur les 5 dernières minutes, c'est une urgence — reveillez quelqu'un." Un burn rate de 14.4 sur 1 heure consomme 2% du budget mensuel en une heure. La deuxieme regle page est moins urgente mais plus longue : burn rate 6 sur 6 heures.
 
-> Les regles ticket detectent des problemes plus lents mais persistants. Pas besoin de reveiller quelqu'un, mais il faut agir pendant les heures de bureau.
+> Les regles ticket detectent des problèmes plus lents mais persistants. Pas besoin de reveiller quelqu'un, mais il faut agir pendant les heures de bureau.
 
 ### [10:00-15:00] Configurer les alertes dans Prometheus
 
@@ -178,7 +178,7 @@ groups:
           runbook: "https://wiki.internal/runbooks/slow-error-budget-drain"
 ```
 
-> Chaque regle suit le meme schema : fenetre longue depassee ET fenetre courte depassee. Le seuil est `burn_rate * (1 - SLO)`. Pour un SLO de 99.9%, `(1 - 0.999) = 0.001`. Un burn rate de 14.4 donne un seuil de `14.4 * 0.001 = 0.0144`, soit 1.44% de taux d'erreur.
+> Chaque regle suit le même schema : fenêtre longue depassee ET fenêtre courte depassee. Le seuil est `burn_rate * (1 - SLO)`. Pour un SLO de 99.9%, `(1 - 0.999) = 0.001`. Un burn rate de 14.4 donne un seuil de `14.4 * 0.001 = 0.0144`, soit 1.44% de taux d'erreur.
 
 **Action** : Recharger la configuration Prometheus.
 
@@ -186,9 +186,9 @@ groups:
 curl -X POST http://localhost:9090/-/reload
 ```
 
-**Action** : Verifier les alertes dans Prometheus UI > Alerts.
+**Action** : Vérifier les alertes dans Prometheus UI > Alerts.
 
-> Les alertes sont en etat "inactive" — aucune condition n'est remplie. Declenchons-les.
+> Les alertes sont en état "inactive" — aucune condition n'est remplie. Declenchons-les.
 
 ### [15:00-19:00] Injecter des erreurs et observer les alertes
 
@@ -207,13 +207,13 @@ done
 
 **Action** : Observer les alertes dans Prometheus UI > Alerts.
 
-> Apres quelques minutes, l'alerte `HighErrorBudgetBurn_Page_Fast` passe de "inactive" a "pending", puis a "firing". Le `for: 1m` signifie que la condition doit etre vraie pendant au moins 1 minute avant le declenchement. Cela evite les alertes pour des micro-pics.
+> Après quelques minutes, l'alerte `HighErrorBudgetBurn_Page_Fast` passe de "inactive" a "pending", puis a "firing". Le `for: 1m` signifie que la condition doit etre vraie pendant au moins 1 minute avant le declenchement. Cela evite les alertes pour des micro-pics.
 
 **Action** : Montrer les details de l'alerte dans Prometheus.
 
-> Regardez les annotations : le summary dit "Burn rate critique (14.4x)", la description donne le contexte, et le runbook pointe vers la documentation de resolution. Chaque alerte doit avoir un runbook — sinon la personne d'astreinte ne sait pas quoi faire.
+> Regardez les annotations : le summary dit "Burn rate critique (14.4x)", la description donne le contexte, et le runbook pointe vers la documentation de résolution. Chaque alerte doit avoir un runbook — sinon la personne d'astreinte ne sait pas quoi faire.
 
-### [19:00-22:00] Creer un template de runbook
+### [19:00-22:00] Créer un template de runbook
 
 **Action** : Montrer le template de runbook.
 
@@ -258,22 +258,22 @@ const runbookTemplate = {
 };
 ```
 
-> Un bon runbook repond a quatre questions : qu'est-ce qui se passe ? Que faire immediatement ? Comment investiguer ? Quand escalader ? Sans runbook, la personne d'astreinte perd du temps a comprendre l'alerte au lieu de resoudre le probleme.
+> Un bon runbook repond a quatre questions : qu'est-ce qui se passe ? Que faire immediatement ? Comment investiguer ? Quand escalader ? Sans runbook, la personne d'astreinte perd du temps à comprendre l'alerte au lieu de résoudre le problème.
 
-### [22:00-24:00] Recapitulatif
+### [22:00-24:00] Récapitulatif
 
-> Recapitulons. Le burn rate mesure la vitesse de consommation de l'error budget. La strategie multi-window combine une fenetre longue et une fenetre courte pour eliminer les faux positifs. Quatre niveaux d'alerte couvrent les scenarios : de l'urgence critique au ticket a traiter en heures ouvrees.
+> Recapitulons. Le burn rate mesure la vitesse de consommation de l'error budget. La stratégie multi-window combine une fenêtre longue et une fenêtre courte pour eliminer les faux positifs. Quatre niveaux d'alerte couvrent les scenarios : de l'urgence critique au ticket a traiter en heures ouvrees.
 
-> Chaque alerte doit avoir : un severity level clair (page vs ticket), des annotations descriptives, et un lien vers un runbook. Le runbook est aussi important que l'alerte elle-meme.
+> Chaque alerte doit avoir : un severity level clair (page vs ticket), des annotations descriptives, et un lien vers un runbook. Le runbook est aussi important que l'alerte elle-même.
 
-> Dans le prochain module, nous verrons comment gerer un incident de bout en bout — de la detection a la resolution. Faites le Lab 11 pour configurer vos propres alertes !
+> Dans le prochain module, nous verrons comment gérer un incident de bout en bout — de la detection à la résolution. Faites le Lab 11 pour configurer vos propres alertes !
 
 ## Points d'attention pour l'enregistrement
 - Le concept de burn rate est abstrait — prendre le temps avec le graphique visuel
-- La strategie multi-window est le coeur du module — bien expliquer pourquoi les deux fenetres
-- Montrer l'alerte passer de inactive → pending → firing en temps reel
-- Le calcul du seuil (burn_rate * (1 - SLO)) doit etre detaille pas a pas
+- La stratégie multi-window est le coeur du module — bien expliquer pourquoi les deux fenetres
+- Montrer l'alerte passer de inactive → pending → firing en temps réel
+- Le calcul du seuil (burn_rate * (1 - SLO)) doit etre détaillé pas a pas
 - Le template de runbook est une delivrable concrete — insister sur son importance
-- S'assurer que la configuration Prometheus est rechargee apres modification des rules
-- Generer suffisamment d'erreurs pour declencher les alertes en quelques minutes
+- S'assurer que la configuration Prometheus est rechargee après modification des rules
+- Générer suffisamment d'erreurs pour declencher les alertes en quelques minutes
 - Ne pas oublier de montrer les annotations (summary, description, runbook) dans Prometheus UI

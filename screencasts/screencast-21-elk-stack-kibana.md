@@ -4,25 +4,25 @@
 - **Duree estimee** : 15-18 min
 - **Module** : `modules/23-elk-stack-kibana.md`
 - **Lab associe** : `labs/lab-24-elk-kibana/`
-- **Prerequis** : Screencast 02-03 (Logging structure), Screencast 09 (Grafana)
+- **Prérequis** : Screencast 02-03 (Logging structure), Screencast 09 (Grafana)
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
 - [ ] Docker et docker-compose installes
-- [ ] Terminal integre ouvert
+- [ ] Terminal intégré ouvert
 - [ ] Navigateur ouvert
 
 ## Script
 
 ### [00:00-02:30] Introduction — ELK vs Grafana Stack
 
-> On a utilise Grafana + Loki pour les logs jusqu'ici. Aujourd'hui, on decouvre l'autre grande stack : ELK — Elasticsearch, Logstash, Kibana. C'est la stack historique de gestion de logs, utilisee par des milliers d'entreprises.
+> On a utilise Grafana + Loki pour les logs jusqu'ici. Aujourd'hui, on découvre l'autre grande stack : ELK — Elasticsearch, Logstash, Kibana. C'est la stack historique de gestion de logs, utilisee par des milliers d'entreprises.
 
 **Action** : Afficher le slide "Grafana Stack vs ELK Stack".
 
 > Grafana Stack (Loki + Grafana) est optimise pour le cout : Loki indexe uniquement les labels, pas le contenu des logs. ELK indexe tout — chaque mot de chaque log est searchable. C'est plus couteux en stockage mais beaucoup plus puissant pour l'analyse.
 
-> Quand choisir ELK : quand vous avez besoin de recherche full-text dans les logs, d'analyses complexes avec des aggregations, ou quand votre equipe connait deja Kibana. C'est le cas dans beaucoup d'entreprises.
+> Quand choisir ELK : quand vous avez besoin de recherche full-text dans les logs, d'analyses complexes avec des aggregations, ou quand votre équipe connait déjà Kibana. C'est le cas dans beaucoup d'entreprises.
 
 ### [02:30-06:00] Architecture ELK
 
@@ -33,7 +33,7 @@ Applications → Filebeat → Logstash → Elasticsearch → Kibana
                 (collecte)  (transform)  (stockage+index) (visualisation)
 ```
 
-> Chaque composant a un role precis :
+> Chaque composant à un role précis :
 > - **Filebeat** collecte les logs depuis les fichiers ou les conteneurs Docker
 > - **Logstash** transforme les logs : parsing, enrichissement, filtrage
 > - **Elasticsearch** stocke et indexe les logs — c'est le moteur de recherche
@@ -109,7 +109,7 @@ output {
 
 **Action** : Ouvrir Kibana et montrer Discover.
 
-> Kibana Discover est l'interface de recherche des logs. Le langage de requete est KQL — Kibana Query Language.
+> Kibana Discover est l'interface de recherche des logs. Le langage de requête est KQL — Kibana Query Language.
 
 ```
 # Exemples KQL
@@ -122,15 +122,15 @@ NOT user_agent: "HealthChecker"      # Exclure les health checks
 
 > KQL est plus simple que Lucene (l'ancien langage). Pas besoin de guillemets pour les valeurs simples, les operateurs booleen sont en minuscule.
 
-**Action** : Creer un dashboard avec des visualisations.
+**Action** : Créer un dashboard avec des visualisations.
 
-> Un dashboard Kibana typique pour les logs : un histogramme des erreurs par heure, un camembert des status codes, un tableau des top 10 endpoints les plus lents, et une carte geographique des requetes par pays.
+> Un dashboard Kibana typique pour les logs : un histogramme des erreurs par heure, un camembert des status codes, un tableau des top 10 endpoints les plus lents, et une carte geographique des requêtes par pays.
 
 ### [13:00-16:00] ILM — Index Lifecycle Management
 
 > Les logs accumulent enormement de donnees. Sans gestion, votre cluster Elasticsearch va manquer d'espace en quelques semaines.
 
-**Action** : Montrer la strategie hot-warm-cold.
+**Action** : Montrer la stratégie hot-warm-cold.
 
 ```
 Hot (SSD rapide, 7 jours)    → Logs recents, recherche temps reel
@@ -139,21 +139,21 @@ Cold (stockage archive, 1 an) → Archives, conformite, rarement accede
 Delete (apres 1 an)           → Suppression automatique
 ```
 
-> ILM automatise le cycle de vie : les logs arrivent sur les noeud hot (rapides), migrent vers warm apres 7 jours (moins chers), puis cold apres 30 jours (tres bon marche), et sont supprimes apres un an.
+> ILM automatise le cycle de vie : les logs arrivent sur les noeud hot (rapides), migrent vers warm après 7 jours (moins chers), puis cold après 30 jours (très bon marche), et sont supprimes après un an.
 
-> C'est le meme principe que le tiering S3 Standard → Glacier chez AWS. L'objectif est d'optimiser le rapport cout/performance.
+> C'est le même principe que le tiering S3 Standard → Glacier chez AWS. L'objectif est d'optimiser le rapport cout/performance.
 
-### [16:00-18:00] Recapitulatif
+### [16:00-18:00] Récapitulatif
 
-> ELK est la stack de reference pour la gestion de logs en entreprise. Elasticsearch indexe tout et permet la recherche full-text. Logstash parse et enrichit les logs avec grok. Kibana visualise et explore.
+> ELK est la stack de référence pour la gestion de logs en entreprise. Elasticsearch indexe tout et permet la recherche full-text. Logstash parse et enrichit les logs avec grok. Kibana visualise et explore.
 
-> KQL est le langage de requete de Kibana. ILM gere le cycle de vie des index pour maitriser les couts. Et Filebeat collecte les logs depuis vos applications.
+> KQL est le langage de requête de Kibana. ILM géré le cycle de vie des index pour maîtriser les couts. Et Filebeat collecte les logs depuis vos applications.
 
-> Faites le Lab 24 pour parser des logs avec grok, ecrire des requetes KQL, et configurer une politique ILM !
+> Faites le Lab 24 pour parser des logs avec grok, écrire des requêtes KQL, et configurer une politique ILM !
 
 ## Points d'attention pour l'enregistrement
-- Docker Compose pour ELK necessite au moins 4 Go de RAM — prevenir les etudiants
+- Docker Compose pour ELK nécessité au moins 4 Go de RAM — prévenir les etudiants
 - Le grok pattern est le concept le plus complexe — decomposer chaque pattern
 - Montrer Kibana Discover en live avec des vrais logs
-- La strategie hot-warm-cold est intuitive mais il faut bien expliquer le rationale economique
+- La stratégie hot-warm-cold est intuitive mais il faut bien expliquer le rationale economique
 - Comparer avec Grafana/Loki pour que les etudiants comprennent les tradeoffs

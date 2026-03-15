@@ -1,16 +1,16 @@
-# Lab 20 — Integration Docker : la stack d'observabilite en vrai
+# Lab 20 — Intégration Docker : la stack d'observabilité en vrai
 
 ## Objectifs
 
-- Lancer la stack d'observabilite complete avec Docker Compose
-- Verifier que Prometheus scrape la demo-app
+- Lancer la stack d'observabilité complete avec Docker Compose
+- Vérifier que Prometheus scrape la demo-app
 - Explorer les metriques dans Prometheus UI
 - Construire un dashboard RED dans Grafana
-- Envoyer du trafic et observer les metriques en temps reel
+- Envoyer du trafic et observer les metriques en temps réel
 - Visualiser des traces dans Jaeger
 - Connecter Grafana a Jaeger pour le drill-down log→trace
 
-## Prerequis
+## Prérequis
 
 - Docker et Docker Compose installes
 - Les modules 00 a 09 completes
@@ -26,4 +26,4 @@ Suivez le guide pas a pas dans `exercise.md`.
 - [ ] `http://localhost:9090/targets` montre la demo-app comme target UP
 - [ ] `http://localhost:3001` (Grafana) affiche un dashboard avec au moins 3 panels
 - [ ] `http://localhost:16686` (Jaeger) montre des traces de la demo-app
-- [ ] Vous avez envoye 100+ requetes et observe les metriques changer en temps reel
+- [ ] Vous avez envoye 100+ requêtes et observe les metriques changer en temps réel

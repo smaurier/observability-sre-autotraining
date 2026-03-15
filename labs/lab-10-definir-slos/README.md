@@ -1,15 +1,15 @@
-# Lab 10 — Definir et mesurer des SLOs
+# Lab 10 — Définir et mesurer des SLOs
 
 ## Objectifs
 
-- Definir les types de SLI (disponibilite, latence, qualite)
-- Calculer la conformite SLO a partir de donnees de requetes
+- Définir les types de SLI (disponibilité, latence, qualite)
+- Calculer la conformite SLO à partir de donnees de requêtes
 - Calculer et suivre le budget d'erreur (total, consomme, restant)
-- Implementer le calcul SLO sur fenetre glissante (rolling window)
-- Definir une politique de budget d'erreur (gel des deploiements)
-- Calculer un SLO composite a partir de plusieurs SLOs
+- Implementer le calcul SLO sur fenêtre glissante (rolling window)
+- Définir une politique de budget d'erreur (gel des deploiements)
+- Calculer un SLO composite à partir de plusieurs SLOs
 
-## Prerequis
+## Prérequis
 
 - Lab 04 (metriques fondamentales)
 - Notions de base sur SLI / SLO / SLA
@@ -18,10 +18,10 @@
 
 | # | Sujet | Difficulte |
 |---|-------|------------|
-| 1 | Definir les types de SLI | * |
+| 1 | Définir les types de SLI | * |
 | 2 | Calculer la conformite SLO | ** |
 | 3 | Calculer le budget d'erreur | ** |
-| 4 | SLO sur fenetre glissante | *** |
+| 4 | SLO sur fenêtre glissante | *** |
 | 5 | Politique de budget d'erreur | ** |
 | 6 | SLO composite | *** |
 

@@ -4,29 +4,29 @@
 - **Duree estimee** : 22-28 min
 - **Module** : `modules/17-observability-as-code.md`
 - **Lab associe** : Lab 17
-- **Prerequis** : Screencast 16
+- **Prérequis** : Screencast 16
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Compose lance (`docker compose -f docker-compose.full.yml up -d`)
 - [ ] Grafana accessible sur `http://localhost:3001`
 - [ ] Prometheus accessible sur `http://localhost:9090`
-- [ ] Fichier `scripts/generate-dashboard.ts` pret a etre cree
-- [ ] Fichier `scripts/generate-alerts.ts` pret a etre cree
+- [ ] Fichier `scripts/generate-dashboard.ts` pret a etre créé
+- [ ] Fichier `scripts/generate-alerts.ts` pret a etre créé
 - [ ] Git initialise dans le projet
 
 ## Script
 
 ### [00:00-02:30] Introduction
 
-> Dans le module 09, nous avons construit un dashboard Grafana manuellement — clic par clic dans l'interface. Dans le module 11, nous avons ecrit les regles d'alerting Prometheus a la main. Ca fonctionne pour un service. Mais avec 10, 50 ou 100 services, le travail manuel devient du toil. C'est exactement le probleme que nous avons identifie dans le module precedent.
+> Dans le module 09, nous avons construit un dashboard Grafana manuellement — clic par clic dans l'interface. Dans le module 11, nous avons écrit les regles d'alerting Prometheus à la main. Ça fonctionne pour un service. Mais avec 10, 50 ou 100 services, le travail manuel devient du toil. C'est exactement le problème que nous avons identifie dans le module précédent.
 
-> L'observability as code consiste a generer les configurations d'observabilite — dashboards, alertes, regles — a partir de code. Les avantages : versionne dans Git, reproductible, revise en PR, deploye automatiquement. Aujourd'hui, nous allons generer des dashboards Grafana et des regles Prometheus programmatiquement en TypeScript.
+> L'observability as code consiste a générer les configurations d'observabilité — dashboards, alertes, regles — à partir de code. Les avantages : versionne dans Git, reproductible, revise en PR, déployé automatiquement. Aujourd'hui, nous allons générer des dashboards Grafana et des regles Prometheus programmatiquement en TypeScript.
 
-### [02:30-08:00] Generer un dashboard Grafana en JSON depuis TypeScript
+### [02:30-08:00] Générer un dashboard Grafana en JSON depuis TypeScript
 
-**Action** : Creer le fichier `scripts/generate-dashboard.ts`.
+**Action** : Créer le fichier `scripts/generate-dashboard.ts`.
 
 ```typescript
 // scripts/generate-dashboard.ts
@@ -210,21 +210,21 @@ for (const service of services) {
 }
 ```
 
-**Action** : Executer le script.
+**Action** : Exécuter le script.
 
 ```bash
 npx tsx scripts/generate-dashboard.ts
 ```
 
-> Le fichier JSON est genere dans `config/grafana/dashboards/`. Grafana le charge automatiquement via le provisioning. Ouvrons Grafana pour verifier.
+> Le fichier JSON est généré dans `config/grafana/dashboards/`. Grafana le charge automatiquement via le provisioning. Ouvrons Grafana pour vérifier.
 
-**Action** : Ouvrir Grafana et montrer le dashboard genere.
+**Action** : Ouvrir Grafana et montrer le dashboard généré.
 
-> Le dashboard est la — genere a partir de code. Chaque panel est correct : Rate, Error Rate, Latency Percentiles, SLO, Error Budget. Pour ajouter un nouveau service, il suffit d'ajouter une entree dans le tableau `services` et de relancer le script.
+> Le dashboard est la — généré à partir de code. Chaque panel est correct : Rate, Error Rate, Latency Percentiles, SLO, Error Budget. Pour ajouter un nouveau service, il suffit d'ajouter une entree dans le tableau `services` et de relancer le script.
 
-### [08:00-13:00] Generer des regles d'alerting Prometheus
+### [08:00-13:00] Générer des regles d'alerting Prometheus
 
-**Action** : Creer le fichier `scripts/generate-alerts.ts`.
+**Action** : Créer le fichier `scripts/generate-alerts.ts`.
 
 ```typescript
 // scripts/generate-alerts.ts
@@ -308,19 +308,19 @@ fs.writeFileSync(outputPath, yamlContent);
 console.log(`Alert rules generees : ${outputPath}`);
 ```
 
-**Action** : Executer le script.
+**Action** : Exécuter le script.
 
 ```bash
 npx tsx scripts/generate-alerts.ts
 ```
 
-**Action** : Verifier le fichier YAML genere.
+**Action** : Vérifier le fichier YAML généré.
 
 ```bash
 cat config/prometheus/rules/slo-alerts-demo-app.yml
 ```
 
-> Les regles sont generees en YAML valide, pretes a etre chargees par Prometheus. Pour ajouter un nouveau service avec les memes regles, il suffit de creer une nouvelle `AlertConfig` et de relancer le script.
+> Les regles sont generees en YAML valide, pretes a etre chargees par Prometheus. Pour ajouter un nouveau service avec les memes regles, il suffit de créer une nouvelle `AlertConfig` et de relancer le script.
 
 ### [13:00-17:00] Version control et workflow GitOps
 
@@ -375,11 +375,11 @@ git add config/grafana/dashboards/ config/prometheus/rules/
 git status
 ```
 
-> Tous les fichiers generes sont versiones. Un `git diff` montre exactement ce qui a change. Un reviewer peut verifier les requetes PromQL, les seuils d'alerte, les annotations — tout est visible dans la PR.
+> Tous les fichiers generes sont versiones. Un `git diff` montre exactement ce qui a change. Un reviewer peut vérifier les requêtes PromQL, les seuils d'alerte, les annotations — tout est visible dans la PR.
 
 ### [17:00-21:00] Valider les configurations generees
 
-**Action** : Ecrire un script de validation.
+**Action** : Écrire un script de validation.
 
 ```typescript
 // scripts/validate-configs.ts
@@ -456,13 +456,13 @@ if (allErrors.length > 0) {
 }
 ```
 
-**Action** : Executer la validation.
+**Action** : Exécuter la validation.
 
 ```bash
 npx tsx scripts/validate-configs.ts
 ```
 
-> La validation passe. Ce script peut etre integre dans le CI/CD — si la validation echoue, la PR est bloquee. C'est un filet de securite qui empeche de deployer des configurations invalides.
+> La validation passe. Ce script peut etre intégré dans le CI/CD — si la validation echoue, la PR est bloquee. C'est un filet de sécurité qui empeche de déployer des configurations invalides.
 
 ### [21:00-25:00] Benefices et patterns avances
 
@@ -482,20 +482,20 @@ const benefits = {
 
 > L'observability as code reduit le toil que nous avons identifie dans le module 16. Les 2 heures de mise a jour manuelle des dashboards deviennent 5 minutes de modification de code + CI/CD.
 
-### [25:00-27:00] Recapitulatif
+### [25:00-27:00] Récapitulatif
 
-> Recapitulons. L'observability as code genere les dashboards Grafana et les regles Prometheus a partir de TypeScript. Les fichiers generes sont versiones dans Git, revises en PR et deployes automatiquement. Un script de validation verifie les configurations avant le deploiement.
+> Recapitulons. L'observability as code généré les dashboards Grafana et les regles Prometheus à partir de TypeScript. Les fichiers generes sont versiones dans Git, revises en PR et déployés automatiquement. Un script de validation vérifié les configurations avant le déploiement.
 
 > Le workflow GitOps est : modifier le code → regenerer → commit → PR → review → merge → deploy. C'est reproductible, scalable et coherent.
 
 > Dans le prochain module, nous abordons la production readiness — comment savoir si un service est pret pour la production. Faites le Lab 17 !
 
 ## Points d'attention pour l'enregistrement
-- Montrer le dashboard genere dans Grafana — c'est le moment "wow"
-- Le code TypeScript de generation doit etre explique pas a pas
+- Montrer le dashboard généré dans Grafana — c'est le moment "wow"
+- Le code TypeScript de génération doit etre explique pas a pas
 - Comparer le workflow manuel (clic dans Grafana) vs le workflow as code (script + Git)
-- La validation des configs est un point de securite important — insister dessus
+- La validation des configs est un point de sécurité important — insister dessus
 - Le workflow GitOps (commit → PR → review → deploy) doit etre montre en action
-- Lier explicitement a la reduction du toil du module 16
-- S'assurer que Grafana charge bien le dashboard genere via le provisioning
+- Lier explicitement à la reduction du toil du module 16
+- S'assurer que Grafana charge bien le dashboard généré via le provisioning
 - Montrer un git diff pour illustrer la traçabilite des changements

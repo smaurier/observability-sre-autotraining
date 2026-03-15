@@ -4,11 +4,11 @@
 - **Duree estimee** : 15-18 min
 - **Module** : `modules/02-logging-structure.md`
 - **Lab associe** : Lab 02
-- **Prerequis** : Screencast 01
+- **Prérequis** : Screencast 01
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert
+- [ ] Terminal intégré ouvert
 - [ ] demo-app prete a etre lancee
 - [ ] Fichier `demo-app/src/lib/logger.ts` ouvert
 - [ ] Un fichier temporaire `scratch.ts` pret pour les demos
@@ -18,15 +18,15 @@
 
 ### [00:00-01:30] Introduction
 
-> Dans le module precedent, nous avons vu les 3 piliers de l'observabilite. Aujourd'hui, nous plongeons dans le premier pilier : le logging. Nous allons remplacer console.log par Pino et decouvrir pourquoi le logging structure est indispensable en production.
+> Dans le module précédent, nous avons vu les 3 piliers de l'observabilité. Aujourd'hui, nous plongeons dans le premier pilier : le logging. Nous allons remplacer console.log par Pino et découvrir pourquoi le logging structure est indispensable en production.
 
-**Action** : Creer un fichier `scratch.ts` pour les demos live.
+**Action** : Créer un fichier `scratch.ts` pour les demos live.
 
-### [01:30-04:00] Le probleme avec console.log
+### [01:30-04:00] Le problème avec console.log
 
 > Commencons par voir les limites de console.log.
 
-**Action** : Ecrire un exemple simple avec console.log.
+**Action** : Écrire un exemple simple avec console.log.
 
 ```typescript
 // scratch.ts — Le probleme avec console.log
@@ -35,13 +35,13 @@ console.log('User 42 placed order ord-123 for 99.99 EUR');
 console.log('Error: Connection refused');
 ```
 
-**Action** : Executer le fichier.
+**Action** : Exécuter le fichier.
 
 ```bash
 npx tsx scratch.ts
 ```
 
-> Regardez la sortie. C'est lisible pour un humain, dans un terminal, avec 3 lignes. Mais imaginez un systeme d'agregation de logs qui recoit des millions de lignes. Comment filtrer par utilisateur ? Comment trier par severite ? Comment parser automatiquement ? C'est impossible.
+> Regardez la sortie. C'est lisible pour un humain, dans un terminal, avec 3 lignes. Mais imaginez un système d'agregation de logs qui recoit des millions de lignes. Comment filtrer par utilisateur ? Comment trier par severite ? Comment parser automatiquement ? C'est impossible.
 
 **Action** : Montrer un tableau comparatif.
 
@@ -60,7 +60,7 @@ npx tsx scratch.ts
 
 > Installons et configurons Pino.
 
-**Action** : Montrer l'installation (deja faite au setup).
+**Action** : Montrer l'installation (déjà faite au setup).
 
 ```bash
 npm install pino pino-pretty
@@ -85,13 +85,13 @@ logger.error('Erreur qui necessite une attention');
 logger.fatal('Erreur critique — arret imminent');
 ```
 
-**Action** : Executer et observer la sortie JSON brute.
+**Action** : Exécuter et observer la sortie JSON brute.
 
 ```bash
 npx tsx scratch.ts
 ```
 
-> Regardez : chaque ligne est du JSON valide. Il y a un champ `level` numerique, un `time` en millisecondes, et le `msg`. Les niveaux trace et debug n'apparaissent pas car le niveau par defaut est info (30). Seuls les logs de niveau 30 et superieur sont emis.
+> Regardez : chaque ligne est du JSON valide. Il y à un champ `level` numérique, un `time` en millisecondes, et le `msg`. Les niveaux trace et debug n'apparaissent pas car le niveau par defaut est info (30). Seuls les logs de niveau 30 et superieur sont emis.
 
 **Action** : Montrer la sortie.
 
@@ -130,13 +130,13 @@ logger.info({ duration: 245, route: '/api/orders' }, 'Request completed');
 logger.error({ err: new Error('Connection refused'), host: 'db.internal' }, 'Database error');
 ```
 
-**Action** : Executer et montrer la sortie formatee par pino-pretty.
+**Action** : Exécuter et montrer la sortie formatee par pino-pretty.
 
 ```bash
 npx tsx scratch.ts
 ```
 
-> Avec pino-pretty, la sortie est lisible pour un humain en developpement. Mais en production, on enleve le transport et on ecrit du JSON brut sur stdout — c'est l'infrastructure (Docker, Kubernetes) qui se charge de la collecte.
+> Avec pino-pretty, la sortie est lisible pour un humain en développement. Mais en production, on enleve le transport et on écrit du JSON brut sur stdout — c'est l'infrastructure (Docker, Kubernetes) qui se charge de la collecte.
 
 > Point important : avec Pino, l'objet de contexte est toujours le premier argument, et le message est le second. C'est l'inverse de beaucoup d'autres loggers, mais c'est plus performant car Pino serialise l'objet directement.
 
@@ -173,7 +173,7 @@ logger.warn('Visible en console ET dans le fichier');
 logger.error('Visible en console ET dans le fichier');
 ```
 
-**Action** : Executer et verifier le fichier `app.log`.
+**Action** : Exécuter et vérifier le fichier `app.log`.
 
 ```bash
 npx tsx scratch.ts
@@ -241,7 +241,7 @@ const logger = createLogger('demo-app');
 export default logger;
 ```
 
-> Plusieurs points importants ici. Le niveau est configurable via variable d'environnement — pas besoin de redeployer pour changer le niveau de log. La redaction masque automatiquement les mots de passe et numeros de carte. Le transport pino-pretty n'est actif qu'en developpement.
+> Plusieurs points importants ici. Le niveau est configurable via variable d'environnement — pas besoin de redeployer pour changer le niveau de log. La redaction masque automatiquement les mots de passe et numéros de carte. Le transport pino-pretty n'est actif qu'en développement.
 
 ### [14:30-16:30] Comparaison structuree vs non-structuree
 
@@ -269,7 +269,7 @@ export default logger;
 // → Dans Kibana : userId=42 AND level>=40
 ```
 
-**Action** : Lancer la demo-app une derniere fois pour montrer les logs en action.
+**Action** : Lancer la demo-app une dernière fois pour montrer les logs en action.
 
 ```bash
 npx tsx demo-app/src/index.ts
@@ -282,16 +282,16 @@ curl -X POST http://localhost:3000/api/orders \
   -d '{"item":"laptop","quantity":1}'
 ```
 
-### [16:30-17:30] Recapitulatif
+### [16:30-17:30] Récapitulatif
 
 > Recapitulons. console.log est insuffisant en production : pas de timestamp, pas de niveaux, pas de structure. Pino produit du JSON indexable et filtrable. Les transports travaillent dans des worker threads — zero impact sur le thread principal. Les serializers et redactors protegent les donnees sensibles.
 
-> Prochaine etape : le module 03 ou nous ajouterons les correlation IDs et les child loggers pour suivre une requete a travers tout le systeme. Faites le Lab 02 pour pratiquer !
+> Prochaine étape : le module 03 ou nous ajouterons les correlation IDs et les child loggers pour suivre une requête a travers tout le système. Faites le Lab 02 pour pratiquer !
 
 ## Points d'attention pour l'enregistrement
-- Toujours montrer l'execution reelle du code — pas de screenshots statiques
+- Toujours montrer l'exécution réelle du code — pas de screenshots statiques
 - Insister sur l'ordre des arguments Pino : objet d'abord, message ensuite
-- Montrer la difference visuelle entre JSON brut et pino-pretty
+- Montrer la différence visuelle entre JSON brut et pino-pretty
 - Ne pas oublier de mentionner la performance : Pino est 7x plus rapide que Winston
-- Montrer le fichier app.log cree par le transport fichier
-- Supprimer le fichier scratch.ts et app.log a la fin du screencast
+- Montrer le fichier app.log créé par le transport fichier
+- Supprimer le fichier scratch.ts et app.log à la fin du screencast

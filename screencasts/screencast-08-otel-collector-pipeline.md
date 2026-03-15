@@ -1,14 +1,14 @@
-# Screencast 08 — OTel Collector & Pipeline d'observabilite
+# Screencast 08 — OTel Collector & Pipeline d'observabilité
 
 ## Informations
 - **Duree estimee** : 18-22 min
 - **Module** : `modules/08-otel-collector-pipeline.md`
 - **Lab associe** : Lab 08
-- **Prerequis** : Screencast 07
+- **Prérequis** : Screencast 07
 
 ## Setup
 - [ ] VS Code ouvert dans `observability-sre-course/`
-- [ ] Terminal integre ouvert (2 terminaux)
+- [ ] Terminal intégré ouvert (2 terminaux)
 - [ ] Docker Desktop lance et fonctionnel
 - [ ] Fichier `config/otel-collector/config.yaml` ouvert
 - [ ] Fichier `docker-compose.full.yml` ouvert
@@ -18,7 +18,7 @@
 
 ### [00:00-02:00] Introduction
 
-> Dans le module precedent, notre application envoyait les traces directement a Jaeger. Ca fonctionne en dev, mais en production, vous avez besoin d'un intermediaire : l'OpenTelemetry Collector. Il recoit les donnees de telemetrie, les traite et les route vers un ou plusieurs backends. C'est le hub central de votre pipeline d'observabilite.
+> Dans le module précédent, notre application envoyait les traces directement a Jaeger. Ça fonctionne en dev, mais en production, vous avez besoin d'un intermédiaire : l'OpenTelemetry Collector. Il recoit les donnees de telemetrie, les traite et les route vers un ou plusieurs backends. C'est le hub central de votre pipeline d'observabilité.
 
 > L'analogie : sans Collector, c'est comme si chaque habitant d'une ville envoyait directement ses lettres au destinataire. Avec un Collector, vous avez un bureau de poste central qui trie, regroupe et distribue le courrier.
 
@@ -45,11 +45,11 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-> Le Collector est compose de trois blocs. Les Receivers recoivent les donnees — via OTLP (gRPC ou HTTP), en scrapant Prometheus, en lisant des fichiers de log. Les Processors transforment les donnees — regroupement en batch, limitation memoire, filtrage, echantillonnage. Les Exporters envoient les donnees aux backends — Jaeger, Prometheus, Loki, ou un autre Collector.
+> Le Collector est compose de trois blocs. Les Receivers recoivent les donnees — via OTLP (gRPC ou HTTP), en scrapant Prometheus, en lisant des fichiers de log. Les Processors transforment les donnees — regroupement en batch, limitation mémoire, filtrage, echantillonnage. Les Exporters envoient les donnees aux backends — Jaeger, Prometheus, Loki, ou un autre Collector.
 
-### [06:00-11:00] Ecrire la configuration YAML
+### [06:00-11:00] Écrire la configuration YAML
 
-**Action** : Ouvrir `config/otel-collector/config.yaml` et ecrire la configuration.
+**Action** : Ouvrir `config/otel-collector/config.yaml` et écrire la configuration.
 
 ```yaml
 # config/otel-collector/config.yaml
@@ -105,9 +105,9 @@ service:
 
 > Detaillons chaque section. Le receiver OTLP ecoute sur deux ports : 4317 pour gRPC et 4318 pour HTTP. Notre application envoie en HTTP, d'autres applications pourraient utiliser gRPC.
 
-> Le processor `batch` est essentiel en production. Au lieu d'envoyer chaque span individuellement, il les regroupe par lots de 1024. Ca reduit le nombre de connexions reseau et ameliore les performances. Le `timeout: 5s` garantit qu'un lot est envoye au maximum toutes les 5 secondes, meme s'il n'est pas plein.
+> Le processor `batch` est essentiel en production. Au lieu d'envoyer chaque span individuellement, il les regroupe par lots de 1024. Ça reduit le nombre de connexions réseau et ameliore les performances. Le `timeout: 5s` garantit qu'un lot est envoye au maximum toutes les 5 secondes, même s'il n'est pas plein.
 
-> Le `memory_limiter` protege le Collector contre les pics de trafic. Si la memoire depasse 512 Mo, il commence a rejeter des donnees plutot que de crasher.
+> Le `memory_limiter` protege le Collector contre les pics de trafic. Si la mémoire dépasse 512 Mo, il commence a rejeter des donnees plutot que de crasher.
 
 ### [11:00-14:00] Visualiser le flux de donnees complet
 
@@ -132,19 +132,19 @@ demo-app:3000  ───────────→  collector:4318
 docker compose -f docker-compose.full.yml up -d
 ```
 
-**Action** : Verifier que tous les services sont up.
+**Action** : Vérifier que tous les services sont up.
 
 ```bash
 docker compose -f docker-compose.full.yml ps
 ```
 
-> Tous les services doivent etre en etat running : demo-app, otel-collector, prometheus, jaeger, grafana.
+> Tous les services doivent etre en état running : demo-app, otel-collector, prometheus, jaeger, grafana.
 
 ### [14:00-17:00] Ajouter le tail sampling
 
-> Le tail sampling est une strategie avancee. Contrairement au head sampling qui decide au debut de la trace si elle sera gardee, le tail sampling attend la fin de la trace pour decider. Resultat : vous gardez 100% des traces en erreur ou lentes, meme si vous echantillonnez 90% du trafic normal.
+> Le tail sampling est une stratégie avancee. Contrairement au head sampling qui decide au debut de la trace si elle sera gardee, le tail sampling attend la fin de la trace pour decider. Résultat : vous gardez 100% des traces en erreur ou lentes, même si vous echantillonnez 90% du trafic normal.
 
-**Action** : Ajouter le processeur tail_sampling a la configuration.
+**Action** : Ajouter le processeur tail_sampling à la configuration.
 
 ```yaml
 processors:
@@ -180,7 +180,7 @@ processors:
           sampling_percentage: 10
 ```
 
-> Le `decision_wait: 10s` dit au Collector d'attendre 10 secondes apres le dernier span recu pour cette trace avant de decider. Les trois politiques fonctionnent en OR : si la trace est en erreur OU lente OU selectionnee par le tirage a 10%, elle est gardee.
+> Le `decision_wait: 10s` dit au Collector d'attendre 10 secondes après le dernier span recu pour cette trace avant de decider. Les trois politiques fonctionnent en OR : si la trace est en erreur OU lente OU selectionnee par le tirage a 10%, elle est gardee.
 
 **Action** : Mettre a jour la pipeline traces pour inclure le tail sampling.
 
@@ -197,7 +197,7 @@ service:
 
 ### [17:00-19:30] Observer les traces et metriques dans les backends
 
-**Action** : Envoyer du trafic pour generer des donnees.
+**Action** : Envoyer du trafic pour générer des donnees.
 
 ```bash
 for i in $(seq 1 100); do
@@ -222,11 +222,11 @@ done
 otel_demo_app_http_requests_total
 ```
 
-> Les metriques transitent aussi par le Collector, du meme SDK, vers Prometheus. Un seul SDK dans l'application, un seul Collector, plusieurs backends.
+> Les metriques transitent aussi par le Collector, du même SDK, vers Prometheus. Un seul SDK dans l'application, un seul Collector, plusieurs backends.
 
-### [19:30-21:30] Recapitulatif
+### [19:30-21:30] Récapitulatif
 
-> Recapitulons. L'OTel Collector est le hub central de votre pipeline d'observabilite. Il decouple vos applications des backends — changer de backend ne necessite aucune modification de code. La configuration YAML definit les receivers, processors et exporters. Le batch processing ameliore les performances. Le memory_limiter protege contre les pics. Le tail sampling garde les traces importantes tout en reduisant le volume.
+> Recapitulons. L'OTel Collector est le hub central de votre pipeline d'observabilité. Il decouple vos applications des backends — changer de backend ne nécessité aucune modification de code. La configuration YAML définit les receivers, processors et exporters. Le batch processing ameliore les performances. Le memory_limiter protege contre les pics. Le tail sampling garde les traces importantes tout en reduisant le volume.
 
 > Le flux complet est : Application → SDK OpenTelemetry → Collector → Backends (Jaeger, Prometheus, Grafana). C'est cette architecture que nous utiliserons pour le reste du cours.
 

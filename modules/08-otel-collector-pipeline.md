@@ -1,22 +1,22 @@
-# OTel Collector & Pipeline d'observabilite
+# OTel Collector & Pipeline d'observabilité
 
 ## Objectifs pedagogiques
 
 - Comprendre pourquoi un Collector est essentiel (decouplage, traitement, routage)
-- Maitriser l'architecture du Collector (receivers, processors, exporters)
-- Ecrire et comprendre une configuration YAML complete
-- Connaitre le protocole OTLP (gRPC et HTTP)
-- Utiliser les processeurs cles (batch, memory_limiter, filter, tail_sampling, attributes)
+- Maîtriser l'architecture du Collector (receivers, processors, exporters)
+- Écrire et comprendre une configuration YAML complete
+- Connaître le protocole OTLP (gRPC et HTTP)
+- Utiliser les processeurs clés (batch, memory_limiter, filter, tail_sampling, attributes)
 - Visualiser la pipeline complete : App → SDK → Collector → Backends
 - Comparer le head-based et le tail-based sampling
-- Choisir le bon pattern de deploiement (agent vs gateway)
+- Choisir le bon pattern de déploiement (agent vs gateway)
 - Configurer la stack complete du cours
 
 ---
 
 ## Pourquoi un Collector ?
 
-### Le probleme du couplage direct
+### Le problème du couplage direct
 
 Sans Collector, chaque application envoie ses donnees directement aux backends :
 
@@ -35,12 +35,12 @@ Sans Collector, chaque application envoie ses donnees directement aux backends :
 ```
 
 Problemes :
-- Chaque application doit connaitre l'adresse de chaque backend
+- Chaque application doit connaître l'adresse de chaque backend
 - Changer de backend = modifier et redeployer **toutes** les applications
-- Pas de traitement intermediaire (filtrage, sampling, enrichissement)
-- Chaque application gere ses propres retries et buffers
+- Pas de traitement intermédiaire (filtrage, sampling, enrichissement)
+- Chaque application géré ses propres retries et buffers
 
-### La solution : le Collector comme intermediaire
+### La solution : le Collector comme intermédiaire
 
 ```
 ┌─────────┐           ┌───────────────┐           ┌───────────┐
@@ -53,10 +53,10 @@ Problemes :
 ```
 
 Avantages :
-- **Decouplage** : les applications n'envoient qu'a un seul endpoint (le Collector)
+- **Decouplage** : les applications n'envoient qu'à un seul endpoint (le Collector)
 - **Traitement** : filtrage, sampling, enrichissement, transformation
 - **Routage** : envoyer les traces a Jaeger, les metriques a Prometheus, les logs a Loki
-- **Resilience** : buffering, retries, backpressure geres centralement
+- **Résilience** : buffering, retries, backpressure geres centralement
 - **Agilite** : changer de backend sans toucher aux applications
 
 ---
@@ -230,7 +230,7 @@ const exporter = new OTLPTraceExporter({ url: 'http://localhost:4318/v1/traces' 
 Plus simple (JSON over HTTP), compatible avec proxies/load balancers, debugging facile (curl, Postman).
 
 ::: tip A retenir
-En developpement, utilisez OTLP/HTTP pour sa simplicite. En production avec de gros volumes, preferez OTLP/gRPC pour ses performances. Le Collector supporte les deux simultanement.
+En développement, utilisez OTLP/HTTP pour sa simplicite. En production avec de gros volumes, preferez OTLP/gRPC pour ses performances. Le Collector supporte les deux simultanement.
 :::
 
 ---
@@ -250,7 +250,7 @@ processors:
     send_batch_max_size: 1024
 ```
 
-Le batch processor est **indispensable** en production. Sans lui, chaque span/metrique est exporte individuellement, ce qui genere enormement de requetes reseau.
+Le batch processor est **indispensable** en production. Sans lui, chaque span/metrique est exporte individuellement, ce qui généré enormement de requêtes réseau.
 
 ### memory_limiter — protection contre l'OOM
 
@@ -280,7 +280,7 @@ Utilisez `filter` pour supprimer les spans de health check, les metriques inutil
 
 ### tail_sampling — echantillonnage intelligent
 
-Le tail_sampling est l'un des processeurs les plus puissants. Contrairement au head-based sampling (decision prise au debut), il prend la decision **apres avoir vu la trace complete**.
+Le tail_sampling est l'un des processeurs les plus puissants. Contrairement au head-based sampling (decision prise au debut), il prend la decision **après avoir vu la trace complete**.
 
 ```yaml
 processors:
@@ -347,7 +347,26 @@ const sampler = new TraceIdRatioBasedSampler(0.1); // Garder 10% aleatoirement
 
 ### Tail-based sampling
 
+<<<<<<< HEAD
 Decision prise **a la fin de la trace** (cote Collector). Conserve 100% des erreurs et traces lentes. Inconvenient : consommation memoire et necessite un Collector.
+=======
+La decision est prise **à la fin de la trace**, quand tous les spans ont ete recus.
+
+```typescript
+// Tail-based : le Collector attend la trace complete avant de decider
+
+// Avantages :
+// - 100% des traces en erreur conservees
+// - 100% des traces lentes conservees
+// - Decision basee sur le contenu reel de la trace
+
+// Inconvenients :
+// - Necessite un Collector (pas faisable cote SDK)
+// - Consommation memoire (garder les traces en attente)
+// - Latence d'export (attente de la fin de trace)
+// - Plus complexe a configurer
+```
+>>>>>>> 1557558 (fix: add parcours blocks, inter-course nav, fix accents, copy visualizations to public)
 
 ```
 Head-based:                  Tail-based:
@@ -367,12 +386,12 @@ Head-based:                  Tail-based:
 ```
 
 ::: warning Attention
-Le tail-based sampling requiert que **toutes les instances** d'un service envoient leurs spans au **meme Collector** (ou au meme groupe). Sinon, le Collector ne verra qu'une partie de la trace et ne pourra pas prendre une decision correcte. En mode multi-instance, utilisez un load balancer par traceId ou un mode gateway.
+Le tail-based sampling requiert que **toutes les instances** d'un service envoient leurs spans au **même Collector** (où au même groupe). Sinon, le Collector ne verra qu'une partie de la trace et ne pourra pas prendre une decision correcte. En mode multi-instance, utilisez un load balancer par traceId ou un mode gateway.
 :::
 
 ---
 
-## Patterns de deploiement
+## Patterns de déploiement
 
 ### Mode Agent (sidecar)
 
@@ -437,7 +456,70 @@ Le pattern le plus robuste en production : agents locaux + gateway central.
 
 ## Configuration de la stack du cours
 
+<<<<<<< HEAD
 Le fichier `docker-compose.yml` complet est disponible dans le [Lab 08](/labs/lab-08-otel-collector/README). Il lance : `demo-app`, `otel-collector`, `jaeger`, `prometheus` et `grafana`.
+=======
+Voici le Docker Compose complet pour lancer toute la stack d'observabilité du cours :
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  demo-app:
+    build: ./demo-app
+    ports:
+      - '3000:3000'
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=demo-app
+      - NODE_ENV=development
+      - LOG_LEVEL=info
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    command: ['--config=/etc/otel-collector.yaml']
+    ports:
+      - '4317:4317'   # OTLP gRPC
+      - '4318:4318'   # OTLP HTTP
+      - '8888:8888'   # Metriques du Collector
+      - '8889:8889'   # Metriques exportees pour Prometheus
+    volumes:
+      - ./config/otel-collector.yaml:/etc/otel-collector.yaml
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - '16686:16686' # UI
+      - '14268:14268' # Legacy Jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    ports:
+      - '3001:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+```
+
+```bash
+# Lancer toute la stack
+docker compose up -d
+>>>>>>> 1557558 (fix: add parcours blocks, inter-course nav, fix accents, copy visualizations to public)
 
 ---
 
@@ -454,17 +536,28 @@ Le fichier `docker-compose.yml` complet est disponible dans le [Lab 08](/labs/la
 - **Commencez par le head-based sampling** — plus simple, suffisant pour la plupart des cas
 - **Passez au tail-based sampling** quand vous voulez garder 100% des erreurs et des traces lentes
 - **Filtrez le bruit** : health checks, metriques inutiles, spans trop courts
-- **Surveillez le Collector** lui-meme (port 8888) — un Collector sature = perte de donnees
-- **Utilisez le mode agent + gateway** en production pour la resilience et le tail sampling
+- **Surveillez le Collector** lui-même (port 8888) — un Collector sature = perte de donnees
+- **Utilisez le mode agent + gateway** en production pour la résilience et le tail sampling
 
 ::: tip A retenir
-Le Collector est le **systeme nerveux central** de votre pipeline d'observabilite. Il decouple vos applications des backends, permet le traitement intermediaire, et offre le tail-based sampling. Sa configuration YAML suit toujours le meme schema : receivers → processors → exporters, assembles en pipelines dans la section `service`.
+Le Collector est le **système nerveux central** de votre pipeline d'observabilité. Il decouple vos applications des backends, permet le traitement intermédiaire, et offre le tail-based sampling. Sa configuration YAML suit toujours le même schema : receivers → processors → exporters, assembles en pipelines dans la section `service`.
 :::
 
 ---
 
-## Prochaines etapes
+## Prochaines étapes
 
-- [Lab 08 — Deployer le Collector et configurer la pipeline](/labs/lab-08-otel-collector/README)
+- [Lab 08 — Déployer le Collector et configurer la pipeline](/labs/lab-08-otel-collector/README)
 - [Quiz 08 — OTel Collector & Pipeline](/quizzes/quiz-08-otel-collector-pipeline)
 - [Module suivant — Grafana Dashboards & PromQL](/modules/09-grafana-dashboards)
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 08 otel collector pipeline](../screencasts/screencast-08-otel-collector-pipeline.md)
+2. **Lab** : [lab-08-otel-collector](../labs/lab-08-otel-collector/README)
+3. **Visualisation** : [Distributed Trace](../visualizations/distributed-trace.html)
+4. **Quiz** : [quiz 08 otel collector pipeline](../quizzes/quiz-08-otel-collector-pipeline.html)
+:::

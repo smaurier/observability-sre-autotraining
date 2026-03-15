@@ -3,12 +3,12 @@
 ## Objectifs pedagogiques
 
 - Comprendre les fondamentaux du capacity planning
-- Utiliser `predict_linear()` en PromQL pour anticiper les problemes
+- Utiliser `predict_linear()` en PromQL pour anticiper les problèmes
 - Decouvrir k6, un outil de load testing base sur JavaScript/TypeScript
-- Maitriser les scenarios k6 : ramp-up, steady-state, spike, soak
+- Maîtriser les scenarios k6 : ramp-up, steady-state, spike, soak
 - Configurer des thresholds et checks dans k6
-- Interpreter les resultats de tests de charge
-- Integrer le load testing dans un pipeline CI/CD
+- Interpreter les résultats de tests de charge
+- Intégrer le load testing dans un pipeline CI/CD
 
 ---
 
@@ -18,7 +18,7 @@ Imaginez que vous gerez un parking de 100 places. Chaque jour, 10 nouvelles voit
 
 En SRE, le capacity planning repond a deux questions :
 1. **Quand** nos ressources actuelles seront-elles insuffisantes ?
-2. **Combien** de charge notre systeme peut-il supporter avant de degrader ?
+2. **Combien** de charge notre système peut-il supporter avant de degrader ?
 
 ---
 
@@ -153,11 +153,11 @@ console.log(`CPU prevu dans 7 jours: ${prediction.toFixed(1)}%`);
 
 ### Qu'est-ce que k6 ?
 
-**k6** est un outil de load testing open source cree par Grafana Labs. Il se distingue par :
+**k6** est un outil de load testing open source créé par Grafana Labs. Il se distingue par :
 - Scripts en **JavaScript/TypeScript** (pas de XML ni de YAML)
-- Faible consommation de ressources (ecrit en Go)
+- Faible consommation de ressources (écrit en Go)
 - Metriques exposees au format Prometheus
-- Integration native avec Grafana Cloud
+- Intégration native avec Grafana Cloud
 
 ### Installation et premier test
 
@@ -261,9 +261,9 @@ export const options = {
 
 | Scenario | Analogie | Objectif |
 |----------|----------|----------|
-| **Ramp-up** | Ouverture progressive d'un magasin | Verifier le comportement sous charge normale |
-| **Spike** | Black Friday : afflux soudain de clients | Tester la resilience aux pics |
-| **Soak** | Un magasin ouvert 24h/24 pendant une semaine | Detecter les fuites (memoire, connexions) |
+| **Ramp-up** | Ouverture progressive d'un magasin | Vérifier le comportement sous charge normale |
+| **Spike** | Black Friday : afflux soudain de clients | Tester la résilience aux pics |
+| **Soak** | Un magasin ouvert 24h/24 pendant une semaine | Detecter les fuites (mémoire, connexions) |
 | **Stress** | Ajouter des clients jusqu'a ce que le magasin soit submerge | Trouver les limites |
 
 ---
@@ -301,7 +301,7 @@ export const options = {
 };
 ```
 
-### Checks (verifications par requete)
+### Checks (verifications par requête)
 
 ```typescript
 import http from 'k6/http';
@@ -334,7 +334,7 @@ export default function () {
 
 ---
 
-## Interpreter les resultats k6
+## Interpreter les résultats k6
 
 ### Sortie typique
 
@@ -422,7 +422,7 @@ function analyzeResults(result: K6Result): string[] {
 
 ## Load testing dans le CI/CD
 
-### Integration dans un pipeline GitHub Actions
+### Intégration dans un pipeline GitHub Actions
 
 ```yaml
 # .github/workflows/load-test.yml
@@ -462,7 +462,7 @@ jobs:
           echo "Load test passe avec succes"
 ```
 
-### Strategie de test par environnement
+### Stratégie de test par environnement
 
 ```typescript
 interface LoadTestStrategy {
@@ -648,10 +648,10 @@ console.log(`RPS requis dans 12 mois: ${apiPlan.requiredCapacityInMonths(12).toF
 
 ## Bonnes pratiques
 
-1. **Testez en conditions realistes** : memes donnees, meme reseau, memes dependances qu'en production
+1. **Testez en conditions realistes** : memes donnees, même réseau, memes dépendances qu'en production
 2. **Automatisez dans la CI** : un smoke test k6 sur chaque PR, un load test complet en staging
 3. **Mesurez, ne devinez pas** : le bottleneck est rarement la ou vous pensez
-4. **Gardez une marge (headroom)** : visez un facteur 2x-3x au minimum entre la charge actuelle et la capacite max
+4. **Gardez une marge (headroom)** : visez un facteur 2x-3x au minimum entre la charge actuelle et la capacité max
 5. **Revisez mensuellement** : le capacity plan est un document vivant, pas un one-shot
 6. **Utilisez predict_linear()** : pour des alertes proactives avant saturation
 7. **Testez les pics** : les scenarios spike sont aussi importants que les scenarios load
@@ -664,9 +664,9 @@ console.log(`RPS requis dans 12 mois: ${apiPlan.requiredCapacityInMonths(12).toF
 - **predict_linear()** en PromQL extrapole les tendances pour alerter proactivement
 - **k6** est un outil de load testing en JavaScript/TypeScript, leger et puissant
 - Les 4 scenarios : **ramp-up** (normal), **spike** (pic), **soak** (endurance), **stress** (limites)
-- Les **thresholds** definissent les criteres de reussite globaux, les **checks** verifient chaque requete
+- Les **thresholds** definissent les criteres de reussite globaux, les **checks** verifient chaque requête
 - Integrez le load testing dans la **CI/CD** : smoke en PR, load en staging, stress periodiquement
-- Identifiez les **bottlenecks** systematiquement : CPU, memoire, DB, disk I/O, reseau
+- Identifiez les **bottlenecks** systematiquement : CPU, mémoire, DB, disk I/O, réseau
 :::
 
 ---
@@ -677,3 +677,13 @@ console.log(`RPS requis dans 12 mois: ${apiPlan.requiredCapacityInMonths(12).toF
 - [Quiz 14 — Capacity Planning](/quizzes/quiz-14-capacity-planning)
 - k6 Documentation officielle : https://k6.io/docs/
 - Google SRE Book, Chapitre 18 : "Software Engineering in SRE"
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 14 capacity planning](../screencasts/screencast-14-capacity-planning.md)
+2. **Lab** : [lab-14-load-testing-k6](../labs/lab-14-load-testing-k6/README)
+3. **Quiz** : [quiz 14 capacity planning](../quizzes/quiz-14-capacity-planning.html)
+:::

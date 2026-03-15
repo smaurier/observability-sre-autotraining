@@ -1,29 +1,29 @@
-# Lab 19 — Projet Final : Synthese Observabilite & SRE
+# Lab 19 — Projet Final : Synthese Observabilité & SRE
 
 ## Objectifs
 
 - Mettre en pratique l'ensemble des concepts des labs 01-18
-- Definir des SLIs et SLOs pour un service
-- Generer des metriques et verifier la conformite SLO
+- Définir des SLIs et SLOs pour un service
+- Générer des metriques et vérifier la conformite SLO
 - Implementer des alertes burn rate
-- Executer un test de charge simule
+- Exécuter un test de charge simule
 - Injecter du chaos et mesurer l'impact
-- Generer un postmortem a partir des resultats d'experience
+- Générer un postmortem à partir des résultats d'experience
 
-## Prerequis
+## Prérequis
 
-- Tous les labs precedents (01-18) termines
+- Tous les labs précédents (01-18) termines
 
 ## Exercices
 
 | # | Sujet | Difficulte |
 |---|-------|------------|
-| 1 | Definir SLIs et SLOs | ** |
-| 2 | Generer des metriques et verifier la conformite | ** |
+| 1 | Définir SLIs et SLOs | ** |
+| 2 | Générer des metriques et vérifier la conformite | ** |
 | 3 | Implementer les alertes burn rate | *** |
 | 4 | Test de charge simule | ** |
 | 5 | Injection de chaos et mesure d'impact | *** |
-| 6 | Generer un postmortem | ** |
+| 6 | Générer un postmortem | ** |
 
 ## Lancer les tests
 

@@ -3,22 +3,22 @@
 ## Objectifs pedagogiques
 
 - Comprendre le concept de Production Readiness Review (PRR) issu du Google SRE Book
-- Connaitre les categories d'une checklist PRR (observabilite, scaling, securite, recovery, dependances)
-- Savoir cartographier les dependances d'un service (dependency mapping)
+- Connaître les categories d'une checklist PRR (observabilité, scaling, sécurité, recovery, dépendances)
+- Savoir cartographier les dépendances d'un service (dependency mapping)
 - Appliquer l'analyse des modes de defaillance (FMEA)
 - Implementer des patterns de degradation gracieuse (graceful degradation)
 - Configurer des health checks Express (liveness, readiness, startup)
 - Comprendre les patterns de probes Kubernetes
-- Evaluer la maturite d'observabilite d'une equipe (niveaux 0 a 4)
+- Evaluer la maturite d'observabilité d'une équipe (niveaux 0 a 4)
 - Construire un template PRR pratique en TypeScript
 
 ---
 
 ## Introduction : le gardien de la production
 
-Imaginez un pilote de ligne. Avant chaque vol, il parcourt une **checklist pre-vol** : instruments, carburant, surfaces de controle, meteo. Ce n'est pas optionnel. Peu importe son experience, la checklist est obligatoire. C'est exactement le role d'une **Production Readiness Review (PRR)** : une checklist systematique qui verifie qu'un service est pret a etre expose a de vrais utilisateurs.
+Imaginez un pilote de ligne. Avant chaque vol, il parcourt une **checklist pre-vol** : instruments, carburant, surfaces de controle, meteo. Ce n'est pas optionnel. Peu importe son experience, la checklist est obligatoire. C'est exactement le role d'une **Production Readiness Review (PRR)** : une checklist systematique qui vérifié qu'un service est pret a etre expose a de vrais utilisateurs.
 
-Le concept vient du **Google SRE Book** (Chapitre 32). Chez Google, aucun service ne passe en production sans avoir ete evalue par l'equipe SRE via une PRR formelle. L'objectif n'est pas de bloquer les equipes, mais de s'assurer que les questions critiques ont ete posees **avant** le premier incident, pas apres.
+Le concept vient du **Google SRE Book** (Chapitre 32). Chez Google, aucun service ne passe en production sans avoir ete évalué par l'équipe SRE via une PRR formelle. L'objectif n'est pas de bloquer les équipes, mais de s'assurer que les questions critiques ont ete posees **avant** le premier incident, pas après.
 
 ---
 
@@ -57,7 +57,7 @@ interface PRRChecklist {
 }
 ```
 
-### Categorie : Observabilite
+### Categorie : Observabilité
 
 ```typescript
 const observabilityChecklist: PRRChecklistItem[] = [
@@ -253,7 +253,7 @@ const recoveryChecklist: PRRChecklistItem[] = [
 
 ## Dependency Mapping
 
-### Cartographier les dependances
+### Cartographier les dépendances
 
 ```typescript
 type DependencyType = 'hard' | 'soft';
@@ -384,7 +384,7 @@ console.log(`SPOFs: ${orderServiceDeps.singlePointsOfFailure.join(', ') || 'Aucu
 ```
 
 ::: warning Dependance hard sans fallback = SPOF
-Chaque dependance **hard** sans fallback est un **Single Point of Failure**. Si cette dependance tombe, votre service tombe. L'objectif est de minimiser les SPOFs en ajoutant des fallbacks (cache, file d'attente, valeurs par defaut) partout ou c'est possible.
+Chaque dépendance **hard** sans fallback est un **Single Point of Failure**. Si cette dépendance tombe, votre service tombe. L'objectif est de minimiser les SPOFs en ajoutant des fallbacks (cache, file d'attente, valeurs par defaut) partout ou c'est possible.
 :::
 
 ---
@@ -393,7 +393,7 @@ Chaque dependance **hard** sans fallback est un **Single Point of Failure**. Si 
 
 ### Analyser les modes de defaillance
 
-La FMEA est une methode structuree pour identifier les modes de defaillance possibles, evaluer leur impact et definir des mesures de mitigation.
+La FMEA est une méthode structuree pour identifier les modes de defaillance possibles, évaluer leur impact et définir des mesures de mitigation.
 
 ```typescript
 interface FMEAEntry {
@@ -812,9 +812,9 @@ app.get('/health/detailed', async (_req: Request, res: Response) => {
 ```
 
 ::: tip Liveness vs Readiness vs Startup
-- **Liveness** : "Es-tu vivant ?" — Echec = le pod est redemarre. **Ne jamais** verifier les dependances ici (sinon un PostgreSQL down entraine un restart en boucle de tous les pods).
-- **Readiness** : "Peux-tu traiter des requetes ?" — Echec = retire du load balancer, mais le pod reste vivant.
-- **Startup** : "As-tu fini de demarrer ?" — Protege les applications lentes au demarrage (warmup cache, migrations DB).
+- **Liveness** : "Es-tu vivant ?" — Echec = le pod est redemarre. **Ne jamais** vérifier les dépendances ici (sinon un PostgreSQL down entraine un restart en boucle de tous les pods).
+- **Readiness** : "Peux-tu traiter des requêtes ?" — Echec = retire du load balancer, mais le pod reste vivant.
+- **Startup** : "As-tu fini de démarrer ?" — Protege les applications lentes au démarrage (warmup cache, migrations DB).
 :::
 
 ### Configuration Kubernetes des probes
@@ -1110,31 +1110,31 @@ for (const action of result.nextActions) {
 
 ## Bonnes pratiques
 
-1. **PRR obligatoire** : aucun service ne doit passer en production sans PRR, meme les "petits" services
-2. **PRR iterative** : la PRR n'est pas un one-shot — refaites-la a chaque changement majeur
-3. **Hard vs Soft** : classifiez clairement vos dependances. Les dependances soft doivent avoir un fallback
-4. **FMEA proactive** : faites l'analyse FMEA avant le premier incident, pas apres
-5. **Health checks granulaires** : liveness simple, readiness avec dependances, startup pour le warmup
-6. **Evitez le restart loop** : ne verifiez JAMAIS les dependances dans la liveness probe
+1. **PRR obligatoire** : aucun service ne doit passer en production sans PRR, même les "petits" services
+2. **PRR iterative** : la PRR n'est pas un one-shot — refaites-la à chaque changement majeur
+3. **Hard vs Soft** : classifiez clairement vos dépendances. Les dépendances soft doivent avoir un fallback
+4. **FMEA proactive** : faites l'analyse FMEA avant le premier incident, pas après
+5. **Health checks granulaires** : liveness simple, readiness avec dépendances, startup pour le warmup
+6. **Evitez le restart loop** : ne verifiez JAMAIS les dépendances dans la liveness probe
 7. **Degradation planifiee** : definissez les niveaux de degradation a l'avance, pas pendant l'incident
 8. **Evaluez la maturite** : utilisez le maturity model pour identifier les gaps et planifier les ameliorations
-9. **Documentez les dependances** : chaque service doit avoir une dependency map a jour
+9. **Documentez les dépendances** : chaque service doit avoir une dependency map a jour
 10. **Automatisez la PRR** : integrez les verifications automatisables dans la CI/CD
 
 ::: warning Le piege de la liveness probe trop stricte
-Si votre liveness probe verifie la connexion a la base de donnees et que PostgreSQL tombe, Kubernetes va **redemarrer tous vos pods en boucle**. Resultat : votre service est doublement down (DB + pods en restart). La liveness probe doit uniquement verifier que le process est sain, pas ses dependances.
+Si votre liveness probe vérifié la connexion à la base de donnees et que PostgreSQL tombe, Kubernetes va **redemarrer tous vos pods en boucle**. Résultat : votre service est doublement down (DB + pods en restart). La liveness probe doit uniquement vérifier que le process est sain, pas ses dépendances.
 :::
 
 ---
 
 ::: tip A retenir
 - La **PRR** est une checklist systematique avant la mise en production (Google SRE Book, Chapitre 32)
-- Les categories PRR : **observabilite, scaling, securite, recovery, dependances**
-- Chaque dependance **hard** sans fallback est un **SPOF** (Single Point of Failure)
-- La **FMEA** evalue le risque via le RPN = severite x occurrence x detection
+- Les categories PRR : **observabilité, scaling, sécurité, recovery, dépendances**
+- Chaque dépendance **hard** sans fallback est un **SPOF** (Single Point of Failure)
+- La **FMEA** évalué le risque via le RPN = severite x occurrence x detection
 - La **degradation gracieuse** est planifiee a l'avance avec des niveaux clairs
-- Les health checks Kubernetes : **liveness** (process vivant), **readiness** (pret a servir), **startup** (demarrage termine)
-- Le **maturity model** a 5 niveaux : de reactive (0) a elite (4)
+- Les health checks Kubernetes : **liveness** (process vivant), **readiness** (pret a servir), **startup** (démarrage termine)
+- Le **maturity model** a 5 niveaux : de réactive (0) a elite (4)
 - Evaluez regulierement votre maturite et planifiez les ameliorations
 :::
 
@@ -1146,5 +1146,15 @@ Si votre liveness probe verifie la connexion a la base de donnees et que Postgre
 - [Quiz 18 — Production Readiness](/quizzes/quiz-18-production-readiness)
 - Google SRE Book, Chapitre 32 : "The Evolving SRE Engagement Model"
 - Google SRE Workbook, Chapitre 8 : "On-Call"
-- "Release It!" par Michael Nygard (patterns de resilience)
+- "Release It!" par Michael Nygard (patterns de résilience)
 - Kubernetes Documentation : Configure Liveness, Readiness and Startup Probes
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 18 production readiness](../screencasts/screencast-18-production-readiness.md)
+2. **Lab** : [lab-18-production-readiness](../labs/lab-18-production-readiness/README)
+3. **Quiz** : [quiz 18 production readiness](../quizzes/quiz-18-production-readiness.html)
+:::
