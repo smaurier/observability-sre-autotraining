@@ -935,3 +935,13 @@ export default defineNuxtPlugin(() => {
 - Les rendus SSR doivent être tracés comme des spans
 - Le **W3C Trace Context** (`traceparent`) connecte frontend et backend
 - Toujours mesurer : latence, erreurs, requêtes actives sur les API routes
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 24 instrumentation nuxt next](../screencasts/screencast-24.md)
+2. **Lab** : [lab-24-instrumentation-nuxt-next](../labs/lab-24-instrumentation-nuxt-next/README)
+3. **Quiz** : [quiz 24 instrumentation nuxt next](../quizzes/quiz-24-instrumentation-nuxt-next.html)
+:::

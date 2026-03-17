@@ -673,8 +673,8 @@ console.log(`RPS requis dans 12 mois: ${apiPlan.requiredCapacityInMonths(12).toF
 
 ## Pour aller plus loin
 
-- [Lab 14 — Load Testing avec k6](/labs/lab-14-load-testing-k6/README)
-- [Quiz 14 — Capacity Planning](/quizzes/quiz-14-capacity-planning)
+- [Lab 13 — Load Testing avec k6](/labs/lab-13-load-testing-k6/README)
+- [Quiz 13 — Capacity Planning](/quizzes/quiz-13-capacity-planning)
 - k6 Documentation officielle : https://k6.io/docs/
 - Google SRE Book, Chapitre 18 : "Software Engineering in SRE"
 
@@ -683,7 +683,7 @@ console.log(`RPS requis dans 12 mois: ${apiPlan.requiredCapacityInMonths(12).toF
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 14 capacity planning](../screencasts/screencast-14-capacity-planning.md)
-2. **Lab** : [lab-14-load-testing-k6](../labs/lab-14-load-testing-k6/README)
-3. **Quiz** : [quiz 14 capacity planning](../quizzes/quiz-14-capacity-planning.html)
+1. **Screencast** : [screencast 13 capacity planning](../screencasts/screencast-13-capacity-planning.md)
+2. **Lab** : [lab-13-load-testing-k6](../labs/lab-13-load-testing-k6/README)
+3. **Quiz** : [quiz 13 capacity planning](../quizzes/quiz-13-capacity-planning.html)
 :::

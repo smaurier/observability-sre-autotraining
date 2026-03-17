@@ -658,3 +658,13 @@ Si vous permettez les modifications manuelles en plus du code, vous aurez inevit
 - Prometheus Alerting Rules Documentation
 - Google SRE Workbook, Chapitre 5 : "Alerting on SLOs"
 - Grafana Provisioning Documentation
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 16 observability as code](../screencasts/screencast-16-observability-as-code.md)
+2. **Lab** : [lab-16-observability-as-code](../labs/lab-16-observability-as-code/README)
+3. **Quiz** : [quiz 16 observability as code](../quizzes/quiz-16-observability-as-code.html)
+:::

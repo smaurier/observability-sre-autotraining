@@ -795,8 +795,8 @@ const strategies: ToilEliminationStrategy[] = [
 
 ## Pour aller plus loin
 
-- [Lab 16 — Implementer un DORA Tracker](/labs/lab-16-dora-tracker/README)
-- [Quiz 16 — DORA Metrics & Toil Reduction](/quizzes/quiz-16-dora-metrics)
+- [Lab 15 — Implementer un DORA Tracker](/labs/lab-15-dora-tracker/README)
+- [Quiz 15 — DORA Metrics & Toil Reduction](/quizzes/quiz-15-dora-metrics)
 - "Accelerate" par Nicole Forsgren, Jez Humble & Gene Kim
 - Google SRE Book, Chapitre 5 : "Eliminating Toil"
 - DORA State of DevOps Report (annuel)
@@ -806,7 +806,7 @@ const strategies: ToilEliminationStrategy[] = [
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 16 dora metrics](../screencasts/screencast-16-dora-metrics.md)
-2. **Lab** : [lab-16-dora-tracker](../labs/lab-16-dora-tracker/README)
-3. **Quiz** : [quiz 16 dora metrics](../quizzes/quiz-16-dora-metrics.html)
+1. **Screencast** : [screencast 15 dora metrics](../screencasts/screencast-15-dora-metrics.md)
+2. **Lab** : [lab-15-dora-tracker](../labs/lab-15-dora-tracker/README)
+3. **Quiz** : [quiz 15 dora metrics](../quizzes/quiz-15-dora-metrics.html)
 :::

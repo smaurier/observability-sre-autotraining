@@ -13,6 +13,22 @@
 
 ---
 
+<details>
+<summary>Rappel du module précédent</summary>
+
+1. **Qu'est-ce que le capacity planning et pourquoi est-il lie a l'observabilite ?**
+   Le capacity planning consiste a prevoir les ressources necessaires (CPU, memoire, replicas) pour supporter la charge future. Il s'appuie sur les metriques collectees par Prometheus et les resultats de tests de charge pour dimensionner l'infrastructure avant que les limites ne soient atteintes.
+
+2. **Comment un test de charge (load test) aide-t-il a planifier la capacite ?**
+   Un test de charge (avec k6, par exemple) simule du trafic croissant pour identifier le point de rupture du service : a quel niveau de requetes par seconde la latence se degrade ou les erreurs apparaissent. Cela permet de definir les seuils de scaling et les limites de ressources Kubernetes.
+
+3. **Quelle est la difference entre scaling vertical et horizontal ?**
+   Le scaling vertical consiste a augmenter les ressources d'une instance (plus de CPU/RAM). Le scaling horizontal consiste a ajouter des instances (plus de replicas). Le scaling horizontal est prefere en cloud car il est plus resilient (pas de single point of failure) et peut etre automatise via un HPA Kubernetes.
+
+</details>
+
+---
+
 ## Introduction : casser pour mieux construire
 
 Les pompiers allument des feux controles pour empecher les mega-incendies. Les pilotes s'entrainent aux pannes moteur dans des simulateurs. Le chaos engineering applique la même logique a vos systèmes : **provoquer des pannes controlees en production pour découvrir les faiblesses avant que vos utilisateurs ne les decouvrent pour vous**.
@@ -1054,10 +1070,20 @@ Le Google SRE Book (Chapitre 22, "Addressing Cascading Failures") est la référ
 
 ---
 
+## Si tu es perdu
+
+- Le chaos engineering consiste a **provoquer des pannes controlees** pour decouvrir les faiblesses de ton systeme avant qu'elles ne causent de vrais incidents.
+- Avant chaque experience, tu definis un **etat stable** (metriques normales) et une **hypothese** ("si je tue un pod, le service continue de fonctionner").
+- Tu commences toujours **petit** (un seul pod en staging), puis tu augmentes progressivement le blast radius vers la production.
+- Le **circuit breaker** est le pattern complementaire : il coupe automatiquement les appels vers un service defaillant pour eviter la propagation de la panne.
+- Si les metriques depassent les **conditions d'arret** (ex: taux d'erreur > 5%), tu arretes immediatement l'experience et tu annules l'injection de faute.
+
+---
+
 ## Pour aller plus loin
 
-- [Lab 15 — Chaos Middleware dans la demo-app](/labs/lab-15-chaos-middleware/README)
-- [Quiz 15 — Chaos Engineering](/quizzes/quiz-15-chaos-engineering)
+- [Lab 14 — Chaos Middleware dans la demo-app](/labs/lab-14-chaos-middleware/README)
+- [Quiz 14 — Chaos Engineering](/quizzes/quiz-14-chaos-engineering)
 - Principles of Chaos Engineering : https://principlesofchaos.org
 - Netflix Tech Blog : "Chaos Engineering"
 - Google SRE Book, Chapitre 17 : "Testing for Reliability"
@@ -1067,7 +1093,7 @@ Le Google SRE Book (Chapitre 22, "Addressing Cascading Failures") est la référ
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 15 chaos engineering](../screencasts/screencast-15-chaos-engineering.md)
-2. **Lab** : [lab-15-chaos-middleware](../labs/lab-15-chaos-middleware/README)
-3. **Quiz** : [quiz 15 chaos engineering](../quizzes/quiz-15-chaos-engineering.html)
+1. **Screencast** : [screencast 14 chaos engineering](../screencasts/screencast-14-chaos-engineering.md)
+2. **Lab** : [lab-14-chaos-middleware](../labs/lab-14-chaos-middleware/README)
+3. **Quiz** : [quiz 14 chaos engineering](../quizzes/quiz-14-chaos-engineering.html)
 :::

@@ -1164,8 +1164,18 @@ Pour un outil d'observabilite SaaS :
 
 ## Exercices pratiques
 
-Rendez-vous au [Lab 28 — RGPD & Observabilite](/labs/lab-28-rgpd-observabilite/README) pour mettre en pratique ces concepts.
+Rendez-vous au [Lab 22 — RGPD & Observabilite](/labs/lab-22-rgpd-observabilite/README) pour mettre en pratique ces concepts.
 
 ## Quiz
 
-Testez vos connaissances avec le [Quiz 27 — RGPD & Observabilite](/quizzes/quiz-27-rgpd).
+Testez vos connaissances avec le [Quiz 22 — RGPD & Observabilite](/quizzes/quiz-22-rgpd-observabilite.html).
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 22 rgpd observabilite](../screencasts/screencast-22-rgpd-observabilite.md)
+2. **Lab** : [lab-22-rgpd-observabilite](../labs/lab-22-rgpd-observabilite/README)
+3. **Quiz** : [quiz 22 rgpd observabilite](../quizzes/quiz-22-rgpd-observabilite.html)
+:::

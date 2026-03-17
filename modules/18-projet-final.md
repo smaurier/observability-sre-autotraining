@@ -1283,9 +1283,9 @@ Après avoir terminé ce projet final, explorez les modules bonus :
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 19 projet final](../screencasts/screencast-19-projet-final.md)
-2. **Lab** : [lab-19-projet-final](../labs/lab-19-projet-final/README)
-3. **Quiz** : [quiz 19 projet final](../quizzes/quiz-19-projet-final.html)
+1. **Screencast** : [screencast 18 projet final](../screencasts/screencast-18-projet-final.md)
+2. **Lab** : [lab-18-projet-final](../labs/lab-18-projet-final/README)
+3. **Quiz** : [quiz 18 projet final](../quizzes/quiz-18-projet-final.html)
 :::
 
 ---

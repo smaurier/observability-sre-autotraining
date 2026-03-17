@@ -80,6 +80,7 @@ export default defineConfig({
             { text: '24 - Instrumentation Nuxt/Next', link: '/modules/24-instrumentation-nuxt-next' },
             { text: '25 - Panorama APM', link: '/modules/25-panorama-apm' },
             { text: '26 - Feature Flags et Observabilite', link: '/modules/26-feature-flags-observabilite' },
+            { text: '27 - Continuous Profiling', link: '/modules/27-continuous-profiling' },
           ],
         },
         {

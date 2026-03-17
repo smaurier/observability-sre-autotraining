@@ -383,3 +383,13 @@ class KillSwitch {
 ## Exercices pratiques
 
 Rendez-vous au [Lab 26 — Feature Flags et Observabilite](/labs/lab-26-feature-flags-observabilite/README) pour mettre en pratique ces concepts.
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 26 feature flags observabilite](../screencasts/screencast-26.md)
+2. **Lab** : [lab-26-feature-flags-observabilite](../labs/lab-26-feature-flags-observabilite/README)
+3. **Quiz** : [quiz 26 feature flags observabilite](../quizzes/quiz-26-feature-flags-observabilite.html)
+:::

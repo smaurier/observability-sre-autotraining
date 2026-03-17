@@ -358,3 +358,13 @@ Secteur reglemente (sante, finance, defense) :
 ## Exercices pratiques
 
 Rendez-vous au [Lab 25 — Panorama APM](/labs/lab-25-panorama-apm/README) pour mettre en pratique ces concepts.
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 25 panorama apm](../screencasts/screencast-25.md)
+2. **Lab** : [lab-25-panorama-apm](../labs/lab-25-panorama-apm/README)
+3. **Quiz** : [quiz 25 panorama apm](../quizzes/quiz-25-panorama-apm.html)
+:::

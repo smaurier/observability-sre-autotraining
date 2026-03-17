@@ -795,3 +795,13 @@ function auditThirdPartyErrors(): void {
 - **Comparatif RUM** : Sentry (Session Replay), Datadog RUM (APM natif), Grafana Faro (self-hosted), SpeedCurve (synthétique+RUM)
 - **Session replay** : 5-10% normal, 100% sur erreur, masquer toutes les données personnelles
 - Le **W3C Trace Context** (`traceparent`) relie les traces frontend aux traces backend
+
+---
+
+<!-- parcours-recommande -->
+
+::: tip Parcours recommandé
+1. **Screencast** : [screencast 23 observabilite frontend](../screencasts/screencast-23.md)
+2. **Lab** : [lab-23-observabilite-frontend](../labs/lab-23-observabilite-frontend/README)
+3. **Quiz** : [quiz 23 observabilite frontend](../quizzes/quiz-23-observabilite-frontend.html)
+:::

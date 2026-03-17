@@ -11,6 +11,22 @@
 
 ---
 
+<details>
+<summary>Rappel du module précédent</summary>
+
+1. **Qu'est-ce que le distributed tracing et quel probleme resout-il ?**
+   Le distributed tracing permet de suivre une requete de bout en bout a travers plusieurs services. Chaque service cree des spans (unites de travail) rattaches a une trace commune, ce qui permet de visualiser le parcours complet et d'identifier ou se situent les goulots d'etranglement.
+
+2. **Quelle est la difference entre une trace, un span et un span context ?**
+   Une trace represente le parcours complet d'une requete. Un span represente une operation individuelle (appel HTTP, requete DB, traitement). Le span context (trace ID + span ID + trace flags) est l'information propagee entre les services via les headers HTTP pour relier les spans entre eux.
+
+3. **Comment OpenTelemetry propage-t-il le contexte entre les services ?**
+   OpenTelemetry utilise le standard W3C Trace Context : le header `traceparent` contient le trace ID, le parent span ID et les flags de sampling. Chaque service extrait ce header, cree un nouveau span enfant, et re-propage le header vers les services en aval.
+
+</details>
+
+---
+
 ## 1. Pourquoi l'error tracking ?
 
 ### Le problème du logging seul
@@ -667,7 +683,7 @@ Passez au **Lab 23** pour mettre en pratique :
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 22 sentry error tracking](../screencasts/screencast-22-sentry-error-tracking.md)
-2. **Lab** : [lab-22-finops-observability](../labs/lab-22-finops-observability/README)
-3. **Quiz** : [quiz 22 sentry error tracking](../quizzes/quiz-22-sentry-error-tracking.html)
+1. **Screencast** : [screencast 07 sentry error tracking](../screencasts/screencast-07-sentry-error-tracking.md)
+2. **Lab** : [lab-07-sentry-error-tracking](../labs/lab-07-sentry-error-tracking/README)
+3. **Quiz** : [quiz 07 sentry error tracking](../quizzes/quiz-07-sentry-error-tracking.html)
 :::

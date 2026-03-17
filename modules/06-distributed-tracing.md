@@ -702,18 +702,18 @@ Le Google SRE Workbook (Chapitre 11, "Managing Load") explique comment les trace
 
 ## Prochaines étapes
 
-- [Lab 07 — Instrumenter la demo-app avec OpenTelemetry et Jaeger](/labs/lab-07-tracing-opentelemetry/README)
-- [Quiz 07 — Distributed Tracing](/quizzes/quiz-07-distributed-tracing)
-- [Module suivant — OTel Collector & Pipeline](/modules/08-otel-collector-pipeline)
+- [Lab 06 — Instrumenter la demo-app avec OpenTelemetry et Jaeger](/labs/lab-06-tracing-opentelemetry/README)
+- [Quiz 06 — Distributed Tracing](/quizzes/quiz-06-distributed-tracing)
+- [Module suivant — Sentry Error Tracking](/modules/07-sentry-error-tracking)
 
 ---
 
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 07 distributed tracing](../screencasts/screencast-07-distributed-tracing.md)
-2. **Lab** : [lab-07-tracing-opentelemetry](../labs/lab-07-tracing-opentelemetry/README)
+1. **Screencast** : [screencast 06 distributed tracing](../screencasts/screencast-06-distributed-tracing.md)
+2. **Lab** : [lab-06-tracing-opentelemetry](../labs/lab-06-tracing-opentelemetry/README)
 3. **Visualisation** : [Three Pillars](../visualizations/three-pillars.html)
 4. **Visualisation** : [Distributed Trace](../visualizations/distributed-trace.html)
-5. **Quiz** : [quiz 07 distributed tracing](../quizzes/quiz-07-distributed-tracing.html)
+5. **Quiz** : [quiz 06 distributed tracing](../quizzes/quiz-06-distributed-tracing.html)
 :::

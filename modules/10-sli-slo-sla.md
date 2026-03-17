@@ -11,6 +11,22 @@
 
 ---
 
+<details>
+<summary>Rappel du module précédent</summary>
+
+1. **Quel est le role de Grafana dans la stack d'observabilite ?**
+   Grafana est l'outil de visualisation qui connecte vos sources de donnees (Prometheus, Loki, Tempo) et permet de creer des dashboards. Il transforme les metriques brutes en graphiques lisibles et actionnables pour le monitoring quotidien.
+
+2. **Quelles sont les requetes PromQL essentielles pour un dashboard de service ?**
+   Les trois requetes fondamentales sont : `rate()` pour le debit de requetes par seconde, `histogram_quantile()` pour les percentiles de latence (P50, P95, P99), et le ratio `rate(errors) / rate(total)` pour le taux d'erreur. Ce sont les metriques RED (Rate, Errors, Duration).
+
+3. **Pourquoi provisioner les dashboards "as code" plutot que via l'interface ?**
+   Le provisioning as code (JSON/YAML versionne dans Git) garantit la reproductibilite, permet le review en pull request, evite la perte de dashboards, et facilite le deploiement sur plusieurs environnements (staging, production).
+
+</details>
+
+---
+
 ## Introduction : pourquoi mesurer la fiabilité ?
 
 Imaginez que vous gerez un restaurant. Vous ne dites pas simplement "la nourriture est bonne". Vous mesurez des indicateurs précis : temps d'attente moyen, taux de satisfaction client, nombre de plats renvoyes en cuisine. C'est exactement ce que font les SLIs, SLOs et SLAs pour vos services numériques.
@@ -545,6 +561,16 @@ console.log(`SLO respecte: ${tracker.isHealthy()}`);
 - [Quiz 10 — SLI, SLO, SLA & Error Budgets](/quizzes/quiz-10-sli-slo-sla)
 - Google SRE Book, Chapitre 4 : "Service Level Objectives"
 - Google SRE Workbook, Chapitre 2 : "Implementing SLOs"
+
+---
+
+## Si tu es perdu
+
+- Un **SLI** est un ratio simple : nombre de requetes reussies divise par le nombre total de requetes. C'est ce que tu mesures.
+- Un **SLO** est l'objectif que tu te fixes pour ce SLI, par exemple "99.9% de requetes reussies sur 30 jours".
+- Un **SLA** est un contrat avec un client qui prevoit des penalites financieres si le SLO n'est pas respecte.
+- L'**error budget** est la marge d'erreur autorisee (1 - SLO). Avec un SLO de 99.9%, tu as droit a 43 minutes de panne par mois.
+- Quand l'error budget est epuise, on gele les nouveaux deployements et on se concentre sur la fiabilite.
 
 ---
 

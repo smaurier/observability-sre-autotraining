@@ -1605,15 +1605,15 @@ const onDemandPolicies: OnDemandObservability[] = [
 
 ## Prochaines étapes
 
-- [Lab 22 — Audit FinOps et optimisation des couts d'observabilité](/labs/lab-22-finops-observability/README)
-- [Quiz 21 — FinOps et Cout de l'Observabilité](/quizzes/quiz-21-finops-observability)
+- [Lab 21 — Audit FinOps et optimisation des couts d'observabilité](/labs/lab-21-finops-observability/README)
+- [Quiz 20 — FinOps et Cout de l'Observabilité](/quizzes/quiz-20-finops-observability)
 
 ---
 
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 21 finops observability](../screencasts/screencast-21-finops-observability.md)
-2. **Lab** : [lab-22-finops-observability](../labs/lab-22-finops-observability/README)
-3. **Quiz** : [quiz 21 finops observability](../quizzes/quiz-21-finops-observability.html)
+1. **Screencast** : [screencast 20 finops observability](../screencasts/screencast-20-finops-observability.md)
+2. **Lab** : [lab-21-finops-observability](../labs/lab-21-finops-observability/README)
+3. **Quiz** : [quiz 20 finops observability](../quizzes/quiz-20-finops-observability.html)
 :::

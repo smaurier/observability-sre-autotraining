@@ -594,17 +594,17 @@ RED pour les services, USE pour les ressources, Golden Signals pour la vue d'ens
 
 ## Prochaines étapes
 
-- [Lab 06 — Implementer RED et USE dans la demo-app](/labs/lab-06-red-use-dashboard/README)
-- [Quiz 06 — Méthodes RED & USE](/quizzes/quiz-06-red-use-methodes)
-- [Module suivant — Distributed Tracing & OpenTelemetry](/modules/07-distributed-tracing)
+- [Lab 05 — Implementer RED et USE dans la demo-app](/labs/lab-05-red-use-dashboard/README)
+- [Quiz 05 — Méthodes RED & USE](/quizzes/quiz-05-red-use-methodes)
+- [Module suivant — Distributed Tracing & OpenTelemetry](/modules/06-distributed-tracing)
 
 ---
 
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 06 red use méthodes](../screencasts/screencast-06-red-use-methodes.md)
-2. **Lab** : [lab-06-red-use-dashboard](../labs/lab-06-red-use-dashboard/README)
+1. **Screencast** : [screencast 05 red use méthodes](../screencasts/screencast-05-red-use-methodes.md)
+2. **Lab** : [lab-05-red-use-dashboard](../labs/lab-05-red-use-dashboard/README)
 3. **Visualisation** : [Metric Types](../visualizations/metric-types.html)
-4. **Quiz** : [quiz 06 red use méthodes](../quizzes/quiz-06-red-use-methodes.html)
+4. **Quiz** : [quiz 05 red use méthodes](../quizzes/quiz-05-red-use-methodes.html)
 :::

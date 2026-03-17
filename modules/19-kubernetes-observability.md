@@ -2365,8 +2365,8 @@ Le Google SRE Workbook, Chapitre 11 ("Managing Load") détaillé les stratégies
 
 ## Pour aller plus loin
 
-- [Lab 21 — Observabilité Kubernetes avec kube-prometheus-stack](/labs/lab-21-kubernetes-observability/README)
-- [Quiz 20 — Kubernetes & Container Observability](/quizzes/quiz-20-kubernetes-observability)
+- [Lab 20 — Observabilité Kubernetes avec kube-prometheus-stack](/labs/lab-20-kubernetes-observability/README)
+- [Quiz 19 — Kubernetes & Container Observability](/quizzes/quiz-19-kubernetes-observability)
 - Google SRE Book, Chapitre 6 : "Monitoring Distributed Systems"
 - Google SRE Workbook, Chapitre 11 : "Managing Load"
 - Prometheus Operator Documentation : https://prometheus-operator.dev
@@ -2380,7 +2380,7 @@ Le Google SRE Workbook, Chapitre 11 ("Managing Load") détaillé les stratégies
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 20 kubernetes observability](../screencasts/screencast-20-kubernetes-observability.md)
-2. **Lab** : [lab-21-kubernetes-observability](../labs/lab-21-kubernetes-observability/README)
-3. **Quiz** : [quiz 20 kubernetes observability](../quizzes/quiz-20-kubernetes-observability.html)
+1. **Screencast** : [screencast 19 kubernetes observability](../screencasts/screencast-19-kubernetes-observability.md)
+2. **Lab** : [lab-20-kubernetes-observability](../labs/lab-20-kubernetes-observability/README)
+3. **Quiz** : [quiz 19 kubernetes observability](../quizzes/quiz-19-kubernetes-observability.html)
 :::

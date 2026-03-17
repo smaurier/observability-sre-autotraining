@@ -14,6 +14,22 @@
 
 ---
 
+<details>
+<summary>Rappel du module précédent</summary>
+
+1. **Qu'est-ce que l'Observability as Code (OaC) ?**
+   L'Observability as Code consiste a definir toute la configuration d'observabilite (dashboards Grafana, alerting rules Prometheus, pipelines OpenTelemetry Collector) sous forme de fichiers versionnes dans Git, deployes automatiquement via CI/CD. Cela garantit la reproductibilite et la revue par les pairs.
+
+2. **Pourquoi versionner les dashboards et les alertes dans Git ?**
+   Versionner permet de tracer les modifications, de faire du code review sur les changements d'alertes, d'eviter la perte de configuration, et de deployer la même observabilite sur tous les environnements (staging, production) de maniere coherente.
+
+3. **Quels sont les composants typiques d'une stack OaC ?**
+   Une stack OaC inclut : les fichiers de recording rules et alerting rules Prometheus (YAML), les dashboards Grafana provisionnes (JSON), la configuration de l'OpenTelemetry Collector (YAML), et les pipelines CI/CD qui valident (`promtool check rules`) et deployent ces fichiers automatiquement.
+
+</details>
+
+---
+
 ## Introduction : le gardien de la production
 
 Imaginez un pilote de ligne. Avant chaque vol, il parcourt une **checklist pre-vol** : instruments, carburant, surfaces de controle, meteo. Ce n'est pas optionnel. Peu importe son experience, la checklist est obligatoire. C'est exactement le role d'une **Production Readiness Review (PRR)** : une checklist systematique qui vérifié qu'un service est pret a etre expose a de vrais utilisateurs.
@@ -1140,10 +1156,20 @@ Si votre liveness probe vérifié la connexion à la base de donnees et que Post
 
 ---
 
+## Si tu es perdu
+
+- Une **PRR** (Production Readiness Review) est une checklist que chaque service doit passer avant d'aller en production, comme la checklist pre-vol d'un pilote.
+- Les categories principales sont : **observabilite** (logs, metriques, traces en place), **scaling** (stateless, autoscaling), **securite**, **recovery** (rollback possible) et **dependances**.
+- Chaque dependance **hard** sans fallback est un **SPOF** (Single Point of Failure) : si elle tombe, ton service tombe aussi.
+- Les health checks Kubernetes ont trois types : **liveness** (le process est vivant), **readiness** (le service peut recevoir du trafic), **startup** (le demarrage est termine). Ne jamais verifier les dependances dans la liveness probe.
+- Le **maturity model** permet d'evaluer ou en est ton equipe (de niveau 0 "reactive" a niveau 4 "elite") et de planifier les prochaines ameliorations.
+
+---
+
 ## Pour aller plus loin
 
-- [Lab 18 — Production Readiness Review](/labs/lab-18-production-readiness/README)
-- [Quiz 18 — Production Readiness](/quizzes/quiz-18-production-readiness)
+- [Lab 17 — Production Readiness Review](/labs/lab-17-production-readiness/README)
+- [Quiz 17 — Production Readiness](/quizzes/quiz-17-production-readiness)
 - Google SRE Book, Chapitre 32 : "The Evolving SRE Engagement Model"
 - Google SRE Workbook, Chapitre 8 : "On-Call"
 - "Release It!" par Michael Nygard (patterns de résilience)
@@ -1154,7 +1180,7 @@ Si votre liveness probe vérifié la connexion à la base de donnees et que Post
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 18 production readiness](../screencasts/screencast-18-production-readiness.md)
-2. **Lab** : [lab-18-production-readiness](../labs/lab-18-production-readiness/README)
-3. **Quiz** : [quiz 18 production readiness](../quizzes/quiz-18-production-readiness.html)
+1. **Screencast** : [screencast 17 production readiness](../screencasts/screencast-17-production-readiness.md)
+2. **Lab** : [lab-17-production-readiness](../labs/lab-17-production-readiness/README)
+3. **Quiz** : [quiz 17 production readiness](../quizzes/quiz-17-production-readiness.html)
 :::

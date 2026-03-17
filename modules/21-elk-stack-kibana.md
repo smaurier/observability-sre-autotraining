@@ -652,7 +652,7 @@ Les Spaces isolent les dashboards et index patterns par équipe :
 
 ## Exercices
 
-Passez au **Lab 24** pour mettre en pratique :
+Mettez en pratique les concepts suivants :
 - Mapping Elasticsearch
 - Parsing de logs avec grok
 - Requetes KQL
@@ -675,7 +675,6 @@ Passez au **Lab 24** pour mettre en pratique :
 <!-- parcours-recommande -->
 
 ::: tip Parcours recommandé
-1. **Screencast** : [screencast 23 elk stack kibana](../screencasts/screencast-23-elk-stack-kibana.md)
-2. **Lab** : [lab-23-sentry-error-tracking](../labs/lab-23-sentry-error-tracking/README)
-3. **Quiz** : [quiz 23 elk stack kibana](../quizzes/quiz-23-elk-stack-kibana.html)
+1. **Screencast** : [screencast 21 elk stack kibana](../screencasts/screencast-21-elk-stack-kibana.md)
+2. **Quiz** : [quiz 21 elk stack kibana](../quizzes/quiz-21-elk-stack-kibana.html)
 :::
