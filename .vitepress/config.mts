@@ -1,158 +1,131 @@
-import { defineConfig } from 'vitepress';
+import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Observability & SRE Course',
-  description:
-    'Formation complete Observabilite & SRE : logging, metriques, tracing, SLOs, incidents, chaos engineering (debutant → expert)',
+  title: 'Observability & SRE',
+  description: 'Observabilité & SRE : logs, métriques Prometheus, traces OpenTelemetry, Grafana, SLO, alerting, incidents, chaos',
   lang: 'fr-FR',
   srcDir: '.',
+
+  vite: {
+    server: {
+      port: 5181,
+      strictPort: false
+    }
+  },
+
+  // Docs statiques : neutralise l'interpolation Vue `{{ }}` en prose (et le templating
+  // Prometheus/Grafana `{{ $value }}`) pour ne pas casser le build SSR.
+  vue: {
+    template: {
+      compilerOptions: {
+        delimiters: ['(%(', ')%)']
+      }
+    }
+  },
+
+  ignoreDeadLinks: true,
+
+  // Refonte v1 : le cours vit dans modules/ + labs/. Le reste (demo-app, config,
+  // docker-compose, quizzes, screencasts, visualizations, scripts) = outillage/archive,
+  // exclu du build markdown.
+  srcExclude: [
+    'quizzes/**',
+    'screencasts/**',
+    'visualizations/**',
+    'demo-app/**',
+    'config/**',
+    'scripts/**'
+  ],
 
   themeConfig: {
     nav: [
       { text: 'Modules', link: '/modules/00-prerequis-et-introduction' },
-      { text: 'Labs', link: '/labs/lab-01-console-log-vs-structured/README' },
-      { text: 'Quizzes', link: '/quizzes/' },
-      { text: 'Visualisations', link: '/visualizations/' },
-      { text: 'Glossaire', link: '/glossaire' },
-      { text: 'References', link: '/modules/99-references-et-lectures' },
+      { text: 'Labs', link: '/labs/lab-00-prerequis-et-introduction/README' }
     ],
 
     sidebar: {
       '/modules/': [
         {
-          text: 'Phase 1 — Fondamentaux',
-          collapsed: false,
+          text: 'Fondations',
           items: [
-            { text: '00 - Prerequis et introduction', link: '/modules/00-prerequis-et-introduction' },
-            { text: '01 - Pourquoi l\'observabilite', link: '/modules/01-pourquoi-observabilite' },
-            { text: '02 - Logging structure', link: '/modules/02-logging-structure' },
-            { text: '03 - Niveaux de log et contexte', link: '/modules/03-niveaux-de-log-et-contexte' },
-            { text: '04 - Metriques et Prometheus', link: '/modules/04-metriques-et-prometheus' },
-          ],
+            { text: '00 · Introduction & 3 piliers', link: '/modules/00-prerequis-et-introduction' },
+            { text: '01 · Logging structuré', link: '/modules/01-logging-structure' },
+            { text: '02 · Métriques & Prometheus', link: '/modules/02-metriques-et-prometheus' },
+            { text: '03 · RED / USE', link: '/modules/03-red-use-methodes' },
+            { text: '04 · Distributed tracing', link: '/modules/04-distributed-tracing' },
+            { text: '05 · OpenTelemetry', link: '/modules/05-opentelemetry-instrumentation' },
+            { text: '06 · Error tracking (Sentry)', link: '/modules/06-error-tracking-sentry' }
+          ]
         },
         {
-          text: 'Phase 2 — Instrumentation & Outils',
-          collapsed: false,
+          text: 'Dashboards, SLO & alerting',
           items: [
-            { text: '05 - Methodes RED & USE', link: '/modules/05-red-use-methodes' },
-            { text: '06 - Distributed Tracing', link: '/modules/06-distributed-tracing' },
-            { text: '07 - Sentry Error Tracking', link: '/modules/07-sentry-error-tracking' },
-            { text: '08 - OTel Collector Pipeline', link: '/modules/08-otel-collector-pipeline' },
-            { text: '09 - Grafana Dashboards', link: '/modules/09-grafana-dashboards' },
-          ],
+            { text: '07 · Grafana dashboards', link: '/modules/07-grafana-dashboards' },
+            { text: '08 · SLI / SLO / SLA', link: '/modules/08-sli-slo-sla' },
+            { text: '09 · Alerting', link: '/modules/09-alerting-strategies' }
+          ]
         },
         {
-          text: 'Phase 3 — Pratiques SRE',
-          collapsed: false,
+          text: 'Fiabilité & résilience',
           items: [
-            { text: '10 - SLI, SLO, SLA', link: '/modules/10-sli-slo-sla' },
-            { text: '11 - Alerting Strategies', link: '/modules/11-alerting-strategies' },
-            { text: '12 - Incidents et Postmortems', link: '/modules/12-incidents-et-postmortems' },
-            { text: '13 - Capacity Planning', link: '/modules/13-capacity-planning' },
-          ],
+            { text: '10 · Incidents & postmortems', link: '/modules/10-incidents-et-postmortems' },
+            { text: '11 · Capacity planning', link: '/modules/11-capacity-planning' },
+            { text: '12 · Chaos engineering', link: '/modules/12-chaos-engineering' },
+            { text: '13 · Observability as code', link: '/modules/13-observability-as-code' }
+          ]
         },
         {
-          text: 'Phase 4 — Expert',
-          collapsed: false,
+          text: 'Plateformes & clients',
           items: [
-            { text: '14 - Chaos Engineering', link: '/modules/14-chaos-engineering' },
-            { text: '15 - DORA Metrics', link: '/modules/15-dora-metrics' },
-            { text: '16 - Observability as Code', link: '/modules/16-observability-as-code' },
-            { text: '17 - Production Readiness', link: '/modules/17-production-readiness' },
-            { text: '18 - Projet Final', link: '/modules/18-projet-final' },
-          ],
+            { text: '14 · Kubernetes observability', link: '/modules/14-kubernetes-observability' },
+            { text: '15 · ELK / Kibana', link: '/modules/15-elk-stack-kibana' },
+            { text: '16 · Observabilité frontend', link: '/modules/16-observabilite-frontend' },
+            { text: '17 · APM & profiling', link: '/modules/17-apm-et-profiling' }
+          ]
         },
         {
-          text: 'Phase 5 — Bonus Expert',
-          collapsed: true,
+          text: 'Coût, conformité & clôture',
           items: [
-            { text: '19 - Kubernetes Observability', link: '/modules/19-kubernetes-observability' },
-            { text: '20 - FinOps Observability', link: '/modules/20-finops-observability' },
-            { text: '21 - ELK Stack & Kibana', link: '/modules/21-elk-stack-kibana' },
-            { text: '22 - RGPD & Observabilite', link: '/modules/22-rgpd-observabilite' },
-          ],
-        },
-        {
-          text: 'Phase 6 — Frontend & APM',
-          collapsed: true,
-          items: [
-            { text: '23 - Observabilite Frontend', link: '/modules/23-observabilite-frontend' },
-            { text: '24 - Instrumentation Nuxt/Next', link: '/modules/24-instrumentation-nuxt-next' },
-            { text: '25 - Panorama APM', link: '/modules/25-panorama-apm' },
-            { text: '26 - Feature Flags et Observabilite', link: '/modules/26-feature-flags-observabilite' },
-            { text: '27 - Continuous Profiling', link: '/modules/27-continuous-profiling' },
-          ],
-        },
-        {
-          text: 'Annexes',
-          collapsed: true,
-          items: [
-            { text: 'References & Lectures', link: '/modules/99-references-et-lectures' },
-          ],
-        },
+            { text: '18 · FinOps & feature flags', link: '/modules/18-finops-et-feature-flags-observabilite' },
+            { text: '19 · RGPD & observabilité', link: '/modules/19-rgpd-observabilite' },
+            { text: '20 · DORA & production readiness', link: '/modules/20-dora-et-production-readiness' },
+            { text: '21 · Projet final', link: '/modules/21-projet-final' }
+          ]
+        }
       ],
-
-      '/quizzes/': [
+      '/labs/': [
         {
-          text: 'Quizzes',
+          text: 'Labs — pratique (docker-compose fournis)',
           items: [
-            { text: 'Quiz 00 - Prerequis', link: '/quizzes/quiz-00-prerequis' },
-            { text: 'Quiz 01 - Pourquoi l\'observabilite', link: '/quizzes/quiz-01-pourquoi-observabilite' },
-            { text: 'Quiz 02 - Logging structure', link: '/quizzes/quiz-02-logging-structure' },
-            { text: 'Quiz 03 - Niveaux de log et contexte', link: '/quizzes/quiz-03-niveaux-de-log-et-contexte' },
-            { text: 'Quiz 04 - Metriques et Prometheus', link: '/quizzes/quiz-04-metriques-et-prometheus' },
-            { text: 'Quiz 05 - RED & USE', link: '/quizzes/quiz-05-red-use-methodes' },
-            { text: 'Quiz 06 - Distributed Tracing', link: '/quizzes/quiz-06-distributed-tracing' },
-            { text: 'Quiz 07 - Sentry Error Tracking', link: '/quizzes/quiz-07-sentry-error-tracking' },
-            { text: 'Quiz 08 - OTel Collector', link: '/quizzes/quiz-08-otel-collector-pipeline' },
-            { text: 'Quiz 09 - Grafana Dashboards', link: '/quizzes/quiz-09-grafana-dashboards' },
-            { text: 'Quiz 10 - SLI, SLO, SLA', link: '/quizzes/quiz-10-sli-slo-sla' },
-            { text: 'Quiz 11 - Alerting Strategies', link: '/quizzes/quiz-11-alerting-strategies' },
-            { text: 'Quiz 12 - Incidents et Postmortems', link: '/quizzes/quiz-12-incidents-et-postmortems' },
-            { text: 'Quiz 13 - Capacity Planning', link: '/quizzes/quiz-13-capacity-planning' },
-            { text: 'Quiz 14 - Chaos Engineering', link: '/quizzes/quiz-14-chaos-engineering' },
-            { text: 'Quiz 15 - DORA Metrics', link: '/quizzes/quiz-15-dora-metrics' },
-            { text: 'Quiz 16 - Observability as Code', link: '/quizzes/quiz-16-observability-as-code' },
-            { text: 'Quiz 17 - Production Readiness', link: '/quizzes/quiz-17-production-readiness' },
-            { text: 'Quiz 18 - Projet Final', link: '/quizzes/quiz-18-projet-final' },
-            { text: 'Quiz 19 - Kubernetes Observability', link: '/quizzes/quiz-19-kubernetes-observability' },
-            { text: 'Quiz 20 - FinOps Observability', link: '/quizzes/quiz-20-finops-observability' },
-            { text: 'Quiz 21 - ELK Stack & Kibana', link: '/quizzes/quiz-21-elk-stack-kibana' },
-            { text: 'Quiz 22 - RGPD & Observabilite', link: '/quizzes/quiz-22-rgpd-observabilite' },
-            { text: 'Quiz 23 - Observabilite Frontend', link: '/quizzes/quiz-23-observabilite-frontend' },
-            { text: 'Quiz 24 - Instrumentation Nuxt/Next', link: '/quizzes/quiz-24-instrumentation-nuxt-next' },
-            { text: 'Quiz 25 - Panorama APM', link: '/quizzes/quiz-25-panorama-apm' },
-            { text: 'Quiz 26 - Feature Flags', link: '/quizzes/quiz-26-feature-flags-observabilite' },
-          ],
-        },
-      ],
-
-      '/visualizations/': [
-        {
-          text: 'Visualisations',
-          items: [
-            { text: 'Three Pillars', link: '/visualizations/three-pillars.html' },
-            { text: 'Metric Types', link: '/visualizations/metric-types.html' },
-            { text: 'Distributed Trace', link: '/visualizations/distributed-trace.html' },
-            { text: 'SLO Error Budget', link: '/visualizations/slo-error-budget.html' },
-            { text: 'Incident Lifecycle', link: '/visualizations/incident-lifecycle.html' },
-          ],
-        },
-      ],
+            { text: 'Lab 00 · Introduction', link: '/labs/lab-00-prerequis-et-introduction/README' },
+            { text: 'Lab 01 · Logging structuré', link: '/labs/lab-01-logging-structure/README' },
+            { text: 'Lab 02 · Métriques & Prometheus', link: '/labs/lab-02-metriques-et-prometheus/README' },
+            { text: 'Lab 03 · RED / USE', link: '/labs/lab-03-red-use-methodes/README' },
+            { text: 'Lab 04 · Distributed tracing', link: '/labs/lab-04-distributed-tracing/README' },
+            { text: 'Lab 05 · OpenTelemetry', link: '/labs/lab-05-opentelemetry-instrumentation/README' },
+            { text: 'Lab 06 · Sentry', link: '/labs/lab-06-error-tracking-sentry/README' },
+            { text: 'Lab 07 · Grafana', link: '/labs/lab-07-grafana-dashboards/README' },
+            { text: 'Lab 08 · SLO', link: '/labs/lab-08-sli-slo-sla/README' },
+            { text: 'Lab 09 · Alerting', link: '/labs/lab-09-alerting-strategies/README' },
+            { text: 'Lab 10 · Incidents & postmortems', link: '/labs/lab-10-incidents-et-postmortems/README' },
+            { text: 'Lab 11 · Capacity planning', link: '/labs/lab-11-capacity-planning/README' },
+            { text: 'Lab 12 · Chaos engineering', link: '/labs/lab-12-chaos-engineering/README' },
+            { text: 'Lab 13 · Observability as code', link: '/labs/lab-13-observability-as-code/README' },
+            { text: 'Lab 14 · Kubernetes', link: '/labs/lab-14-kubernetes-observability/README' },
+            { text: 'Lab 15 · ELK / Kibana', link: '/labs/lab-15-elk-stack-kibana/README' },
+            { text: 'Lab 16 · Observabilité frontend', link: '/labs/lab-16-observabilite-frontend/README' },
+            { text: 'Lab 17 · APM & profiling', link: '/labs/lab-17-apm-et-profiling/README' },
+            { text: 'Lab 18 · FinOps & feature flags', link: '/labs/lab-18-finops-et-feature-flags-observabilite/README' },
+            { text: 'Lab 19 · RGPD', link: '/labs/lab-19-rgpd-observabilite/README' },
+            { text: 'Lab 20 · Production readiness', link: '/labs/lab-20-dora-et-production-readiness/README' },
+            { text: 'Lab 21 · Projet final', link: '/labs/lab-21-projet-final/README' }
+          ]
+        }
+      ]
     },
 
-    search: {
-      provider: 'local',
-    },
-
-    outline: {
-      level: [2, 3],
-      label: 'Sur cette page',
-    },
-
-    docFooter: {
-      prev: 'Page precedente',
-      next: 'Page suivante',
-    },
-  },
-});
+    search: { provider: 'local' },
+    outline: { level: [2, 3], label: 'Sur cette page' },
+    docFooter: { prev: 'Précédent', next: 'Suivant' }
+  }
+})

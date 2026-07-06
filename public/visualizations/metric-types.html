@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types de Metriques Prometheus</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a2e;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  .header{text-align:center;padding:2rem 1rem .5rem}
+  .header h1{font-size:2rem;color:#00d4ff;margin-bottom:.4rem}
+  .header .subtitle{color:#8899aa;font-size:1rem;font-style:italic}
+  .panels{display:flex;justify-content:center;gap:1.5rem;padding:1.5rem 1rem;flex-wrap:wrap;max-width:1400px;margin:0 auto}
+  .panel{background:#16213e;border-radius:14px;padding:1.5rem;width:400px;border:1px solid #1e2d4a;transition:box-shadow .3s}
+  .panel:hover{box-shadow:0 8px 30px rgba(0,212,255,.1)}
+  .panel-header{display:flex;align-items:center;gap:.8rem;margin-bottom:.3rem}
+  .panel-icon{font-size:1.8rem}
+  .panel-title{font-size:1.3rem;font-weight:700}
+  .panel.counter .panel-title{color:#22c55e}
+  .panel.gauge .panel-title{color:#f59e0b}
+  .panel.histogram .panel-title{color:#8b5cf6}
+  .panel-desc{color:#8899aa;font-size:.85rem;margin-bottom:1rem;line-height:1.4}
+  .current-value{font-size:2.2rem;font-weight:800;text-align:center;margin:.8rem 0;font-variant-numeric:tabular-nums}
+  .panel.counter .current-value{color:#22c55e}
+  .panel.gauge .current-value{color:#f59e0b}
+  .panel.histogram .current-value{color:#8b5cf6}
+  .value-label{text-align:center;color:#667;font-size:.75rem;margin-bottom:.5rem}
+  canvas{display:block;width:100%;border-radius:8px;background:#0f1729;margin-bottom:.8rem}
+  .btn{display:block;margin:0 auto;padding:.6rem 1.5rem;border:none;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:600;transition:transform .15s,box-shadow .2s}
+  .btn:hover{transform:scale(1.05)}
+  .btn:active{transform:scale(.97)}
+  .btn-counter{background:#22c55e;color:#0a1520}
+  .btn-histogram{background:#8b5cf6;color:#fff}
+  .gauge-visual{position:relative;width:200px;height:110px;margin:0 auto .8rem;overflow:hidden}
+  .gauge-bg{width:200px;height:200px;border-radius:50%;border:18px solid #1e2d4a;position:absolute;top:0;clip-path:polygon(0 0,100% 0,100% 50%,0 50%)}
+  .gauge-fill{width:200px;height:200px;border-radius:50%;border:18px solid #f59e0b;position:absolute;top:0;clip-path:polygon(0 0,100% 0,100% 50%,0 50%);transform-origin:center center;transition:transform .5s}
+  .gauge-needle{position:absolute;bottom:0;left:50%;width:3px;height:90px;background:linear-gradient(to top,#f59e0b,#fff);transform-origin:bottom center;transition:transform .5s;border-radius:2px;margin-left:-1.5px}
+  .gauge-center{position:absolute;bottom:-6px;left:50%;width:14px;height:14px;background:#f59e0b;border-radius:50%;margin-left:-7px}
+  .gauge-labels{display:flex;justify-content:space-between;font-size:.7rem;color:#667;margin-top:2px}
+  .percentiles{display:flex;justify-content:space-around;margin-top:.5rem}
+  .pct{text-align:center}
+  .pct-label{font-size:.7rem;color:#667}
+  .pct-value{font-size:1rem;font-weight:700;color:#c4b5fd}
+  .auto-badge{display:inline-block;background:#f59e0b33;color:#f59e0b;font-size:.65rem;padding:2px 8px;border-radius:10px;margin-left:.5rem}
+  @media(max-width:900px){.panels{flex-direction:column;align-items:center}.panel{width:95%;max-width:450px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Types de Metriques Prometheus</h1>
+  <p class="subtitle">Interagissez avec chaque type de metrique</p>
+</div>
+
+<div class="panels">
+  <!-- COUNTER -->
+  <div class="panel counter">
+    <div class="panel-header"><span class="panel-icon">📈</span><span class="panel-title">Counter</span></div>
+    <p class="panel-desc">Valeur monotone croissante — ne fait qu'augmenter. Utile pour compter les requetes, erreurs, octets traites.</p>
+    <div class="current-value" id="counterVal">0</div>
+    <div class="value-label">http_requests_total</div>
+    <canvas id="counterChart" height="150"></canvas>
+    <button class="btn btn-counter" onclick="addRequest()">+ Ajouter une requete</button>
+  </div>
+
+  <!-- GAUGE -->
+  <div class="panel gauge">
+    <div class="panel-header"><span class="panel-icon">🌡️</span><span class="panel-title">Gauge</span><span class="auto-badge">auto-update</span></div>
+    <p class="panel-desc">Valeur qui monte et descend librement. Utile pour temperature, memoire, connexions actives.</p>
+    <div class="current-value" id="gaugeVal">42.0</div>
+    <div class="value-label">node_cpu_temperature_celsius</div>
+    <div class="gauge-visual">
+      <div class="gauge-bg"></div>
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-needle" id="gaugeNeedle"></div>
+      <div class="gauge-center"></div>
+    </div>
+    <div class="gauge-labels"><span>0 C</span><span>50 C</span><span>100 C</span></div>
+    <canvas id="gaugeChart" height="120" style="margin-top:.8rem"></canvas>
+  </div>
+
+  <!-- HISTOGRAM -->
+  <div class="panel histogram">
+    <div class="panel-header"><span class="panel-icon">📊</span><span class="panel-title">Histogram</span></div>
+    <p class="panel-desc">Distribution de valeurs dans des buckets predéfinis. Ideal pour la latence et la taille des requetes.</p>
+    <div class="current-value" id="histVal">0 obs</div>
+    <div class="value-label">http_request_duration_seconds</div>
+    <canvas id="histChart" height="170"></canvas>
+    <div class="percentiles">
+      <div class="pct"><div class="pct-label">p50</div><div class="pct-value" id="p50">—</div></div>
+      <div class="pct"><div class="pct-label">p95</div><div class="pct-value" id="p95">—</div></div>
+      <div class="pct"><div class="pct-label">p99</div><div class="pct-value" id="p99">—</div></div>
+    </div>
+    <button class="btn btn-histogram" onclick="addObservation()" style="margin-top:.8rem">+ Ajouter une observation</button>
+  </div>
+</div>
+
+<script>
+/* ---- COUNTER ---- */
+let counterValue=0;
+const counterData=[];
+const counterCanvas=document.getElementById('counterChart');
+const counterCtx=counterCanvas.getContext('2d');
+
+function addRequest(){
+  const inc=Math.floor(Math.random()*5)+1;
+  counterValue+=inc;
+  counterData.push(counterValue);
+  if(counterData.length>60)counterData.shift();
+  document.getElementById('counterVal').textContent=counterValue;
+  drawCounter();
+}
+
+function drawCounter(){
+  const c=counterCanvas, ctx=counterCtx;
+  c.width=c.clientWidth*2; c.height=c.clientHeight*2;
+  ctx.scale(2,2);
+  const w=c.clientWidth, h=c.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  if(counterData.length<2)return;
+  const max=Math.max(...counterData)*1.1||1;
+  const step=w/(counterData.length-1);
+  ctx.beginPath();ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
+  counterData.forEach((v,i)=>{
+    const x=i*step, y=h-(v/max)*(h-20)-10;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'rgba(34,197,94,.25)');g.addColorStop(1,'rgba(34,197,94,0)');
+  ctx.fillStyle=g;ctx.fill();
+}
+
+/* ---- GAUGE ---- */
+let gaugeValue=42;
+const gaugeData=[];
+const gaugeCanvas=document.getElementById('gaugeChart');
+const gaugeCtx=gaugeCanvas.getContext('2d');
+
+function updateGauge(){
+  gaugeValue+=((Math.random()-.5)*6);
+  if(gaugeValue>95)gaugeValue=95-Math.random()*5;
+  if(gaugeValue<15)gaugeValue=15+Math.random()*5;
+  gaugeData.push(gaugeValue);
+  if(gaugeData.length>60)gaugeData.shift();
+  document.getElementById('gaugeVal').textContent=gaugeValue.toFixed(1);
+  // needle: 0=left(-90deg), 100=right(90deg)
+  const angle=-90+(gaugeValue/100)*180;
+  document.getElementById('gaugeNeedle').style.transform=`rotate(${angle}deg)`;
+  drawGaugeLine();
+}
+
+function drawGaugeLine(){
+  const c=gaugeCanvas, ctx=gaugeCtx;
+  c.width=c.clientWidth*2; c.height=c.clientHeight*2;
+  ctx.scale(2,2);
+  const w=c.clientWidth, h=c.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  if(gaugeData.length<2)return;
+  const step=w/(gaugeData.length-1);
+  ctx.beginPath();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+  gaugeData.forEach((v,i)=>{
+    const x=i*step, y=h-(v/100)*(h-20)-10;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+}
+setInterval(updateGauge,1000);
+updateGauge();
+
+/* ---- HISTOGRAM ---- */
+const bucketLimits=[0.005,0.01,0.025,0.05,0.1,0.25,0.5,1,2.5,5,10];
+const bucketCounts=new Array(bucketLimits.length+1).fill(0);
+let observations=[];
+const histCanvas=document.getElementById('histChart');
+const histCtx=histCanvas.getContext('2d');
+
+function addObservation(){
+  // generate random latency with realistic distribution
+  let lat;
+  const r=Math.random();
+  if(r<0.5) lat=0.01+Math.random()*0.04;       // fast
+  else if(r<0.85) lat=0.05+Math.random()*0.2;   // normal
+  else if(r<0.97) lat=0.3+Math.random()*1.5;    // slow
+  else lat=2+Math.random()*8;                     // very slow
+  observations.push(lat);
+  // fill buckets
+  bucketCounts.fill(0);
+  observations.forEach(v=>{
+    let placed=false;
+    for(let i=0;i<bucketLimits.length;i++){if(v<=bucketLimits[i]){bucketCounts[i]++;placed=true;break;}}
+    if(!placed)bucketCounts[bucketLimits.length]++;
+  });
+  document.getElementById('histVal').textContent=observations.length+' obs';
+  updatePercentiles();
+  drawHistogram();
+}
+
+function updatePercentiles(){
+  if(observations.length===0)return;
+  const sorted=[...observations].sort((a,b)=>a-b);
+  const p=q=>sorted[Math.floor(q*sorted.length)]||sorted[sorted.length-1];
+  document.getElementById('p50').textContent=p(0.5).toFixed(3)+'s';
+  document.getElementById('p95').textContent=p(0.95).toFixed(3)+'s';
+  document.getElementById('p99').textContent=p(0.99).toFixed(3)+'s';
+}
+
+function drawHistogram(){
+  const c=histCanvas, ctx=histCtx;
+  c.width=c.clientWidth*2; c.height=c.clientHeight*2;
+  ctx.scale(2,2);
+  const w=c.clientWidth, h=c.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const labels=[...bucketLimits.map(v=>v+'s'),'+Inf'];
+  const max=Math.max(...bucketCounts,1);
+  const barW=(w-40)/labels.length;
+  const pad=4;
+  labels.forEach((l,i)=>{
+    const bh=(bucketCounts[i]/max)*(h-30);
+    const x=20+i*barW+pad;
+    const bw=barW-pad*2;
+    ctx.fillStyle='#8b5cf6';
+    ctx.fillRect(x,h-20-bh,bw,bh);
+    ctx.fillStyle='#667';
+    ctx.font='9px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(l,x+bw/2,h-6);
+    if(bucketCounts[i]>0){
+      ctx.fillStyle='#c4b5fd';
+      ctx.font='bold 10px sans-serif';
+      ctx.fillText(bucketCounts[i],x+bw/2,h-24-bh);
+    }
+  });
+}
+
+// initial draws
+drawCounter();drawHistogram();
+
+// auto-add some observations to make it interesting
+for(let i=0;i<10;i++) addObservation();
+for(let i=0;i<5;i++) addRequest();
+</script>
+</body>
+</html>

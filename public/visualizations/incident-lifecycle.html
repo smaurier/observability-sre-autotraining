@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cycle de Vie d'un Incident</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a2e;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  .header{text-align:center;padding:2rem 1rem .5rem}
+  .header h1{font-size:2rem;color:#00d4ff;margin-bottom:.4rem}
+  .header .subtitle{color:#8899aa;font-size:1rem;font-style:italic}
+  .container{max-width:1100px;margin:0 auto;padding:1rem}
+  .incident-bar{display:flex;justify-content:center;gap:1.2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .incident-info{background:#16213e;padding:.5rem 1.2rem;border-radius:8px;font-size:.85rem}
+  .incident-info .il{color:#667;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px}
+  .incident-info .iv{font-weight:700;font-family:monospace}
+  .sev-badge{display:inline-block;background:#ef444433;color:#ef4444;font-weight:800;padding:.2rem .8rem;border-radius:6px;border:1px solid #ef444466;font-size:.85rem}
+  .roles-bar{display:flex;justify-content:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .role{background:#16213e;border-radius:10px;padding:.6rem 1rem;display:flex;align-items:center;gap:.6rem;border:1px solid #1e2d4a}
+  .role-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff}
+  .role-ic .role-avatar{background:linear-gradient(135deg,#ef4444,#dc2626)}
+  .role-comms .role-avatar{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+  .role-ops .role-avatar{background:linear-gradient(135deg,#22c55e,#16a34a)}
+  .role-name{font-size:.75rem;color:#667}
+  .role-person{font-size:.85rem;font-weight:600}
+  .controls{text-align:center;margin-bottom:1.5rem}
+  .play-btn{padding:.7rem 2rem;background:linear-gradient(135deg,#00d4ff,#4dabf7);color:#0a1520;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s}
+  .play-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(0,212,255,.3)}
+  .play-btn:active{transform:scale(.97)}
+  .play-btn:disabled{opacity:.5;cursor:default;transform:none}
+  .timeline-container{position:relative;margin-bottom:1.5rem}
+  .timeline-track{display:flex;height:70px;border-radius:12px;overflow:hidden;position:relative}
+  .phase-segment{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:filter .2s,transform .2s;border-right:2px solid #1a1a2e}
+  .phase-segment:hover{filter:brightness(1.2)}
+  .phase-segment.active{transform:scaleY(1.1);z-index:2;filter:brightness(1.3);box-shadow:0 0 20px rgba(0,0,0,.5)}
+  .phase-segment.dimmed{filter:brightness(.5)}
+  .phase-segment .phase-name{font-weight:700;font-size:.85rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+  .phase-segment .phase-dur{font-size:.7rem;color:rgba(255,255,255,.7)}
+  .phase-detection{background:linear-gradient(135deg,#ef4444,#dc2626);flex:12}
+  .phase-triage{background:linear-gradient(135deg,#f59e0b,#d97706);flex:8}
+  .phase-mitigation{background:linear-gradient(135deg,#3b82f6,#2563eb);flex:20}
+  .phase-resolution{background:linear-gradient(135deg,#22c55e,#16a34a);flex:35}
+  .phase-postmortem{background:linear-gradient(135deg,#8b5cf6,#7c3aed);flex:25}
+  .timestamps{display:flex;justify-content:space-between;font-size:.7rem;color:#556;margin-top:.3rem;padding:0 2px}
+  .progress-line{position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.15);pointer-events:none;transition:width .1s linear;border-radius:12px 0 0 12px;z-index:5}
+  .events-track{position:relative;height:28px;margin-top:.5rem}
+  .event-marker{position:absolute;top:0;transform:translateX(-50%);text-align:center;cursor:default}
+  .event-dot{width:10px;height:10px;border-radius:50%;background:#00d4ff;margin:0 auto 2px;box-shadow:0 0 8px #00d4ff66}
+  .event-label{font-size:.6rem;color:#8899aa;white-space:nowrap}
+  .detail-card{background:#16213e;border-radius:14px;padding:1.5rem;border:1px solid #1e2d4a;margin-bottom:1.5rem;display:none}
+  .detail-card.visible{display:block;animation:fadeIn .3s}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .detail-card h3{font-size:1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+  .detail-card .phase-dot{width:14px;height:14px;border-radius:50%}
+  .detail-sections{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .detail-section{background:#0f1729;border-radius:10px;padding:1rem}
+  .detail-section h4{color:#4dabf7;font-size:.8rem;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.5px}
+  .detail-section ul{list-style:none;padding:0}
+  .detail-section ul li{font-size:.85rem;color:#bbc;margin-bottom:.3rem;padding-left:1rem;position:relative}
+  .detail-section ul li::before{content:"▸";position:absolute;left:0;color:#00d4ff}
+  .comms-box{background:#0a0f1a;border-left:3px solid #3b82f6;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-top:.5rem;font-size:.8rem;color:#8899aa;font-style:italic}
+  .comms-box .sender{color:#4dabf7;font-weight:600;font-style:normal}
+  @media(max-width:768px){.detail-sections{grid-template-columns:1fr}.timeline-track{height:60px}.phase-segment .phase-name{font-size:.7rem}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Cycle de Vie d'un Incident</h1>
+  <p class="subtitle">Cliquez sur une phase pour explorer les details</p>
+</div>
+
+<div class="container">
+  <div class="incident-bar">
+    <div class="incident-info"><div class="il">Incident</div><div class="iv">INC-2026-0342</div></div>
+    <div class="incident-info"><div class="il">Severite</div><div class="sev-badge">SEV1</div></div>
+    <div class="incident-info"><div class="il">Debut</div><div class="iv">09 Mars 2026 — 02:34 UTC</div></div>
+    <div class="incident-info"><div class="il">Duree totale</div><div class="iv">3h 22m</div></div>
+    <div class="incident-info"><div class="il">Impact</div><div class="iv">Paiements indisponibles — 12 000 utilisateurs</div></div>
+  </div>
+
+  <div class="roles-bar">
+    <div class="role role-ic"><div class="role-avatar">IC</div><div><div class="role-name">Incident Commander</div><div class="role-person">Marie Dupont</div></div></div>
+    <div class="role role-comms"><div class="role-avatar">CL</div><div><div class="role-name">Comms Lead</div><div class="role-person">Thomas Martin</div></div></div>
+    <div class="role role-ops"><div class="role-avatar">OL</div><div><div class="role-name">Ops Lead</div><div class="role-person">Sarah Chen</div></div></div>
+  </div>
+
+  <div class="controls">
+    <button class="play-btn" id="playBtn" onclick="playTimeline()">&#9654; Animer la chronologie</button>
+  </div>
+
+  <div class="timeline-container">
+    <div class="timeline-track" id="timelineTrack">
+      <div class="progress-line" id="progressLine" style="width:0%"></div>
+      <div class="phase-segment phase-detection" data-phase="detection" onclick="showPhase('detection')">
+        <span class="phase-name">Detection</span><span class="phase-dur">12 min</span>
+      </div>
+      <div class="phase-segment phase-triage" data-phase="triage" onclick="showPhase('triage')">
+        <span class="phase-name">Triage</span><span class="phase-dur">8 min</span>
+      </div>
+      <div class="phase-segment phase-mitigation" data-phase="mitigation" onclick="showPhase('mitigation')">
+        <span class="phase-name">Mitigation</span><span class="phase-dur">42 min</span>
+      </div>
+      <div class="phase-segment phase-resolution" data-phase="resolution" onclick="showPhase('resolution')">
+        <span class="phase-name">Resolution</span><span class="phase-dur">68 min</span>
+      </div>
+      <div class="phase-segment phase-postmortem" data-phase="postmortem" onclick="showPhase('postmortem')">
+        <span class="phase-name">Postmortem</span><span class="phase-dur">72 min</span>
+      </div>
+    </div>
+    <div class="timestamps">
+      <span>02:34</span><span>02:46</span><span>02:54</span><span>03:36</span><span>04:44</span><span>05:56</span>
+    </div>
+    <div class="events-track" id="eventsTrack"></div>
+  </div>
+
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<script>
+const phases={
+  detection:{
+    name:'Detection',color:'#ef4444',
+    actions:['Alerte PagerDuty: "Payment Error Rate > 5%"','Alerte Grafana: "Payment Service 5xx spike"','Verification automatique du health check echouee','On-call Sarah Chen notifiee par telephone'],
+    tools:['PagerDuty','Grafana Alerting','Prometheus AlertManager','StatusPage'],
+    communications:[
+      {sender:'PagerDuty Bot',msg:'[ALERTE CRITIQUE] Payment Error Rate a atteint 23% — seuil: 5%. Service: payment-service-prod.'},
+      {sender:'Sarah Chen',msg:'Je prends l\'incident. Je check les dashboards maintenant. ETA 5 min pour le triage.'}
+    ]
+  },
+  triage:{
+    name:'Triage',color:'#f59e0b',
+    actions:['Analyse des dashboards Grafana','Verification des logs dans Loki','Identification: Payment Service renvoie des 503','Correlation avec un deploiement recent (v2.4.1)','Escalation en SEV1 — Incident Commander assigne'],
+    tools:['Grafana Dashboards','Loki (Logs)','Jaeger (Traces)','Slack #incident-2026-0342'],
+    communications:[
+      {sender:'Sarah Chen',msg:'Le Payment Service v2.4.1 deploye a 02:15 semble etre la cause. 503 sur le endpoint /process. Je rollback?'},
+      {sender:'Marie Dupont (IC)',msg:'Confirme SEV1. Thomas, lance la communication aux stakeholders. Sarah, prepare le rollback.'}
+    ]
+  },
+  mitigation:{
+    name:'Mitigation',color:'#3b82f6',
+    actions:['Rollback du Payment Service vers v2.3.9','Augmentation des replicas (3 -> 6)','Activation du circuit breaker','Verification: taux d\'erreur en baisse','Monitoring renforce pendant 30 min'],
+    tools:['ArgoCD (Rollback)','Kubernetes (kubectl)','Istio (Circuit Breaker)','Grafana Live'],
+    communications:[
+      {sender:'Sarah Chen',msg:'Rollback en cours vers v2.3.9. Circuit breaker active. ETA retour normal: 15 min.'},
+      {sender:'Thomas Martin',msg:'[StatusPage] Incident identifie affectant les paiements. Nos equipes travaillent activement a la resolution. Prochaine mise a jour dans 30 min.'}
+    ]
+  },
+  resolution:{
+    name:'Resolution',color:'#22c55e',
+    actions:['Confirmation: taux d\'erreur revenu a 0.02%','Reduction progressive des replicas (6 -> 4)','Tests end-to-end valides','Root cause identifiee: migration DB mal indexee dans v2.4.1','Fix prepare sur branche hotfix/payment-index','Deploiement du fix en staging puis production'],
+    tools:['Suite de tests E2E','GitHub PR #1847','CI/CD Pipeline','Datadog APM'],
+    communications:[
+      {sender:'Marie Dupont (IC)',msg:'Service retabli. Error rate nominal. On garde le monitoring renforce 2h. Postmortem planifie demain 14h.'},
+      {sender:'Thomas Martin',msg:'[StatusPage] Incident resolu. Les paiements fonctionnent normalement. Un postmortem sera conduit pour eviter toute recurrence.'}
+    ]
+  },
+  postmortem:{
+    name:'Postmortem',color:'#8b5cf6',
+    actions:['Reunion blameless postmortem avec toute l\'equipe','Documentation de la timeline complete','Analyse des 5 pourquoi (root cause analysis)','Identification de 4 action items','Creation des tickets JIRA pour les follow-ups','Mise a jour du runbook "Payment Service Degradation"'],
+    tools:['Google Docs (Template Postmortem)','JIRA','Confluence','Grafana Snapshots'],
+    communications:[
+      {sender:'Marie Dupont (IC)',msg:'Rappel: postmortem blameless. On cherche a ameliorer le systeme, pas a blamer les individus.'},
+      {sender:'Equipe',msg:'Action items: 1) Ajouter test de migration DB en CI 2) Canary deploy obligatoire 3) Alerte sur query latency > 500ms 4) Runbook mis a jour'}
+    ]
+  }
+};
+
+const events=[
+  {pct:0,label:'Alerte'},
+  {pct:6,label:'On-call'},
+  {pct:12,label:'SEV1'},
+  {pct:20,label:'Rollback'},
+  {pct:30,label:'Circuit Breaker'},
+  {pct:45,label:'Erreurs 0%'},
+  {pct:60,label:'Fix deploye'},
+  {pct:75,label:'Cloture'},
+  {pct:88,label:'Postmortem'},
+  {pct:100,label:'Actions'}
+];
+
+// render event markers
+const eventsTrack=document.getElementById('eventsTrack');
+events.forEach(e=>{
+  const m=document.createElement('div');
+  m.className='event-marker';
+  m.style.left=e.pct+'%';
+  m.innerHTML=`<div class="event-dot"></div><div class="event-label">${e.label}</div>`;
+  eventsTrack.appendChild(m);
+});
+
+function showPhase(key){
+  const p=phases[key];
+  document.querySelectorAll('.phase-segment').forEach(s=>{
+    s.classList.toggle('active',s.dataset.phase===key);
+    s.classList.toggle('dimmed',s.dataset.phase!==key);
+  });
+  const card=document.getElementById('detailCard');
+  const actionsHtml=p.actions.map(a=>`<li>${a}</li>`).join('');
+  const toolsHtml=p.tools.map(t=>`<li>${t}</li>`).join('');
+  const commsHtml=p.communications.map(c=>`<div class="comms-box"><span class="sender">${c.sender}:</span> ${c.msg}</div>`).join('');
+  card.innerHTML=`
+    <h3><div class="phase-dot" style="background:${p.color}"></div>${p.name}</h3>
+    <div class="detail-sections">
+      <div class="detail-section"><h4>Actions realisees</h4><ul>${actionsHtml}</ul></div>
+      <div class="detail-section"><h4>Outils utilises</h4><ul>${toolsHtml}</ul></div>
+    </div>
+    <div class="detail-section" style="margin-top:1rem;background:#0f1729;border-radius:10px;padding:1rem">
+      <h4>Communications</h4>
+      ${commsHtml}
+    </div>`;
+  card.classList.add('visible');
+}
+
+// play animation
+let isPlaying=false;
+function playTimeline(){
+  if(isPlaying)return;
+  isPlaying=true;
+  const btn=document.getElementById('playBtn');
+  btn.disabled=true;btn.textContent='Animation en cours...';
+  const line=document.getElementById('progressLine');
+  const phaseOrder=['detection','triage','mitigation','resolution','postmortem'];
+  const durations=[12,8,42,68,72]; // relative
+  const total=durations.reduce((a,b)=>a+b,0);
+  let elapsed=0;
+  let phaseIdx=0;
+
+  // reset
+  line.style.width='0%';
+  document.querySelectorAll('.phase-segment').forEach(s=>s.classList.remove('active','dimmed'));
+  document.getElementById('detailCard').classList.remove('visible');
+
+  function animateStep(){
+    if(phaseIdx>=phaseOrder.length){
+      isPlaying=false;
+      btn.disabled=false;
+      btn.innerHTML='&#9654; Rejouer l\'animation';
+      line.style.width='100%';
+      return;
+    }
+    showPhase(phaseOrder[phaseIdx]);
+    const phaseDur=durations[phaseIdx];
+    const startPct=(elapsed/total)*100;
+    const endPct=((elapsed+phaseDur)/total)*100;
+    const animMs=phaseDur*30; // speed factor
+    const startTime=performance.now();
+
+    function frame(now){
+      const progress=Math.min((now-startTime)/animMs,1);
+      const currentPct=startPct+(endPct-startPct)*progress;
+      line.style.width=currentPct+'%';
+      if(progress<1){
+        requestAnimationFrame(frame);
+      }else{
+        elapsed+=phaseDur;
+        phaseIdx++;
+        setTimeout(animateStep,400);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  animateStep();
+}
+</script>
+</body>
+</html>

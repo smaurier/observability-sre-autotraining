@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trace Distribuee — Vue Waterfall</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a2e;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  .header{text-align:center;padding:2rem 1rem .5rem}
+  .header h1{font-size:2rem;color:#00d4ff;margin-bottom:.4rem}
+  .header .subtitle{color:#8899aa;font-size:1rem;font-style:italic}
+  .trace-info{display:flex;justify-content:center;gap:2rem;padding:.8rem;flex-wrap:wrap}
+  .trace-info .info-item{background:#16213e;padding:.5rem 1.2rem;border-radius:8px;font-size:.85rem}
+  .trace-info .info-label{color:#667;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px}
+  .trace-info .info-value{color:#00d4ff;font-weight:700;font-family:monospace}
+  .legend{display:flex;justify-content:center;gap:1.5rem;padding:.5rem 1rem;flex-wrap:wrap;margin-bottom:.5rem}
+  .legend-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:#aab}
+  .legend-color{width:14px;height:14px;border-radius:3px}
+  .waterfall{max-width:1100px;margin:0 auto;padding:0 1.5rem 2rem}
+  .timeline-ruler{position:relative;height:30px;margin-left:220px;margin-bottom:.3rem;border-bottom:1px solid #1e2d4a}
+  .ruler-tick{position:absolute;top:0;font-size:.65rem;color:#556;transform:translateX(-50%)}
+  .ruler-tick::after{content:'';position:absolute;bottom:-5px;left:50%;width:1px;height:8px;background:#334}
+  .span-row{display:flex;align-items:center;margin-bottom:4px;position:relative;cursor:pointer;border-radius:6px;padding:3px 0;transition:background .2s}
+  .span-row:hover{background:#16213e88}
+  .span-row.selected{background:#16213e}
+  .span-label{width:220px;min-width:220px;padding-left:8px;font-size:.8rem;display:flex;align-items:center;gap:.5rem}
+  .span-indent{display:inline-block;border-left:2px solid #334;height:20px;margin-right:4px}
+  .span-service{font-weight:600;font-size:.75rem}
+  .span-op{color:#8899aa;font-size:.72rem}
+  .span-bar-area{flex:1;position:relative;height:28px}
+  .span-bar{position:absolute;height:22px;top:3px;border-radius:4px;transition:box-shadow .2s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:.65rem;font-weight:600;color:#fff;min-width:30px}
+  .span-bar:hover{box-shadow:0 0 12px rgba(0,212,255,.4)}
+  .span-row.selected .span-bar{box-shadow:0 0 16px rgba(0,212,255,.5)}
+  .tooltip{position:fixed;background:#0d1a30;border:1px solid #00d4ff44;border-radius:8px;padding:.8rem 1rem;font-size:.8rem;pointer-events:none;z-index:100;max-width:320px;opacity:0;transition:opacity .2s}
+  .tooltip.show{opacity:1}
+  .tooltip-row{margin-bottom:.3rem}
+  .tooltip-label{color:#667;font-size:.7rem}
+  .tooltip-value{color:#e0e0e0}
+  .detail-panel{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+  .detail-card{background:#16213e;border-radius:12px;padding:1.2rem;border:1px solid #00d4ff33;display:none}
+  .detail-card.visible{display:block}
+  .detail-card h3{color:#00d4ff;font-size:1rem;margin-bottom:.8rem}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .detail-item{background:#0f1729;border-radius:6px;padding:.5rem .8rem}
+  .detail-item .dl{color:#667;font-size:.7rem;text-transform:uppercase}
+  .detail-item .dv{color:#e0e0e0;font-size:.85rem;font-family:monospace}
+  .detail-events{margin-top:.8rem}
+  .detail-events h4{color:#4dabf7;font-size:.8rem;margin-bottom:.4rem}
+  .event-item{background:#0f1729;border-radius:6px;padding:.4rem .8rem;margin-bottom:.3rem;font-size:.8rem;display:flex;gap:.6rem}
+  .event-time{color:#f59e0b;font-family:monospace;min-width:50px}
+  .event-name{color:#e0e0e0}
+  .svc-gateway{background:linear-gradient(135deg,#0ea5e9,#0284c7)}
+  .svc-order{background:linear-gradient(135deg,#22c55e,#16a34a)}
+  .svc-payment{background:linear-gradient(135deg,#f59e0b,#d97706)}
+  @media(max-width:768px){.span-label{width:140px;min-width:140px;font-size:.7rem}.waterfall{padding:0 .5rem 1rem}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Trace Distribuee — Vue Waterfall</h1>
+  <p class="subtitle">Cliquez sur un span pour voir ses details</p>
+</div>
+
+<div class="trace-info">
+  <div class="info-item"><div class="info-label">Trace ID</div><div class="info-value">3a2f7cb4e9d1a056</div></div>
+  <div class="info-item"><div class="info-label">Duree totale</div><div class="info-value">487 ms</div></div>
+  <div class="info-item"><div class="info-label">Services</div><div class="info-value">3</div></div>
+  <div class="info-item"><div class="info-label">Spans</div><div class="info-value">8</div></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-color svc-gateway"></div>API Gateway</div>
+  <div class="legend-item"><div class="legend-color svc-order"></div>Order Service</div>
+  <div class="legend-item"><div class="legend-color svc-payment"></div>Payment Service</div>
+</div>
+
+<div class="waterfall" id="waterfall"></div>
+<div class="detail-panel"><div class="detail-card" id="detailCard"></div></div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const TOTAL=487;
+const spans=[
+  {id:0,service:'API Gateway',op:'POST /api/orders',start:0,duration:487,depth:0,cls:'svc-gateway',
+    attrs:{'http.method':'POST','http.url':'/api/orders','http.status_code':'201','net.peer.ip':'10.0.1.42'},
+    events:[{t:0,name:'Requete recue'},{t:485,name:'Reponse envoyee (201)'}],status:'OK'},
+  {id:1,service:'API Gateway',op:'auth.validateToken',start:2,duration:18,depth:1,cls:'svc-gateway',
+    attrs:{'auth.method':'JWT','auth.user_id':'usr_8291','token.valid':'true'},
+    events:[{t:2,name:'Validation JWT'},{t:18,name:'Token valide'}],status:'OK'},
+  {id:2,service:'Order Service',op:'createOrder',start:22,duration:460,depth:1,cls:'svc-order',
+    attrs:{'rpc.method':'CreateOrder','rpc.system':'gRPC','order.items':'3'},
+    events:[{t:22,name:'Debut creation commande'},{t:480,name:'Commande creee #ORD-4821'}],status:'OK'},
+  {id:3,service:'Order Service',op:'db.query SELECT',start:25,duration:35,depth:2,cls:'svc-order',
+    attrs:{'db.system':'PostgreSQL','db.statement':'SELECT * FROM inventory WHERE sku IN (...)','db.rows_affected':'3'},
+    events:[{t:25,name:'Query start'},{t:58,name:'3 rows returned'}],status:'OK'},
+  {id:4,service:'Order Service',op:'inventory.reserve',start:62,duration:45,depth:2,cls:'svc-order',
+    attrs:{'inventory.items':'3','inventory.warehouse':'EU-WEST-1'},
+    events:[{t:62,name:'Reservation stock'},{t:105,name:'Stock reserve'}],status:'OK'},
+  {id:5,service:'Payment Service',op:'processPayment',start:110,duration:350,depth:2,cls:'svc-payment',
+    attrs:{'payment.method':'card','payment.provider':'Stripe','payment.amount':'149.99 EUR'},
+    events:[{t:110,name:'Debut paiement'},{t:280,name:'Appel Stripe API'},{t:440,name:'Paiement confirme'}],status:'OK'},
+  {id:6,service:'Payment Service',op:'stripe.chargeCreate',start:130,duration:280,depth:3,cls:'svc-payment',
+    attrs:{'http.method':'POST','http.url':'https://api.stripe.com/v1/charges','http.status_code':'200','stripe.charge_id':'ch_3Mq...'},
+    events:[{t:130,name:'Appel Stripe'},{t:410,name:'Charge creee'}],status:'OK'},
+  {id:7,service:'Order Service',op:'db.query INSERT',start:465,duration:15,depth:2,cls:'svc-order',
+    attrs:{'db.system':'PostgreSQL','db.statement':'INSERT INTO orders (...)','db.rows_affected':'1'},
+    events:[{t:465,name:'Insert order'},{t:479,name:'Order persisted'}],status:'OK'}
+];
+
+const waterfall=document.getElementById('waterfall');
+const tooltip=document.getElementById('tooltip');
+const detailCard=document.getElementById('detailCard');
+
+// ruler
+const ruler=document.createElement('div');
+ruler.className='timeline-ruler';
+const ticks=[0,50,100,150,200,250,300,350,400,450,487];
+ticks.forEach(t=>{
+  const el=document.createElement('div');
+  el.className='ruler-tick';
+  el.style.left=(t/TOTAL*100)+'%';
+  el.textContent=t+'ms';
+  ruler.appendChild(el);
+});
+waterfall.appendChild(ruler);
+
+// spans
+spans.forEach(s=>{
+  const row=document.createElement('div');
+  row.className='span-row';
+  row.dataset.id=s.id;
+
+  const label=document.createElement('div');
+  label.className='span-label';
+  let indents='';
+  for(let i=0;i<s.depth;i++) indents+='<span class="span-indent"></span>';
+  label.innerHTML=indents+`<span><span class="span-service">${s.service}</span><br><span class="span-op">${s.op}</span></span>`;
+
+  const barArea=document.createElement('div');
+  barArea.className='span-bar-area';
+  const bar=document.createElement('div');
+  bar.className='span-bar '+s.cls;
+  bar.style.left=(s.start/TOTAL*100)+'%';
+  bar.style.width=Math.max(s.duration/TOTAL*100,2)+'%';
+  bar.textContent=s.duration+'ms';
+  barArea.appendChild(bar);
+
+  row.appendChild(label);
+  row.appendChild(barArea);
+  waterfall.appendChild(row);
+
+  // hover tooltip
+  row.addEventListener('mouseenter',e=>{
+    tooltip.innerHTML=`
+      <div class="tooltip-row"><span class="tooltip-label">Service</span><br><span class="tooltip-value">${s.service}</span></div>
+      <div class="tooltip-row"><span class="tooltip-label">Operation</span><br><span class="tooltip-value">${s.op}</span></div>
+      <div class="tooltip-row"><span class="tooltip-label">Duree</span><br><span class="tooltip-value">${s.duration} ms</span></div>
+      <div class="tooltip-row"><span class="tooltip-label">Debut</span><br><span class="tooltip-value">+${s.start} ms</span></div>
+      <div class="tooltip-row"><span class="tooltip-label">Statut</span><br><span class="tooltip-value" style="color:#22c55e">${s.status}</span></div>`;
+    tooltip.classList.add('show');
+  });
+  row.addEventListener('mousemove',e=>{
+    tooltip.style.left=Math.min(e.clientX+15,window.innerWidth-340)+'px';
+    tooltip.style.top=(e.clientY+15)+'px';
+  });
+  row.addEventListener('mouseleave',()=>tooltip.classList.remove('show'));
+
+  // click detail
+  row.addEventListener('click',()=>{
+    document.querySelectorAll('.span-row').forEach(r=>r.classList.remove('selected'));
+    row.classList.add('selected');
+    showDetail(s);
+  });
+});
+
+function showDetail(s){
+  let attrsHtml=Object.entries(s.attrs).map(([k,v])=>
+    `<div class="detail-item"><div class="dl">${k}</div><div class="dv">${v}</div></div>`
+  ).join('');
+  let eventsHtml=s.events.map(e=>
+    `<div class="event-item"><span class="event-time">+${e.t}ms</span><span class="event-name">${e.name}</span></div>`
+  ).join('');
+  detailCard.innerHTML=`
+    <h3>${s.service} — ${s.op}</h3>
+    <div class="detail-grid">${attrsHtml}
+      <div class="detail-item"><div class="dl">Duree</div><div class="dv">${s.duration} ms</div></div>
+      <div class="detail-item"><div class="dl">Statut</div><div class="dv" style="color:#22c55e">${s.status}</div></div>
+    </div>
+    <div class="detail-events"><h4>Evenements</h4>${eventsHtml}</div>`;
+  detailCard.classList.add('visible');
+}
+
+// animate spans appearing
+document.querySelectorAll('.span-bar').forEach((bar,i)=>{
+  bar.style.opacity='0';bar.style.transform='scaleX(0)';bar.style.transformOrigin='left';
+  setTimeout(()=>{bar.style.transition='opacity .4s, transform .5s ease-out';bar.style.opacity='1';bar.style.transform='scaleX(1)';},i*120);
+});
+</script>
+</body>
+</html>

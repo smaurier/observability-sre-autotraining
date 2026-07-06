@@ -1,435 +1,323 @@
-# Prérequis & Introduction a l'Observabilité
+---
+titre: Prérequis & Introduction à l'observabilité
+cours: 16-observability-sre
+notions: [observabilité, monitoring vs observabilité, three pillars logs metrics traces, cardinalité, série temporelle, MTTD et MTTR, panorama de la stack observability]
+outcomes:
+  - sait expliquer la différence entre monitoring (questions connues) et observabilité (questions inconnues)
+  - sait nommer les 3 piliers (logs, métriques, traces), leurs forces/faiblesses et quand utiliser chacun
+  - sait définir la cardinalité et pourquoi elle fait exploser une base de métriques
+  - sait situer les outils de la stack (Prometheus, Grafana, Loki, Tempo, OpenTelemetry, Sentry) sur les 3 piliers
+prerequis: []
+next: 01-logging-structure
+libs: []
+tribuzen: plateforme TribuZen (API NestJS, front Nuxt, workers) — établir le plan d'observabilité initial et cadrer les 3 piliers
+last-reviewed: 2026-07
+---
 
-<!-- nav-cours-précédent -->
-> **Cours précédent** : [Systèmes Distribues](../../11-distributed-systems/modules/24-projet-final.md). Si tu arrives ici sans avoir fait les cours précédents, consulte le [guide de démarrage](../../GUIDE-DEMARRAGE.md).
+# Prérequis & Introduction à l'observabilité
 
+> **Outcomes — tu sauras FAIRE :** distinguer monitoring et observabilité, nommer et positionner les 3 piliers (logs, métriques, traces), expliquer la cardinalité, situer les outils de la stack.
+> **Difficulté :** :star:
+>
+> **Portée :** ce module est le socle conceptuel du cours. On y installe le vocabulaire (3 piliers, cardinalité, MTTD/MTTR) et la carte de la stack. On n'instrumente **rien** ici : le logging structuré démarre au module 01, les métriques Prometheus au module 02, le tracing au module 04. Les métriques DORA sont déférées au module 20, la charge/capacity planning au module 11.
 
-## Objectifs pedagogiques
+## 1. Cas concret d'abord
 
-- Vérifier que votre environnement de développement est pret pour le cours
-- Comprendre la structure du projet `demo-app` que nous instrumenterons tout au long du parcours
-- Installer les dépendances essentielles (tsx, pino, prom-client)
-- Lancer l'application pour la première fois et observer sa sortie brute
-- Saisir la différence fondamentale entre **voir** et **comprendre** un système
-- Avoir une vision d'ensemble des 20 modules du cours
+Il est 22h47. Un parent t'écrit sur le Discord de TribuZen : « J'essaie d'ajouter mon fils à la tribu depuis ce matin, ça tourne dans le vide et rien ne se passe. » Tu es de garde.
+
+TribuZen tourne avec trois composants : le front **Nuxt**, l'**API NestJS**, et des **workers** qui envoient les notifications (invitation d'un membre = un e-mail + une push). Voici tout ce dont tu disposes pour diagnostiquer :
+
+```bash
+# Les seuls logs de l'API, en production
+$ docker logs tribuzen-api --tail 20
+Server listening on :3000
+POST /families/:id/members
+POST /families/:id/members
+Error: timeout
+POST /families/:id/members
+```
+
+Réponds honnêtement à ces questions, avec **uniquement** ce que tu vois ci-dessus :
+
+1. Quel utilisateur a été touché ? → *inconnu.*
+2. Sur quelle famille ? → *inconnu (`:id` n'est même pas résolu).*
+3. Combien de parents ont eu le problème, ou est-ce juste lui ? → *inconnu.*
+4. Le `timeout`, c'est la base de données ? le worker e-mail ? un service tiers ? → *inconnu.*
+5. Depuis quand ça dure, et est-ce que ça empire ? → *inconnu.*
+
+Tu **vois** que quelque chose ne va pas. Tu ne **comprends** rien. Tu vas passer ta soirée à te connecter en SSH, à `grep` des fichiers, à rejouer la requête à la main en espérant reproduire. C'est exactement ce que ce cours élimine.
+
+Un système **observable** aurait répondu aux 5 questions en 90 secondes : un log structuré t'aurait donné `userId` + `familyId`, une métrique t'aurait montré que le taux d'erreur de `POST /members` est passé de 0 % à 60 % depuis 21h30, et une trace t'aurait montré que le span `worker.sendInvitationEmail` prend 30 s avant de timeout parce que le fournisseur SMTP est en rade.
+
+Ce module pose les fondations pour construire ce système. On commence par le vocabulaire.
 
 ---
 
-## Prérequis techniques
+## 2. Théorie complète, concise
 
-Avant de commencer, assurez-vous de disposer des outils suivants installes sur votre machine.
+### 2.1 Observabilité : une définition
 
-### Node.js 20+ et npm
+Le mot vient de la théorie du contrôle (Kálmán, années 1960) : un système est **observable** si l'on peut déduire son **état interne** à partir de ses **sorties externes**. Transposé au logiciel :
 
-Le cours utilise des fonctionnalites modernes de Node.js, notamment `AsyncLocalStorage` et le support natif des ES Modules.
+> Un système est observable quand tu peux répondre à **n'importe quelle question** sur son comportement interne — y compris des questions que tu n'avais pas anticipées — sans avoir à déployer du nouveau code pour instrumenter.
 
-```typescript
-// Verifiez votre version dans un terminal
-// $ node --version
-// v20.11.0  (ou superieur)
+Le mot-clé est **n'importe quelle question**. Ce n'est pas un outil qu'on installe, c'est une **propriété** du système, obtenue en l'instrumentant pour qu'il émette assez de signal.
 
-// $ npm --version
-// 10.x
+### 2.2 Monitoring vs observabilité — le vrai clivage
+
+Ce n'est pas « ancien vs moderne » ni « l'un remplace l'autre ». Le clivage est sur la **nature des questions**.
+
+| | Monitoring | Observabilité |
+|---|---|---|
+| Questions | **connues à l'avance** (« le CPU dépasse-t-il 80 % ? ») | **inconnues, émergentes** (« pourquoi les invitations de la famille X échouent-elles ce soir ? ») |
+| Modèle mental | dashboards et seuils prédéfinis | exploration ad hoc |
+| Données | métriques agrégées | logs + métriques + traces **corrélés** |
+| Répond à | « **Est-ce que** ça marche ? » | « **Pourquoi** ça ne marche pas ? » |
+
+Le monitoring est un **sous-ensemble** de l'observabilité, pas son opposé :
+
+```
+┌─────────────────────────────────────────────┐
+│                OBSERVABILITÉ                  │
+│   ┌───────────────────────────────────────┐   │
+│   │              MONITORING               │   │
+│   │   dashboards · seuils · alertes       │   │
+│   └───────────────────────────────────────┘   │
+│   + exploration ad hoc                        │
+│   + corrélation multi-signaux                 │
+│   + debug de problèmes jamais anticipés       │
+└─────────────────────────────────────────────┘
 ```
 
-Si vous n'avez pas Node.js 20+, rendez-vous sur [nodejs.org](https://nodejs.org) ou utilisez un gestionnaire de versions comme `nvm` ou `fnm`.
+Tu **monitores** ce que tu sais déjà surveiller (« l'API est-elle up ? »). Tu as besoin d'**observabilité** pour les surprises — et en microservices, tout est surprise. C'est précisément le passage du monolithe (une seule boîte à inspecter) aux systèmes distribués (front + API + workers + base + tiers) qui a rendu le simple monitoring insuffisant : quand une invitation échoue, le problème peut se cacher dans n'importe lequel des maillons.
 
-### TypeScript — les bases
+### 2.3 Les 3 piliers (three pillars)
 
-Vous devez etre a l'aise avec les concepts suivants :
+L'observabilité s'appuie sur trois types de signal complémentaires. **Aucun ne suffit seul.**
 
-- Typage statique (`string`, `number`, `boolean`, interfaces, types)
-- Les génériques de base (`Array<T>`, `Promise<T>`)
-- `async` / `await`
-- Les modules ES (`import` / `export`)
+**Pilier 1 — Logs.** Des événements horodatés, discrets, riches en contexte. « Ce qui s'est passé, précisément, à cet instant, pour cet objet. »
 
-```typescript
-// Exemple : le niveau de TypeScript attendu
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+```jsonc
+// Un log STRUCTURÉ (JSON) — exploitable par une machine
+{ "level": "error", "event": "member_invite_failed",
+  "userId": "u_42", "familyId": "f_17", "reason": "smtp_timeout" }
+```
+- **Forces :** contexte maximal, détail d'un événement individuel, audit trail.
+- **Faiblesses :** volume énorme, coût de stockage élevé, mauvaise vue d'ensemble.
 
-async function fetchUser(id: string): Promise<User> {
-  const response = await fetch(`/api/users/${id}`);
-  return response.json() as Promise<User>;
-}
+**Pilier 2 — Métriques (metrics).** Des valeurs numériques **agrégées** dans le temps. « Combien, à quel rythme, quelle tendance. »
+
+```
+member_invite_total{status="error"}  # un compteur qui monte
+http_request_duration_seconds        # une distribution de latences
+```
+- **Forces :** peu coûteuses, vue d'ensemble instantanée, idéales pour **alerter** et suivre une tendance.
+- **Faiblesses :** pas de détail individuel — l'agrégation efface le « qui » et le « pourquoi ».
+
+**Pilier 3 — Traces (distributed tracing).** Le **parcours complet** d'une requête à travers les services, décomposé en **spans** (unités de travail) hiérarchiques. « Par où est passée cette requête, et où le temps a-t-il été perdu ? »
+
+```
+Trace abc-123 : POST /families/f_17/members           (30 120 ms)
+├─ [API]    NestJS controller.addMember               (12 ms)
+├─ [API]    DB INSERT family_members                  (8 ms)
+└─ [worker] worker.sendInvitationEmail                (30 090 ms)  ← le coupable
+   └─ [SMTP] connect provider                         (timeout)
+```
+- **Forces :** vision du flux distribué, identification immédiate du goulot d'étranglement.
+- **Faiblesses :** mise en place plus complexe (propagation de contexte, sampling), volume.
+
+**La puissance vient de la corrélation.** Le lien entre les trois est le **`traceId`** : on l'injecte dans les logs, on l'attache aux spans. Une métrique **détecte** (le taux d'erreur monte), une trace **localise** (le span `sendInvitationEmail` est lent), un log **explique** (`reason: smtp_timeout`).
+
+| Pilier | Question type | Le bon outil quand... |
+|---|---|---|
+| Logs | « que s'est-il passé pour CET événement ? » | debug d'un cas précis, audit, stack trace |
+| Métriques | « combien / à quel rythme / quelle tendance ? » | alerting, SLO, tendance, capacity |
+| Traces | « par où est passée la requête, où est le goulot ? » | latence en cascade, système distribué |
+
+### 2.4 Cardinalité — le concept qui piège tous les débutants
+
+Une **métrique** peut porter des **labels** (dimensions). Chaque combinaison **unique** de valeurs de labels crée une **série temporelle** (time series) distincte — une courbe stockée à part.
+
+La **cardinalité** = le nombre de combinaisons uniques.
+
+```
+# Cardinalité MAÎTRISÉE : method × route × status
+# 4 méthodes × 8 routes × 5 codes = 160 séries.  OK.
+http_requests_total{method, route, status}
+
+# Cardinalité EXPLOSIVE : on ajoute userId comme label
+# 4 × 8 × 5 × (nombre d'utilisateurs)  → des millions de séries.  DANGER.
+http_requests_total{method, route, status, userId}
 ```
 
-### Express.js — les bases
+Règle d'or : **ne jamais mettre en label une valeur à haute cardinalité** (userId, email, orderId, adresse IP, timestamp). Ces valeurs vont dans les **logs** ou les **attributs de span** — pas dans les labels de métriques. Une cardinalité incontrôlée fait exploser la mémoire de Prometheus et est l'erreur numéro 1 en observabilité (on y revient en détail aux modules 02 et 18).
 
-Nous utiliserons Express comme framework HTTP. Connaître les concepts de routes, middleware et `Request`/`Response` suffit.
+### 2.5 Pourquoi ça compte : MTTD, MTTR et le coût de l'aveuglement
 
-### Docker (optionnel mais recommande)
+Deux acronymes structurent tout le cours :
 
-Docker nous permettra de lancer Prometheus, Grafana et Jaeger sans installation locale. Si vous ne souhaitez pas utiliser Docker, des alternatives seront proposees.
+- **MTTD** — *Mean Time To Detect* : temps moyen pour **détecter** qu'un incident a lieu.
+- **MTTR** — *Mean Time To Resolve* (ou *Recover*) : temps moyen pour le **résoudre**.
+
+Sans observabilité, ce sont **tes utilisateurs** qui te préviennent (MTTD = heures) et le debug se fait à l'aveugle (MTTR = heures). Avec les 3 piliers corrélés, une alerte se déclenche avant la plainte (MTTD = minutes) et la corrélation métrique → trace → log te mène à la cause en minutes. Chaque sprint sans instrumentation accumule une **dette d'observabilité** : le jour de l'incident, elle se paie au prix fort.
+
+### 2.6 Panorama de la stack
+
+Voici la carte des outils du cours, rangés par pilier. Tu n'as rien à installer maintenant — juste à savoir « qui fait quoi ».
+
+| Rôle | Pilier | Outils (vus dans le cours) |
+|---|---|---|
+| Émettre le signal (SDK / instrumentation) | tous | **OpenTelemetry** (traces + métriques), **Pino** (logs), **prom-client** |
+| Collecter / router | tous | **OpenTelemetry Collector** |
+| Stocker les métriques | métriques | **Prometheus** |
+| Stocker les logs | logs | **Loki**, ou **Elasticsearch** (stack ELK) |
+| Stocker les traces | traces | **Tempo** (ou Jaeger) |
+| Visualiser / requêter | tous | **Grafana**, **Kibana** |
+| Suivre les erreurs applicatives | (transverse) | **Sentry** |
+
+Le langage de requête des métriques Prometheus s'appelle **PromQL** ; celui de Loki, **LogQL**. On les apprend à partir du module 02. Dans les labs, ces outils tournent **pour de vrai** via des `docker-compose` fournis à la racine du cours — jamais de simulation.
+
+### 2.7 Prérequis techniques du cours
+
+Pour suivre les labs, tu dois avoir :
+
+- **Node.js 20+** et un gestionnaire de paquets (`npm`/`pnpm`). Le cours utilise les ES Modules et `AsyncLocalStorage`.
+- **TypeScript** de base : types/interfaces, génériques simples (`Promise<T>`), `async/await`, `import`/`export`.
+- **Docker** + **Docker Compose** : indispensable pour lancer Prometheus, Grafana, Tempo, etc. sans installation native. Vérifie avec `docker compose version`.
+- Des bases **HTTP** et un framework serveur (le cours ancre sur **NestJS**, l'API de TribuZen).
+
+Si Docker n'est pas prêt, installe Docker Desktop avant le module 02 (premier lab qui en dépend).
 
 ---
 
-## Docker & Docker Compose — L'essentiel pour ce cours
+## 3. Worked examples
 
-Tout au long de ce parcours, nous utiliserons Docker pour déployer notre stack d'observabilité : **Prometheus** (metriques), **Grafana** (dashboards), **Jaeger** (traces), et l'**OpenTelemetry Collector** (pipeline de telemetrie). Plutot que d'installer chaque outil nativement, Docker nous permet de lancer l'ensemble en une seule commande, de manière reproductible et isolee.
+### Exemple 1 — Router chaque question de l'incident vers le bon pilier
 
-### Pourquoi Docker dans ce cours
+Reprends l'incident du §1. Pour chaque question, **quel pilier** y répond ? C'est le réflexe fondamental du métier.
 
-- **Reproductibilite** : tout le monde obtient le même environnement, quel que soit l'OS
-- **Isolation** : les outils tournent dans leurs propres containers sans polluer votre machine
-- **Simplicite** : une commande `docker-compose up -d` remplace des dizaines d'étapes d'installation
-- **Proximite avec la production** : en entreprise, ces outils tournent quasi-systematiquement dans des containers
+| Question pendant l'incident | Pilier | Pourquoi |
+|---|---|---|
+| « Le taux d'échec des invitations grimpe-t-il ? » | **Métrique** | On veut un **agrégat** dans le temps (rate), pas un cas isolé. C'est aussi ce qui doit **déclencher l'alerte**. |
+| « Quelle étape du `POST /members` est lente ? » | **Trace** | On cherche le **span** goulot dans le parcours distribué (API → worker → SMTP). |
+| « Pourquoi précisément ça échoue, pour qui ? » | **Log** | On veut le **contexte exact** : `userId`, `familyId`, `reason: smtp_timeout`. |
 
-### Vérification de l'installation
+Enchaînement typique : la **métrique** sonne l'alarme → la **trace** localise le span coupable → le **log** (corrélé par `traceId`) donne la cause racine. Trois piliers, un seul fil rouge : le `traceId`.
 
-Avant d'aller plus loin, verifiez que Docker et Docker Compose sont disponibles :
+### Exemple 2 — Cardinalité : compter les erreurs d'invitation, proprement
 
-```bash
-# Docker Engine
-docker --version
-# Docker version 24.x ou superieur
+Le PO demande : « Je veux suivre les échecs d'invitation, et pouvoir distinguer les causes (SMTP, quota, base). » Deux designs :
 
-# Docker Compose (plugin integre dans les versions recentes)
-docker compose version
-# Docker Compose version v2.x
-
-# Version legacy (encore courante)
-docker-compose --version
-# docker-compose version 1.29.x
+```
+# ❌ MAUVAIS — familyId et userId en labels
+member_invite_failed_total{familyId, userId, reason}
+# familyId : des milliers de valeurs · userId : des millions
+# → explosion du nombre de séries, Prometheus sature
 ```
 
-Si ces commandes echouent, installez Docker Desktop depuis [docker.com](https://www.docker.com/products/docker-desktop/) (Windows/macOS) ou le Docker Engine via votre gestionnaire de paquets (Linux).
-
-### Concepts clés
-
-#### Image vs Container
-
-Une **image** est un template en lecture seule (comme un ISO). Un **container** est une instance en cours d'exécution de cette image (comme une VM legere).
-
-```bash
-# Telecharger une image
-docker pull prom/prometheus:latest
-
-# Creer et lancer un container a partir de cette image
-docker run -d --name mon-prometheus prom/prometheus:latest
-
-# L'image existe une seule fois sur le disque,
-# mais vous pouvez lancer plusieurs containers a partir d'elle
+```
+# ✅ BON — seul un label à cardinalité BORNÉE
+member_invite_failed_total{reason}
+# reason ∈ { smtp_timeout, quota_exceeded, db_error }  → 3 séries. Parfait.
 ```
 
-#### Port mapping (`-p hote:container`)
-
-Les containers sont isoles du réseau de votre machine. Le port mapping créé un pont :
-
-```bash
-# Rendre Prometheus accessible sur http://localhost:9090
-docker run -d -p 9090:9090 prom/prometheus
-
-# Rendre Grafana accessible sur http://localhost:3001 (au lieu du 3000 par defaut)
-docker run -d -p 3001:3000 grafana/grafana
-```
-
-Le format est `-p PORT_HOTE:PORT_CONTAINER`. Si le port hote est déjà utilise, changez-le (ex: `-p 9091:9090`).
-
-#### Volumes (persistance des donnees)
-
-Par defaut, les donnees d'un container sont **ephemeres** : elles disparaissent quand le container est supprime. Les volumes permettent de persister les donnees.
-
-```bash
-# Persister les donnees Prometheus
-docker run -d -p 9090:9090 -v prometheus-data:/prometheus prom/prometheus
-
-# Persister les dashboards et la configuration Grafana
-docker run -d -p 3000:3000 -v grafana-data:/var/lib/grafana grafana/grafana
-
-# Lister les volumes existants
-docker volume ls
-```
-
-#### Networks (communication inter-containers)
-
-Les containers sur le même réseau Docker peuvent communiquer entre eux **par nom de service**, sans utiliser `localhost`.
-
-```bash
-# Creer un reseau dedie a la stack d'observabilite
-docker network create observability
-
-# Les containers sur ce reseau se voient par leur nom
-# Prometheus pourra scraper l'app via http://demo-app:3000/metrics
-docker network ls
-```
-
-### Commandes essentielles
-
-#### Commandes Docker de base
-
-```bash
-# Lancer un container en arriere-plan (-d = detached)
-docker run -d --name mon-container mon-image
-
-# Lister les containers en cours d'execution
-docker ps
-
-# Lister TOUS les containers (y compris arretes)
-docker ps -a
-
-# Consulter les logs d'un container
-docker logs mon-container
-docker logs -f mon-container   # -f = follow (temps reel)
-
-# Executer une commande dans un container en cours d'execution
-docker exec -it mon-container /bin/sh
-
-# Arreter et supprimer un container
-docker stop mon-container
-docker rm mon-container
-```
-
-#### Commandes Docker Compose
-
-Docker Compose orchestre plusieurs containers définis dans un fichier `docker-compose.yml` :
-
-```bash
-# Lancer toute la stack en arriere-plan
-docker-compose up -d
-
-# Arreter et supprimer tous les containers de la stack
-docker-compose down
-
-# Arreter et supprimer les containers ET les volumes (reset complet)
-docker-compose down -v
-
-# Voir les logs de tous les services (en temps reel)
-docker-compose logs -f
-
-# Voir les logs d'un seul service
-docker-compose logs -f prometheus
-
-# Voir l'etat des services
-docker-compose ps
-
-# Redemarrer un seul service
-docker-compose restart grafana
-```
-
-### Structure basique d'un docker-compose.yml
-
-Voici la structure que nous utiliserons dans les labs :
-
-```yaml
-# docker-compose.yml — Stack minimale : app + Prometheus
-services:
-  demo-app:
-    build: ./demo-app              # Construit l'image a partir du Dockerfile local
-    ports:
-      - '3000:3000'                # Expose l'app sur le port 3000
-    networks:
-      - observability
-
-  prometheus:
-    image: prom/prometheus:latest   # Utilise une image officielle
-    ports:
-      - '9090:9090'                # UI Prometheus sur http://localhost:9090
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Config personnalisee
-      - prometheus-data:/prometheus                      # Persistance des donnees
-    networks:
-      - observability
-
-networks:
-  observability:
-    driver: bridge                 # Reseau interne pour la communication inter-services
-
-volumes:
-  prometheus-data:                 # Volume nomme pour la persistance
-```
-
-Points importants :
-- Chaque service est un container
-- Les services sur le même `network` se voient par leur nom (ex: `demo-app:3000`)
-- Les `volumes` nommes persistent les donnees entre les redemarrages
-- `build` construit une image locale, `image` utilise une image du registry
-
-### Troubleshooting courant
-
-| Problème | Cause probable | Solution |
-|----------|---------------|----------|
-| `port is already allocated` | Un autre processus utilise le port | Changez le port hote (`-p 9091:9090`) ou arretez le processus conflictuel (`lsof -i :9090`) |
-| `Cannot connect to the Docker daemon` | Docker Desktop n'est pas demarre | Lancez Docker Desktop, ou sur Linux : `sudo systemctl start docker` |
-| `no space left on device` | Disque sature par les images/volumes | Nettoyez avec `docker system prune -a` (attention : supprime les images non utilisees) |
-| Container qui redémarre en boucle | Erreur de configuration ou mémoire insuffisante | Consultez les logs : `docker logs <container>` et verifiez les limites mémoire dans Docker Desktop (>= 4 Go recommande) |
-| `network XXX not found` | Le réseau n'a pas ete créé | Lancez `docker-compose up -d` (il créé les réseaux automatiquement) ou `docker network create XXX` |
-
-::: tip Astuce
-Quand quelque chose ne fonctionne pas, la première commande a lancer est toujours `docker logs <nom-du-container>`. 90% des problèmes s'expliquent dans les logs.
-:::
+Le besoin « distinguer les causes » est satisfait par le label `reason` (cardinalité = 3, bornée et connue). Le besoin « quel utilisateur exactement » ne relève **pas** de la métrique : il va dans le **log** corrélé (`{ event: "member_invite_failed", userId, familyId, reason }`). Chaque pilier à sa place : la métrique compte et alerte, le log identifie.
 
 ---
 
-## Installation des dépendances du cours
+## 4. Pièges & misconceptions
 
-Clonez le depot du cours puis installez les paquets :
+### PIÈGE #1 — « Observabilité = les 3 piliers, point »
 
-```typescript
-// Structure du package.json du cours
-// Les dependances principales que nous utiliserons :
-// - tsx          : execute directement du TypeScript (remplace ts-node)
-// - pino         : logger structure ultra-rapide
-// - prom-client  : client Prometheus pour Node.js
-// - express      : framework HTTP
-// - @types/express : types TypeScript pour Express
+Les 3 piliers sont les **types de données**, pas la finalité. La finalité est de **répondre à des questions inconnues** en corrélant ces données. Empiler trois outils sans les relier (pas de `traceId` commun) ne rend pas ton système observable — juste bavard. Le correct : instrumenter **pour la corrélation**, avec un identifiant partagé.
+
+### PIÈGE #2 — Confondre monitoring et observabilité (et croire qu'il faut choisir)
+
+Le monitoring n'est pas « dépassé ». C'est le **noyau connu** (dashboards, seuils, alertes) inclus dans l'observabilité. On ne choisit pas l'un contre l'autre : on **monitore** les questions connues et on garde la capacité d'**explorer** les inconnues. Dire « on a Grafana donc on est observables » est faux si on ne sait répondre qu'aux questions déjà prévues.
+
+### PIÈGE #3 — Mettre une valeur à haute cardinalité en label de métrique
+
+`userId`, `email`, `orderId`, `traceId`, IP, timestamp **en label** = explosion de séries temporelles et Prometheus à genoux. Ces valeurs appartiennent aux **logs** et aux **attributs de span**. En label de métrique : uniquement des dimensions **bornées** (méthode HTTP, route, code de statut, `reason` d'une liste fermée).
+
+### PIÈGE #4 — Croire que les logs suffisent (« je mettrai juste plus de logs »)
+
+Les logs répondent à « que s'est-il passé pour cet événement ». Ils sont **inadaptés** à « le taux d'erreur global dépasse-t-il 1 % ? » (il faudrait tout scanner et agréger à chaque question — lent et cher) et à « où est le goulot dans un flux à 6 services ? ». Alerting et tendance = **métriques** ; flux distribué = **traces**. Ajouter des logs ne remplacera jamais ces deux piliers.
+
+### PIÈGE #5 — Confondre `console.log` et logging structuré
+
+`console.log('invite failed for user 42')` est du texte pour un humain, dans un terminal, à trois requêtes/seconde. En production (10 000 req/s, 3 services), il est illisible et non requêtable par machine. Le logging **structuré** (JSON avec des champs `userId`, `event`, `reason`) est requêtable, filtrable, corrélable. C'est le sujet du module 01 — et la première dette qu'on rembourse dans TribuZen.
+
+---
+
+## 5. Ancrage TribuZen
+
+Ce module produit le **plan d'observabilité initial** de TribuZen. On cartographie les 3 piliers sur l'architecture réelle :
+
+```
+                          ┌───────────────────────────────┐
+   Navigateur ──HTTP──▶   │  Front Nuxt (SSR)             │
+                          └───────────────┬───────────────┘
+                                          │ REST
+                          ┌───────────────▼───────────────┐
+                          │  API NestJS                    │
+                          │  (auth, familles, membres)     │
+                          └──────┬──────────────────┬──────┘
+                                 │                  │ jobs
+                       ┌─────────▼──────┐   ┌───────▼────────┐
+                       │  PostgreSQL    │   │  Workers        │
+                       │  (Prisma)      │   │  (e-mail, push) │
+                       └────────────────┘   └───────┬────────┘
+                                                    │
+                                            ┌───────▼────────┐
+                                            │ SMTP / push tiers│
+                                            └──────────────────┘
 ```
 
-Dans votre terminal :
+Mapping des 3 piliers sur cette architecture :
 
-```bash
-cd observability-sre-course
-npm install
+| Pilier | Où, dans TribuZen | Exemple concret |
+|---|---|---|
+| **Logs** | API NestJS + workers, en JSON (Pino) | `{ event: "member_invite_failed", userId, familyId, reason, traceId }` |
+| **Métriques** | API (Prometheus via prom-client) | `http_request_duration_seconds`, `member_invite_total{status}` |
+| **Traces** | requête traversant front → API → worker → SMTP | span racine `POST /families/:id/members`, span enfant `worker.sendInvitationEmail` |
+
+Priorités de remboursement de la dette (l'ordre du cours) :
+1. **Logs structurés** dans l'API (module 01) — le socle, avec `traceId`.
+2. **Métriques RED** sur l'API (modules 02–03) — pour alerter avant la plainte utilisateur.
+3. **Traces** front → API → workers (modules 04–05) — pour localiser le goulot SMTP de l'incident du §1.
+
+L'incident « invitation qui tourne dans le vide » est le fil rouge : à la fin du cours (capstone, module 21), TribuZen sera assez observable pour le diagnostiquer en 90 secondes.
+
+---
+
+## 6. Points clés
+
+1. **Observabilité** = propriété d'un système qui permet de répondre à des questions **non anticipées** sur son état interne, à partir de ses sorties.
+2. **Monitoring** (questions connues, seuils, dashboards) est un **sous-ensemble** de l'observabilité (qui ajoute l'exploration ad hoc et la corrélation).
+3. Les **3 piliers** : logs (contexte d'un événement), métriques (agrégats/tendance/alerte), traces (flux distribué/goulot). Aucun ne suffit seul.
+4. La **corrélation** via un **`traceId`** partagé transforme trois flux séparés en un outil de diagnostic.
+5. **Cardinalité** = nombre de séries temporelles ; ne jamais mettre en label une valeur à haute cardinalité (userId, email, id, IP) — ça va dans les logs/spans.
+6. **MTTD/MTTR** chutent quand l'observabilité monte ; l'inverse s'appelle la **dette d'observabilité**.
+7. **Stack** : OpenTelemetry/Pino/prom-client émettent → Collector route → Prometheus (métriques) / Loki (logs) / Tempo (traces) stockent → Grafana visualise ; Sentry pour les erreurs.
+8. **Prérequis** : Node 20+, TypeScript de base, Docker Compose, bases HTTP/NestJS.
+
+---
+
+## 7. Seeds Anki
+
 ```
-
-Verifiez que tout fonctionne :
-
-```bash
-npx tsx demo-app/index.ts
+Définis l'observabilité (au sens système).|Propriété d'un système permettant de déduire son état interne à partir de ses sorties externes — donc de répondre à n'importe quelle question sur son comportement, même non anticipée, sans redéployer.
+Quelle est LA différence entre monitoring et observabilité ?|Le monitoring répond à des questions connues d'avance (seuils, dashboards) ; l'observabilité répond aussi aux questions inconnues/émergentes par exploration ad hoc et corrélation. Le monitoring est un sous-ensemble de l'observabilité.
+Quels sont les 3 piliers et à quoi sert chacun ?|Logs = contexte détaillé d'un événement précis ; Métriques = valeurs agrégées pour tendance/alerte ; Traces = parcours distribué d'une requête pour trouver le goulot. Aucun ne suffit seul.
+Qu'est-ce qui relie les 3 piliers pour permettre le diagnostic ?|Le traceId partagé : injecté dans les logs et attaché aux spans. La métrique détecte, la trace localise, le log explique — reliés par ce même identifiant.
+Qu'est-ce que la cardinalité et pourquoi est-ce dangereux ?|Nombre de combinaisons uniques de labels = nombre de séries temporelles. Mettre une valeur à haute cardinalité (userId, email, IP) en label fait exploser le nombre de séries et sature Prometheus.
+Où mettre le userId : label de métrique ou log ?|Dans le log (ou attribut de span), jamais en label de métrique — sa cardinalité est trop élevée. Les labels de métrique doivent être bornés (méthode, route, statut, reason d'une liste fermée).
+Que signifient MTTD et MTTR ?|MTTD = Mean Time To Detect (temps pour détecter l'incident) ; MTTR = Mean Time To Resolve/Recover (temps pour le résoudre). L'observabilité fait chuter les deux.
+Situe Prometheus, Loki et Tempo sur les 3 piliers.|Prometheus = stockage des métriques ; Loki = stockage des logs ; Tempo = stockage des traces. Grafana les visualise tous les trois ; OpenTelemetry/Pino/prom-client émettent le signal.
 ```
 
 ---
 
-## Structure du projet demo-app
+## Pont vers le lab
 
-Le projet `demo-app` est une API REST simplifiee simulant un service de gestion de commandes. C'est sur cette application que nous appliquerons chaque concept du cours.
-
-```typescript
-// demo-app/index.ts — Point d'entree simplifie
-import express from 'express';
-
-const app = express();
-const PORT = 3000;
-
-app.use(express.json());
-
-app.get('/health', (_req, res) => {
-  console.log('Health check called');
-  res.json({ status: 'ok' });
-});
-
-app.get('/api/orders', (_req, res) => {
-  console.log('Fetching orders...');
-  // Simulation d'un delai variable
-  const delay = Math.random() * 200;
-  setTimeout(() => {
-    res.json({ orders: [], count: 0 });
-  }, delay);
-});
-
-app.post('/api/orders', (req, res) => {
-  console.log('Creating order:', req.body);
-  res.status(201).json({ id: 'order-001', ...req.body });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-```
-
-Remarquez : a ce stade, toute notre "observabilité" repose sur `console.log`. Nous allons voir pourquoi c'est insuffisant.
-
----
-
-## Premier contact : observer la sortie brute
-
-Lancez l'application et envoyez quelques requêtes :
-
-```bash
-# Terminal 1 — lancer l'app
-npx tsx demo-app/index.ts
-
-# Terminal 2 — envoyer des requetes
-curl http://localhost:3000/health
-curl http://localhost:3000/api/orders
-curl -X POST http://localhost:3000/api/orders -H "Content-Type: application/json" -d '{"item":"laptop"}'
-```
-
-Vous verrez dans le terminal :
-
-```
-Server running on port 3000
-Health check called
-Fetching orders...
-Creating order: { item: 'laptop' }
-```
-
-C'est lisible... pour un humain, dans un terminal, avec 3 requêtes. Mais imaginez 10 000 requêtes par seconde, 15 services, et un bug en production a 3h du matin.
-
----
-
-## Voir vs Comprendre un système
-
-L'analogie du tableau de bord d'une voiture est parlante :
-
-- **Voir** = regarder par la fenêtre et constater que la voiture roule
-- **Comprendre** = lire le compteur de vitesse, la jauge d'essence, la temperature moteur, le temoin d'huile
-
-`console.log` vous permet de **voir**. L'observabilité vous permet de **comprendre**.
-
-Avec `console.log`, vous ne savez pas :
-- Combien de temps a pris chaque requête
-- Quel pourcentage de requêtes echoue
-- Si la mémoire augmente de façon anormale
-- Quel parcours a suivi une requête a travers vos services
-
-::: tip A retenir
-L'observabilité n'est pas un outil — c'est une **propriété** de votre système. Un système est observable quand vous pouvez comprendre son état interne en examinant ses sorties (logs, metriques, traces).
-:::
-
----
-
-## Vue d'ensemble du cours
-
-Le cours est structure en 20 modules progressifs :
-
-| Module | Sujet | Difficulte |
-|--------|-------|------------|
-| 00 | Prérequis & Introduction | 1 |
-| 01 | Pourquoi l'Observabilité | 1 |
-| 02 | Logging structure avec Pino | 2 |
-| 03 | Niveaux de log et contexte | 2 |
-| 04 | Introduction aux metriques | 2 |
-| 05 | prom-client & Prometheus | 3 |
-| 06 | Méthodes RED & USE | 3 |
-| 07 | Distributed Tracing & OpenTelemetry | 3 |
-| 08 | OTel Collector & Pipeline | 3 |
-| 09 | Grafana Dashboards & PromQL | 3 |
-| 10–19 | SLIs/SLOs, Alerting, Incident Response... | 2–3 |
-
-Chaque module comprend :
-- Un **cours** (ce que vous lisez maintenant)
-- Un **lab** pratique (exercices guides)
-- Un **quiz** d'auto-évaluation
-
----
-
-## Bonnes pratiques pour suivre ce cours
-
-- **Tapez le code vous-même** plutot que de copier-coller. La mémoire musculaire aide à retenir.
-- **Experimentez** : modifiez les exemples, cassez des choses, observez les résultats.
-- **Faites les labs** : la théorie sans pratique ne sert a rien en observabilité.
-- **Prenez des notes** sur les patterns que vous reconnaissez dans vos propres projets.
-
-::: warning Attention
-Ne sautez pas les premiers modules même si vous connaissez déjà les bases. Chaque module construit sur le précédent et introduit des conventions que nous reutiliserons jusqu'à la fin.
-:::
-
----
-
-## Prochaines étapes
-
-- [Quiz 00 — Prérequis & Introduction](/quizzes/quiz-00-prerequis)
-- [Module suivant — Pourquoi l'Observabilité](/modules/01-pourquoi-observabilite)
-
----
-
-<!-- parcours-recommande -->
-
-::: tip Parcours recommandé
-1. **Screencast** : [screencast 00 prérequis et introduction](../screencasts/screencast-00-prerequis-et-introduction.md)
-2. **Quiz** : [quiz 00 prérequis](../quizzes/quiz-00-prerequis.html)
-:::
+> Lab associé : `labs/lab-00-prerequis-et-introduction/README.md`. Exercice de conception (pas de code) : dresser le plan d'observabilité de TribuZen et mapper les 3 piliers sur ses composants, avec grille d'auto-évaluation et variante J+30.

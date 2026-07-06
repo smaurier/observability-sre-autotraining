@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz 23 — Observabilite Frontend</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; color: #ffffff; }
+    .subtitle { text-align: center; color: #8892b0; margin-bottom: 2rem; font-size: 1rem; }
+    .progress-bar-container { background: #0d1117; border-radius: 10px; height: 14px; margin-bottom: 2rem; overflow: hidden; }
+    .progress-bar { background: linear-gradient(90deg, #0d6efd, #4dabf7); height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+    .progress-text { text-align: center; color: #8892b0; margin-bottom: 1rem; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .question-label { font-size: 0.85rem; color: #4dabf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .question-text { font-size: 1.15rem; margin-bottom: 1.2rem; line-height: 1.5; color: #ffffff; }
+    pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; overflow-x: auto; font-size: 0.95rem; }
+    code { font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; color: #c9d1d9; }
+    .options { list-style: none; }
+    .options li { margin-bottom: 0.5rem; }
+    .options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; background: #0d1117; border: 2px solid #30363d; border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 1rem; }
+    .options label:hover { border-color: #4dabf7; background: #1c2a4a; }
+    .options input[type="radio"] { accent-color: #0d6efd; width: 18px; height: 18px; flex-shrink: 0; }
+    .btn { display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-primary:hover { background: #3b82f6; }
+    .btn-primary:disabled { background: #374151; cursor: not-allowed; }
+    .btn-restart { background: #238636; color: #fff; margin-top: 1rem; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-restart:hover { background: #2ea043; }
+    .feedback { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback.correct { background: #0f5132; border: 1px solid #198754; color: #d1fae5; display: block; }
+    .feedback.wrong { background: #842029; border: 1px solid #dc3545; color: #fdd; display: block; }
+    .score-card { text-align: center; padding: 3rem 2rem; }
+    .score-card .score { font-size: 3rem; font-weight: 700; color: #4dabf7; margin-bottom: 0.5rem; }
+    .score-card .score-label { font-size: 1.2rem; color: #8892b0; margin-bottom: 1.5rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz 23 — Observabilite Frontend</h1>
+    <p class="subtitle">CWV, LCP, INP, CLS, RUM, error boundaries</p>
+    <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text" id="progressText">Question 1 / 5</p>
+    <div id="quizContainer"></div>
+    <div id="scoreContainer" class="card score-card hidden"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        label: "Question 1",
+        text: "Quel est le seuil considere comme <strong>bon</strong> pour le <em>Largest Contentful Paint</em> (LCP) selon Google ?",
+        options: [
+          "Moins de 500 ms",
+          "Moins de 1.0 seconde",
+          "Moins de 2.5 secondes",
+          "Moins de 5.0 secondes"
+        ],
+        answer: 2,
+        explanation: "Google definit un LCP <strong>bon</strong> comme inferieur a <strong>2.5 secondes</strong>. Entre 2.5s et 4.0s, il est considere comme necessitant une amelioration. Au-dela de 4.0s, il est mauvais. Le LCP mesure le temps de rendu du plus grand element visible dans le viewport."
+      },
+      {
+        label: "Question 2",
+        text: "Que mesure l'<strong>Interaction to Next Paint</strong> (INP) ?",
+        options: [
+          "Le temps de chargement de la premiere image de la page",
+          "La latence globale des interactions utilisateur (clic, touche, tap) en mesurant le delai jusqu'au prochain rendu visuel",
+          "Le nombre de frames par seconde pendant le scroll",
+          "Le temps entre le premier octet recu et le premier rendu a l'ecran"
+        ],
+        answer: 1,
+        explanation: "<strong>INP</strong> mesure la reactivite de la page aux interactions utilisateur. Il observe toutes les interactions (clics, taps, saisies clavier) pendant la visite et retient la pire latence (ou quasi-pire pour les pages avec beaucoup d'interactions). Un bon INP est inferieur a 200 ms."
+      },
+      {
+        label: "Question 3",
+        text: "Quelle est la cause la plus frequente d'un mauvais score <strong>CLS</strong> (Cumulative Layout Shift) ?",
+        options: [
+          "Un fichier JavaScript trop volumineux",
+          "Des images ou publicites sans dimensions explicites (width/height) qui provoquent des decalages visuels au chargement",
+          "Un certificat TLS expire",
+          "Un nombre excessif de requetes API au demarrage"
+        ],
+        answer: 1,
+        explanation: "Le <strong>CLS</strong> mesure la stabilite visuelle de la page. La cause la plus courante d'un mauvais CLS est le chargement d'images, de publicites ou de polices sans dimensions reservees, ce qui provoque des decalages (layout shifts) qui perturbent l'experience utilisateur. Un bon CLS est inferieur a 0.1."
+      },
+      {
+        label: "Question 4",
+        text: "Pourquoi utilise-t-on le <strong>percentile 75 (P75)</strong> plutot que la moyenne pour evaluer les Core Web Vitals ?",
+        options: [
+          "Parce que le P75 est plus facile a calculer que la moyenne",
+          "Parce que le P75 represente l'experience de 75 % des utilisateurs, ce qui est plus representatif que la moyenne qui est biaisee par les valeurs extremes",
+          "Parce que Google impose le P75 pour des raisons marketing",
+          "Parce que le P75 donne toujours une valeur inferieure a la moyenne"
+        ],
+        answer: 1,
+        explanation: "La moyenne est tres sensible aux valeurs aberrantes (un utilisateur avec 30s de LCP fausse toute la moyenne). Le <strong>P75</strong> garantit que 75 % des utilisateurs ont une experience egale ou meilleure que la valeur rapportee, ce qui est un indicateur plus fiable et actionnable de l'experience reelle."
+      },
+      {
+        label: "Question 5",
+        text: "Quel est l'interet principal du <strong>regroupement d'erreurs</strong> (error grouping) dans un outil de monitoring frontend ?",
+        options: [
+          "Reduire la taille des logs stockes sur le serveur",
+          "Agreger les erreurs identiques (meme stack trace, meme message) pour identifier les problemes les plus impactants et eviter le bruit",
+          "Empecher les erreurs d'etre envoyees au backend",
+          "Convertir automatiquement les erreurs JavaScript en warnings"
+        ],
+        answer: 1,
+        explanation: "Le <strong>regroupement d'erreurs</strong> (error grouping) agrege les occurrences identiques d'une meme erreur (par stack trace, message, ou fingerprint). Cela permet de prioriser les erreurs par impact (nombre d'utilisateurs affectes, frequence) plutot que de se noyer dans des milliers d'occurrences individuelles."
+      }
+    ];
+    let currentQuestion = 0, score = 0, answered = false;
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      const total = questions.length;
+      document.getElementById('progressBar').style.width = ((currentQuestion / total) * 100) + '%';
+      document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} / ${total}`;
+      let html = `<div class="card"><p class="question-label">${q.label}</p><p class="question-text">${q.text}</p>`;
+      if (q.code) html += `<pre><code>${q.code}</code></pre>`;
+      html += `<ul class="options">`;
+      q.options.forEach((opt, i) => { html += `<li><label><input type="radio" name="q" value="${i}"> ${opt}</label></li>`; });
+      html += `</ul><button class="btn btn-primary" id="validateBtn" onclick="validate()" disabled>Valider</button><div class="feedback" id="feedback"></div></div>`;
+      document.getElementById('quizContainer').innerHTML = html;
+      document.querySelectorAll('input[name="q"]').forEach(r => { r.addEventListener('change', () => { document.getElementById('validateBtn').disabled = false; }); });
+      answered = false;
+    }
+    function validate() {
+      if (answered) { currentQuestion++; if (currentQuestion < questions.length) renderQuestion(); else showScore(); return; }
+      answered = true;
+      const selected = document.querySelector('input[name="q"]:checked');
+      if (!selected) return;
+      const val = parseInt(selected.value);
+      const q = questions[currentQuestion];
+      const fb = document.getElementById('feedback');
+      const btn = document.getElementById('validateBtn');
+      document.querySelectorAll('input[name="q"]').forEach(r => r.disabled = true);
+      if (val === q.answer) { score++; fb.className = 'feedback correct'; fb.innerHTML = `<strong>Correct !</strong> ${q.explanation}`; }
+      else { fb.className = 'feedback wrong'; fb.innerHTML = `<strong>Incorrect.</strong> ${q.explanation}`; }
+      btn.textContent = currentQuestion < questions.length - 1 ? 'Suivant' : 'Voir le score';
+    }
+    function showScore() {
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('progressText').textContent = 'Termine !';
+      const sc = document.getElementById('scoreContainer');
+      sc.classList.remove('hidden');
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = pct === 100 ? 'Parfait !' : pct >= 60 ? 'Bien joue !' : 'Continuez a reviser !';
+      sc.innerHTML = `<div class="score">${score} / ${questions.length}</div><div class="score-label">${msg} (${pct}%)</div><button class="btn-restart" onclick="restart()">Recommencer</button>`;
+    }
+    function restart() { currentQuestion = 0; score = 0; answered = false; document.getElementById('scoreContainer').classList.add('hidden'); document.getElementById('quizContainer').classList.remove('hidden'); renderQuestion(); }
+    renderQuestion();
+  </script>
+</body>
+</html>
