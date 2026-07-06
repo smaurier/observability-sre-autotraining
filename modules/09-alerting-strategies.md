@@ -95,6 +95,8 @@ Les champs (tous vérifiés docs) :
 
 Rappel module 08 : un SLO de 99.9 % sur 30 jours autorise **0.1 % d'erreurs** — c'est l'**error budget**. Le **burn rate** mesure *à quelle vitesse* on le consomme, relativement au rythme « pile dans le budget ».
 
+> **Note fenêtre 28j vs 30j :** nos SLO TribuZen sont calés sur une fenêtre de **28 jours** (module 08, alignée sur 4 semaines). Le SRE workbook, lui, calibre ses seuils **14.4×/6×** sur une fenêtre de **30 jours** ; l'écart (28 vs 30 j) est assez faible pour **réutiliser tels quels** ces seuils sans les recalculer — on garde les valeurs du workbook ci-dessous.
+
 ```
 burn_rate = taux_d_erreur_observé / error_budget
           = taux_d_erreur_observé / (1 - SLO)

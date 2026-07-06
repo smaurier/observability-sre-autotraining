@@ -1,7 +1,7 @@
 # Lab 03 — Définir les métriques RED/USE de l'API TribuZen
 
 > **Outcome :** à la fin, tu sais produire, pour un service et ses ressources, le tableau RED/USE complet **et** la PromQL de chaque signal, vérifiée contre un vrai Prometheus.
-> **Vrai outil :** la stack du cours — `docker compose -f docker-compose.base.yml up` (Prometheus sur `:9090` + Grafana sur `:3001`) qui scrape la `demo-app` (l'API TribuZen). PromQL exécutée dans l'explorateur Prometheus, pas simulée.
+> **Vrai outil :** la stack du cours — `docker compose -f docker-compose.full.yml up` (demo-app + Prometheus sur `:9090` + Grafana sur `:3001`) qui scrape la `demo-app` (l'API TribuZen). PromQL exécutée dans l'explorateur Prometheus, pas simulée.
 > **Feedback :** le coach valide en session avec la grille ci-dessous. Pas de test-runner auto-correcteur.
 
 ---
@@ -40,7 +40,7 @@ nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes  # défaut prom-clien
 
 ```bash
 # À la racine du cours 16-observability-sre
-docker compose -f docker-compose.base.yml up -d
+docker compose -f docker-compose.full.yml up -d
 # Génère du trafic sur l'API pour que les métriques bougent
 for i in $(seq 1 200); do curl -s localhost:3000/products > /dev/null; done
 # Ouvre l'explorateur Prometheus : http://localhost:9090/graph
@@ -111,7 +111,7 @@ histogram_quantile(0.99,
 | **Saturation** | `db_pool_waiting` (requêtes en attente d'une connexion) | **LE signal** : file d'attente = douleur |
 | Errors | `rate(db_connection_errors_total[5m])` | timeouts / refus de connexion |
 
-> `db_pool_*` s'instrumente au module 04 (instrumentation). En attendant, le proxy disponible dès aujourd'hui côté service :
+> `db_pool_*` s'instrumente au module 05 (instrumentation). En attendant, le proxy disponible dès aujourd'hui côté service :
 > ```promql
 > # Saturation observable maintenant : requêtes en cours qui ne s'écoulent plus
 > http_requests_in_flight
@@ -183,7 +183,7 @@ tribuzen/
 ```
 
 **Différences par rapport au lab :**
-- Les métriques `db_pool_*` et `nodejs_eventloop_lag_seconds` seront réellement instrumentées au **module 04** ; ici tu documentes *quel signal suivre*, la pose du code vient après.
+- `nodejs_eventloop_lag_seconds` (et les métriques heap) arrivent **gratuitement dès le module 02** via `collectDefaultMetrics()` ; les `db_pool_*` seront réellement instrumentées au **module 05**. Ici tu documentes *quel signal suivre*, la pose du code custom vient après.
 - Les seuils indicatifs (« P99 < 500 ms ») deviendront des **SLO contractuels avec error budget** au **module 08** — ce document en est la matière première.
 
 **Commit cible :**

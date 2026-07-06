@@ -12,7 +12,7 @@
 - Le docker-compose `full` du cours lancé à la racine `16-observability-sre/`, **plus** Toxiproxy devant Postgres :
 
 ```bash
-docker compose -f compose.full.yml up -d          # API TribuZen + Prometheus + Grafana
+docker compose -f docker-compose.full.yml up -d          # demo-app (API TribuZen) + Prometheus + Grafana
 docker run -d --name toxiproxy -p 8474:8474 -p 25432:25432 \
   ghcr.io/shopify/toxiproxy                        # proxy admin :8474, tunnel :25432
 curl localhost:3000/metrics                        # doit lister http_requests_total, *_duration_seconds_bucket

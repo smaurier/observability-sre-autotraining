@@ -210,8 +210,9 @@ spec:                                   #   (valeur relevée à l'étape 2)
 # (1) COUCHE ORCHESTRATEUR — kube-state-metrics : le pod a-t-il redémarré ?
 increase(kube_pod_container_status_restarts_total{namespace="tribuzen", pod=~"tribuzen-api-.*"}[15m])
 
-# (2) COUCHE ORCHESTRATEUR — la raison : OOMKilled ?
-kube_pod_container_status_terminated_reason{namespace="tribuzen", reason="OOMKilled"}
+# (2) COUCHE ORCHESTRATEUR — la raison du DERNIER arrêt : OOMKilled ?
+# le pod a déjà redémarré → last_terminated_reason PERSISTE la cause (terminated_reason serait retombé à 0)
+kube_pod_container_status_last_terminated_reason{namespace="tribuzen", reason="OOMKilled"}
 
 # (3) COUCHE CONTAINER — cAdvisor : mémoire active collée à la limit (128Mi) ?
 container_memory_working_set_bytes{namespace="tribuzen", container="api"}
@@ -244,7 +245,7 @@ histogram_quantile(0.99,
 ### Coach — questions de vérification en session
 
 - « Montre la cible `tribuzen-api` UP. Si tu remplaces `port: metrics` par `port: 3000`, que se passe-t-il ? » (attendu : disparaît)
-- « Ton pod est OOMKilled. Quelle métrique le prouve, et dans quel outil ? » (attendu : `..._terminated_reason{reason="OOMKilled"}`, KSM)
+- « Ton pod est OOMKilled. Quelle métrique le prouve, et dans quel outil ? » (attendu : `..._last_terminated_reason{reason="OOMKilled"}` — persiste après le restart —, KSM)
 - « Pourquoi `working_set_bytes` et pas `usage_bytes` ? »
 - « Sans `--previous`, pourquoi ne vois-tu pas le crash dans les logs ? »
 - « Pourquoi ne pas garder `by (pod)` dans un dashboard permanent ? »

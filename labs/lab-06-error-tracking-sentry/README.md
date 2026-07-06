@@ -117,7 +117,8 @@ Sentry.init({
 
 ```typescript
 // src/index.ts
-import './instrument';               // 1. EN PREMIER : sinon l'auto-instrumentation ne patche rien
+// 1. Sentry est chargé AVANT l'app via `--import ./instrument.ts` (voir étape 3) — PAS de `import './instrument'` ici.
+//    Une seule voie d'init : un import en tête RÉ-exécuterait Sentry.init (double initialisation).
 import express from 'express';
 import * as Sentry from '@sentry/node';
 import { ordersRouter } from './routes/orders';
@@ -219,7 +220,7 @@ tribuzen/
   apps/
     api/
       instrument.ts            ← Sentry.init (dsn env, release, environment, beforeSend anti-PII)
-      src/index.ts             ← import './instrument' EN PREMIER, setupExpressErrorHandler après routes
+      src/index.ts             ← chargé après instrument.ts via `--import` (pas d'import en tête), setupExpressErrorHandler après routes
       src/routes/rsvp.ts        ← setUser(id) + breadcrumb + fingerprint + captureException
     web/
       sentry.client.ts          ← Sentry.init front, release = version du build

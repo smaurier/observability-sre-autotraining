@@ -155,7 +155,7 @@ Deux outils OSS de continuous profiling dominent :
 - **Pyroscope** (Grafana Labs) — serveur de profils + SDK par langage ; intégré à Grafana aux côtés de Tempo/Loki/Prometheus. C'est celui du lab.
 - **Parca** (Polar Signals) — approche **eBPF** : profile **tout le système** au niveau kernel, sans SDK applicatif, overhead très bas.
 
-Nouveauté structurante : **OpenTelemetry a un signal `Profiles`** (stabilisé en 2025) — le profiling rejoint logs/métriques/traces comme **4e signal** transporté en **OTLP**. Concrètement, le collector OTel sait recevoir/exporter des profils, et un span lent peut **pointer vers son flamegraph** du moment exact : tu cliques sur le span `renderFeed` dans Tempo → « View profile » → le flamegraph CPU de cette fenêtre. La boucle trace → profil est bouclée.
+Nouveauté structurante : **OpenTelemetry ajoute un signal `Profiles`** — 4e signal **en cours de standardisation** (statut **alpha**, OTLP profiles **en développement**) — qui rejoindra logs/métriques/traces transporté en **OTLP**. Concrètement, le collector OTel sait recevoir/exporter des profils, et un span lent peut **pointer vers son flamegraph** du moment exact : tu cliques sur le span `renderFeed` dans Tempo → « View profile » → le flamegraph CPU de cette fenêtre. La boucle trace → profil est bouclée.
 
 ### 2.9 Quand profiler — l'arbre de décision
 
@@ -308,7 +308,7 @@ Cas d'usage réels dans TribuZen où le profiling tranche là où la trace s'arr
 5. **Continuous profiling** tourne en **prod** (overhead < 1-2 %), garde l'historique, permet le **diff** avant/après déploiement — contrairement au profiling ponctuel de dev.
 6. **CPU / heap / wall-clock** : choisir selon le symptôme. CPU saturé → CPU ; RAM qui monte → heap ; lent sans CPU (I/O) → wall-clock.
 7. **Flamegraph** : largeur = **part d'échantillons** (PAS le temps, axe X non chronologique, tri alphabétique) ; hauteur = **pile d'appels** (bas = racine, haut = feuilles). Cible = feuille la plus large.
-8. **Pyroscope** (SDK) et **Parca** (eBPF) sont les OSS de référence ; le signal **Profiles d'OTel** (stabilisé 2025) relie le span lent à son flamegraph.
+8. **Pyroscope** (SDK) et **Parca** (eBPF) sont les OSS de référence ; le signal **Profiles d'OTel** (4e signal **en cours de standardisation**, alpha/OTLP en développement) reliera le span lent à son flamegraph.
 
 ---
 
@@ -323,7 +323,7 @@ CPU, heap ou wall-clock profiling : lequel selon le symptôme ?|CPU saturé → 
 Comment lit-on l'axe X d'un flamegraph ?|L'axe X n'est PAS le temps. La largeur = proportion d'échantillons (part du CPU) de la fonction et ses enfants ; l'ordre gauche-droite est alphabétique (fusion des frames), sans sens chronologique. Ce qui se lit en timeline, c'est une trace, pas un flamegraph.
 Comment lit-on l'axe Y d'un flamegraph, et où est la coupable ?|Axe Y = profondeur de la pile d'appels : bas = racine/point d'entrée, haut = feuilles (fonctions réellement exécutées). La cible d'optimisation = la feuille la plus LARGE en haut ; on descend ensuite pour voir qui l'appelle. (Un icicle graph = même chose inversé, racine en haut.)
 Continuous profiling vs profiling ponctuel ?|Ponctuel : à la demande, en dev, fichier local, rate les bugs intermittents. Continuous : en PRODUCTION 24/7, overhead < 1-2% CPU, historique conservé, permet un diff flamegraph avant/après déploiement (rouge = régression, vert = amélioration).
-Pyroscope, Parca et le signal Profiles d'OTel ?|Pyroscope (Grafana, via SDK par langage) et Parca (Polar Signals, via eBPF système) sont les OSS de continuous profiling. OTel a stabilisé un 4e signal "Profiles" (2025) transporté en OTLP → un span lent peut pointer vers son flamegraph du moment exact (trace → profil).
+Pyroscope, Parca et le signal Profiles d'OTel ?|Pyroscope (Grafana, via SDK par langage) et Parca (Polar Signals, via eBPF système) sont les OSS de continuous profiling. OTel ajoute un 4e signal "Profiles" EN COURS DE STANDARDISATION (alpha, OTLP profiles en développement) transporté en OTLP → un span lent pourra pointer vers son flamegraph du moment exact (trace → profil).
 ```
 
 ---

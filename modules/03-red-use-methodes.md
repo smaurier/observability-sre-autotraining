@@ -109,7 +109,7 @@ http_requests_in_flight
 rate(process_cpu_seconds_total[1m])
 ```
 
-> Le lag d'event loop et les métriques heap détaillées s'instrumentent au module suivant sur l'instrumentation ; ici on identifie *quels signaux USE* suivre, pas leur code complet.
+> Le lag d'event loop (`nodejs_eventloop_lag_seconds`) et les métriques heap arrivent **gratuitement** dès le **module 02** via `collectDefaultMetrics()` ; ici on identifie *quels signaux USE* suivre, pas leur code complet.
 
 ### 2.4 Les 4 signaux dorés (Google SRE)
 
@@ -192,7 +192,7 @@ histogram_quantile(0.99,
 - **E (Errors)** : `db_connection_errors_total` en hausse → confirme.
 
 ```promql
-# Saturation côté service, en attendant l'instrumentation fine du pool (module 04) :
+# Saturation côté service, en attendant l'instrumentation fine du pool (module 05) :
 # les requêtes en cours qui ne s'écoulent plus = symptôme de saturation en aval
 http_requests_in_flight
 ```

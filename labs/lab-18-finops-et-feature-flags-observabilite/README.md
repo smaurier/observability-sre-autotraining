@@ -79,7 +79,7 @@ service:
   pipelines: {}   # TODO: brancher logs et traces
 ```
 
-> **Astuce dev :** lance le `docker-compose` fourni à la racine du cours (`16-observability-sre/`, variante *tracing* : OTel Collector + Prometheus + Tempo). Pointe ton SDK vers `http://localhost:4317`, monte ton `otel-collector-config.yaml`, et interroge Prometheus sur `http://localhost:9090`. L'important : voir le volume exporté **baisser** et une PromQL **séparer** les deux variantes.
+> **Astuce dev :** lance le `docker-compose` fourni à la racine du cours (`16-observability-sre/`) — ici **`docker-compose.full.yml`**, car ce lab a besoin **à la fois** d'un OTel Collector réel **et** d'un Prometheus réel (la variante `docker-compose.tracing.yml` n'embarque pas Prometheus). Elle expose : demo-app + **Prometheus** (`:9090`) + Grafana + **OTel Collector** (`:4317`) + **Jaeger** (`:16686`, le backend de traces du cours). Pointe ton SDK vers `http://localhost:4317`, monte ton `otel-collector-config.yaml`, interroge Prometheus sur `http://localhost:9090`, et visualise les traces échantillonnées dans **Jaeger** sur `http://localhost:16686`. L'important : voir le volume exporté **baisser** et une PromQL **séparer** les deux variantes.
 
 ---
 
@@ -160,20 +160,26 @@ processors:
         probabilistic: { sampling_percentage: 1 }
 
 exporters:
-  loki: { endpoint: "http://loki:3100/loki/api/v1/push" }
-  otlp/tempo: { endpoint: "tempo:4317", tls: { insecure: true } }
+  # loki/tempo = exemples PÉDAGOGIQUES de backends durables : ils N'existent PAS dans le
+  # docker-compose du cours (pas de Loki, pas de Tempo). Contre la stack réelle (full.yml),
+  # le backend de traces est JAEGER → exporte en OTLP vers lui :
+  otlp/jaeger: { endpoint: "jaeger:4317", tls: { insecure: true } }   # traces → Jaeger (UI :16686)
+  loki: { endpoint: "http://loki:3100/loki/api/v1/push" }             # illustratif (pas dans le compose)
+  otlp/tempo: { endpoint: "tempo:4317", tls: { insecure: true } }     # illustratif (pas dans le compose)
 
 service:
   pipelines:
     logs:
       receivers: [otlp]
       processors: [filter/drop-debug, filter/drop-health]  # drop AVANT export
-      exporters: [loki]
+      exporters: [loki]         # illustratif ; contre le cours, pas de backend logs → retire ce pipeline
     traces:
       receivers: [otlp]
       processors: [tail_sampling]
-      exporters: [otlp/tempo]
+      exporters: [otlp/jaeger]  # backend de traces RÉEL du cours (Jaeger). otlp/tempo = variante illustrative
 ```
+
+> **Stack réelle vs exemple :** les exporters `loki` et `otlp/tempo` ci-dessus illustrent des backends durables classiques, mais **ne résolvent pas** contre le `docker-compose` du cours (ni Loki ni Tempo n'y sont). Pour voir tes traces échantillonnées pour de vrai, exporte vers **Jaeger** (`otlp/jaeger` → `jaeger:4317`) et ouvre son UI sur `http://localhost:16686`. Le pipeline `logs` n'a pas de backend dans le compose : tu peux le laisser en `logging`/`debug` exporter ou le retirer — le cœur du lab (drop + tail_sampling) se prouve côté volume et côté Jaeger.
 
 ```ts
 // smart-feed.ts — CORRIGÉ (Exercice 3 : flag observé + kill switch fail-safe)

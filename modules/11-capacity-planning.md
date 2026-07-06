@@ -109,7 +109,7 @@ export const options = { /* vus/scenarios/thresholds — §2.5 */ }
 // 2. SETUP — une seule fois, avant les VUs. Peut faire du HTTP.
 //    Sa valeur de retour est passée à default() et teardown().
 export function setup() {
-  return { baseUrl: 'http://api:3000' }
+  return { baseUrl: 'http://localhost:3000' }
 }
 
 // 3. DEFAULT (VU code) — bouclé en continu par chaque VU/itération.
@@ -287,10 +287,10 @@ export const options = {
 
 export function setup() {
   // une seule fois : on récupère un token de test (setup PEUT faire du HTTP)
-  const res = http.post('http://api:3000/api/auth/login', JSON.stringify({
+  const res = http.post('http://localhost:3000/api/auth/login', JSON.stringify({
     email: 'loadtest@tribuzen.test', password: 'loadtest',
   }), { headers: { 'Content-Type': 'application/json' } })
-  return { token: res.json('token'), baseUrl: 'http://api:3000' }
+  return { token: res.json('token'), baseUrl: 'http://localhost:3000' }
 }
 
 export default function (data) {

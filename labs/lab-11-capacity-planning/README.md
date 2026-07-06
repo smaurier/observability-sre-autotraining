@@ -13,7 +13,7 @@
 - Le docker-compose `full` du cours lancé à la racine `16-observability-sre/` :
 
 ```bash
-docker compose -f compose.full.yml up -d   # API TribuZen + Prometheus + Grafana
+docker compose -f docker-compose.full.yml up -d   # demo-app (API TribuZen) + Prometheus + Grafana
 curl localhost:3000/metrics                 # doit lister http_requests_total, http_request_duration_seconds_bucket
 ```
 
@@ -69,7 +69,7 @@ export default function (data) {
 
 1. **Choisis l'executor** — `ramping-arrival-rate`. Écris `startRate: 5`, `timeUnit: '1s'`, `preAllocatedVUs: 50`, `maxVUs: 300`. Demande-toi : *pourquoi pas `ramping-vus` ?* (réponse dans ta tête avant de continuer : coordinated omission).
 2. **Écris les `stages`** — trois paliers montants `{ target, duration }` : 5 req/s (1m), 15 req/s (3m), 30 req/s (3m), puis 0 (30s).
-3. **Écris `setup()`** — un `http.post` de login, `return { token: res.json('token'), baseUrl: 'http://api:3000' }`. Vérifie que setup a bien le droit de faire du HTTP (oui — contrairement à l'init).
+3. **Écris `setup()`** — un `http.post` de login, `return { token: res.json('token'), baseUrl: 'http://localhost:3000' }`. Vérifie que setup a bien le droit de faire du HTTP (oui — contrairement à l'init).
 4. **Écris `default(data)`** — `POST` sur la route RSVP avec le `Authorization: Bearer`, puis deux `check` : `2xx` et `status < 500`.
 5. **Ajoute les `thresholds`** — `http_req_duration: ['p(95)<300']`, `http_req_failed: ['rate<0.01']`, `checks: ['rate>0.99']`.
 6. **Lance** — `k6 run k6/rsvp-capacity.ts`. Note dans le résumé : `http_reqs` (débit **servi** réel), `http_req_duration p(95)`, `http_req_failed`.
@@ -123,13 +123,13 @@ export const options = {
 // (l'init n'a pas ce droit). Sa valeur de retour est partagée à toutes les itérations.
 export function setup() {
   const res = http.post(
-    'http://api:3000/api/auth/login',
+    'http://localhost:3000/api/auth/login',
     JSON.stringify({ email: 'loadtest@tribuzen.test', password: 'loadtest' }),
     { headers: { 'Content-Type': 'application/json' } },
   )
   // On récupère le token une fois — surtout PAS un login par itération
   // (ça mesurerait la capacité du login, pas celle de /rsvp).
-  return { token: res.json('token'), baseUrl: 'http://api:3000' }
+  return { token: res.json('token'), baseUrl: 'http://localhost:3000' }
 }
 
 // default() : le VU code, bouclé en continu. Reçoit la donnée de setup().

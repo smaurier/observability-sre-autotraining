@@ -221,7 +221,7 @@ Point clé de fiabilité : **la valeur par défaut est le comportement de repli.
 
 Un flag qu'on ne mesure pas ne sert qu'à moitié. Le rendre **observable** = tagguer chaque signal de télémétrie avec l'état du flag, pour pouvoir **comparer** le groupe exposé au groupe témoin.
 
-OpenTelemetry définit des **conventions sémantiques** dédiées (statut *development*, vérifié registre semconv OTel). Attributs exacts à ne pas inventer :
+OpenTelemetry définit des **conventions sémantiques** dédiées (statut *Release Candidate*, vérifié registre semconv OTel). Attributs exacts à ne pas inventer :
 
 | Attribut | Type | Rôle |
 |----------|------|------|
@@ -422,7 +422,7 @@ Quel est le driver de coût de chaque pilier d'observabilité ?|Logs = le VOLUME
 Pourquoi un logger.debug() oublié en boucle fait exploser la facture ?|Passer de INFO à DEBUG multiplie le volume de logs par 10 à 20. Un DEBUG laissé actif dans un chemin chaud ajoute des milliers d'euros/mois. Parade : niveau de log DYNAMIQUE à durée de vie (DEBUG ciblé ≤ 30 min) + drop à la source dans l'OTel Collector.
 Tail-based vs head-based sampling : lequel pour le meilleur ratio coût/signal ?|Tail-based : décision à la fin de la trace → on garde 100 % des erreurs et des requêtes lentes, ~1 % du nominal. −95 % de coût, capacité de debug quasi intacte. Le head-based uniforme à 10 % est moins cher mais jette aussi 90 % des erreurs (aveugle).
 Comment mesurer l'impact d'un feature flag sans bombe de cardinalité ?|On tague trace/métrique avec un label FAIBLE cardinalité variant="on|off" (jamais user_id). PromQL : histogram_quantile(0.99, sum by (variant, le) (rate(..._bucket[5m]))) → compare p99 du groupe on vs off. L'user_id va dans un log/attribut de span, pas dans un label.
-Quels attributs OTel pour un flag observé, et lequel préférer ?|Convention semconv OTel (statut development) : feature_flag.key, feature_flag.result.variant, feature_flag.result.value, feature_flag.provider.name, feature_flag.result.reason. Préférer result.variant (identifiant court/stable) à result.value (valeur brute, potentiellement grosse ou sensible).
+Quels attributs OTel pour un flag observé, et lequel préférer ?|Convention semconv OTel (statut Release Candidate) : feature_flag.key, feature_flag.result.variant, feature_flag.result.value, feature_flag.provider.name, feature_flag.result.reason. Préférer result.variant (identifiant court/stable) à result.value (valeur brute, potentiellement grosse ou sensible).
 En OpenFeature, que se passe-t-il si le service de flags est injoignable ?|getBooleanValue(clé, défaut, contexte) retourne la VALEUR PAR DÉFAUT. Donc le chemin "flag off" est un vrai chemin de production : il doit avoir un fallback testé aussi sérieusement que "flag on". Fail-safe.
 Qu'est-ce qu'un kill switch et quel gain de MTTR ?|Un ops toggle qui désactive une feature instantanément sans redéploiement. Relié aux métriques (ex. errorRate du groupe variant="on"), il coupe automatiquement en fail-safe. MTTR < 1 min contre 5–15 min pour un rollback CI/CD.
 Qu'est-ce que la meta-observabilité et pourquoi le FinOps de l'obs est un processus ?|Meta-observabilité = observer le coût de l'observabilité elle-même (alerte sur cardinalité > 500k séries, sur volume de logs/jour). Sans quota par équipe + ces alertes, le coût redérive au prochain DEBUG oublié ou label user_id. Réduire une fois ne suffit pas.

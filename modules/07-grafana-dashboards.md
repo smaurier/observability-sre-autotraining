@@ -357,7 +357,7 @@ Le dashboard **RED de l'API TribuZen** :
 | Req/s | Stat | `sum(rate(http_requests_total{service="$service"}[$__rate_interval]))` | « ça tourne ? » |
 | Error % | Stat + seuil | ratio 5xx `* 100` | « ça casse ? » |
 | p99 | Stat | `histogram_quantile(0.99, sum by (le) (...))` | « c'est lent ? » |
-| Mémoire | Gauge | `tribuzen_process_resident_memory_bytes` | « ça sature ? » |
+| Mémoire | Gauge | `process_resident_memory_bytes` | « ça sature ? » |
 | Rate | Time series | `sum by (route) (rate(...))` | trafic par endpoint |
 | Errors | Time series | taux 5xx `* 100`, seuil 1 % | où ça casse |
 | Duration | Time series | p50/p95/p99 | où c'est lent |

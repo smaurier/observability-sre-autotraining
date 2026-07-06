@@ -1,9 +1,9 @@
 ---
 titre: Observabilité Kubernetes
 cours: 16-observability-sre
-notions: ["3 couches à observer (node / orchestrateur / app)", "cAdvisor (kubelet /metrics/cadvisor)", "kube-state-metrics (état des objets K8s)", "node-exporter (métriques machine)", "kube-prometheus-stack (Helm)", "ServiceMonitor (monitoring.coreos.com/v1)", "logs de pods stdout/stderr éphémères", "probes liveness/readiness côté observation", "cardinalité pod/namespace en K8s"]
+notions: ["4 couches à observer (node / orchestrateur / container / app)", "cAdvisor (kubelet /metrics/cadvisor)", "kube-state-metrics (état des objets K8s)", "node-exporter (métriques machine)", "kube-prometheus-stack (Helm)", "ServiceMonitor (monitoring.coreos.com/v1)", "logs de pods stdout/stderr éphémères", "probes liveness/readiness côté observation", "cardinalité pod/namespace en K8s"]
 outcomes:
-  - sait distinguer les trois couches à observer dans un cluster (node, orchestrateur, application) et l'outil de chacune
+  - sait distinguer les quatre couches à observer dans un cluster (node, orchestrateur, container, application) et l'outil de chacune
   - sait lire les métriques K8s natives (cAdvisor, kube-state-metrics, node-exporter) et écrire les PromQL de diagnostic pod
   - sait faire scraper une app par kube-prometheus-stack via un ServiceMonitor sans deviner l'apiVersion
   - sait retrouver les logs d'un pod éphémère et comprendre pourquoi ils disparaissent avec le pod
@@ -22,7 +22,7 @@ last-reviewed: 2026-07
 
 # Observabilité Kubernetes
 
-> **Outcomes — tu sauras FAIRE :** distinguer les 3 couches à observer (node / orchestrateur / app), lire les métriques K8s natives (`cAdvisor`, `kube-state-metrics`, `node-exporter`) et écrire les PromQL de diagnostic pod, faire scraper une app par un `ServiceMonitor`, retrouver les logs d'un pod éphémère, interpréter readiness/liveness côté obs et maîtriser la cardinalité `pod`/`namespace`.
+> **Outcomes — tu sauras FAIRE :** distinguer les 4 couches à observer (node / orchestrateur / container / app), lire les métriques K8s natives (`cAdvisor`, `kube-state-metrics`, `node-exporter`) et écrire les PromQL de diagnostic pod, faire scraper une app par un `ServiceMonitor`, retrouver les logs d'un pod éphémère, interpréter readiness/liveness côté obs et maîtriser la cardinalité `pod`/`namespace`.
 > **Difficulté :** :star::star::star::star:
 >
 > **Portée :** ce module couvre **l'observation d'un cluster** déjà déployé. Il ne t'apprend **pas** à administrer Kubernetes — déployer, dimensionner, réseau, ingress, autoscaling *infra* sont le **cours 12 (cloud/K8s)**. Ici, on suppose un cluster qui tourne et on répond à : *où sont les signaux, avec quels outils, quelles PromQL*. Les **dashboards** (panels, variables) sont vus au module 07 ; les **alerting rules** (`PrometheusRule`, burn-rate) au module 09 ; l'**instrumentation applicative** (`prom-client`, OTel) aux modules 02 et 05. On les **réutilise** ici, on ne les réexplique pas.
@@ -65,9 +65,9 @@ Un pod n'est pas un serveur. Il naît, vit peut-être 40 secondes, meurt, et un 
 - **Les cibles de scrape bougent** : impossible de lister des `targets: ['ip:port']` en dur — Prometheus doit **découvrir** les pods via l'API K8s (§2.5).
 - **Il y a plusieurs couches** entre l'utilisateur et le hardware : node → container → application. Chacune a sa source de métriques.
 
-### 2.2 Les trois couches à observer
+### 2.2 Les quatre couches à observer
 
-C'est la carte mentale du module. Trois questions, trois outils, ne jamais les confondre.
+C'est la carte mentale du module. Quatre questions, quatre outils, ne jamais les confondre.
 
 | Couche | Question | Outil / source | Exemples de métriques |
 |--------|----------|----------------|-----------------------|
@@ -117,8 +117,12 @@ increase(kube_pod_container_status_restarts_total{namespace="tribuzen"}[1h]) > 3
 # Pourquoi un container est en attente (label `reason` : CrashLoopBackOff, ImagePullBackOff...)
 kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} > 0
 
-# Pourquoi un container s'est arrêté (label `reason` : OOMKilled, Error, Completed)
+# Pourquoi un container est arrêté MAINTENANT (état courant, label `reason` : OOMKilled, Error, Completed)
 kube_pod_container_status_terminated_reason{reason="OOMKilled"} > 0
+
+# Cause du DERNIER arrêt, qui PERSISTE après le redémarrage du pod
+# → c'est CELLE-CI qu'on lit pour diagnostiquer un OOM a posteriori (le pod a déjà redémarré)
+kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} > 0
 
 # Santé d'un node (labels `condition`=Ready/DiskPressure/... et `status`=true/false)
 kube_node_status_condition{condition="Ready", status="true"} == 0   # node NotReady
@@ -232,7 +236,8 @@ Résultat : `tribuzen-api-7b9f-x2k9m` = 4 s, les deux autres pods = 120 ms. → 
 
 ```promql
 increase(kube_pod_container_status_restarts_total{namespace="tribuzen", pod="tribuzen-api-7b9f-x2k9m"}[1h])
-kube_pod_container_status_terminated_reason{pod="tribuzen-api-7b9f-x2k9m", reason="OOMKilled"}
+# le pod a DÉJÀ redémarré → on lit la cause du DERNIER arrêt (last_), qui persiste
+kube_pod_container_status_last_terminated_reason{pod="tribuzen-api-7b9f-x2k9m", reason="OOMKilled"}
 ```
 
 Résultat : 4 restarts sur l'heure, `reason="OOMKilled"` = 1. → le pod se fait tuer pour dépassement mémoire.
@@ -354,7 +359,7 @@ TribuZen tourne dans le namespace `tribuzen` : Deployment `tribuzen-api` (3 repl
 | Besoin TribuZen | Couche | Source | Requête / objet |
 |-----------------|--------|--------|-----------------|
 | « Un replica API redémarre-t-il ? » | orchestrateur | KSM | `increase(kube_pod_container_status_restarts_total{namespace="tribuzen"}[1h])` |
-| « Le worker e-mail est-il OOM ? » | orchestrateur | KSM | `kube_pod_container_status_terminated_reason{pod=~"tribuzen-worker-.*", reason="OOMKilled"}` |
+| « Le worker e-mail est-il OOM ? » | orchestrateur | KSM | `kube_pod_container_status_last_terminated_reason{pod=~"tribuzen-worker-.*", reason="OOMKilled"}` |
 | « Quel pod porte le p99 lent ? » | application | ton histogram | `sum by (pod, le) (rate(http_request_duration_seconds_bucket{namespace="tribuzen"}[5m]))` |
 | « Un pod est-il throttlé mémoire ? » | container | cAdvisor | `container_memory_working_set_bytes{namespace="tribuzen"}` |
 | « Faire scraper l'API par le chart » | plateforme obs | ServiceMonitor | `ServiceMonitor/tribuzen-api` (Exemple 2) |
@@ -383,7 +388,7 @@ tribuzen/
 1. K8s = tout est **éphémère** : logs sans disque durable, cibles qui bougent, plusieurs couches — l'observation doit être *continue* et *découverte dynamiquement*.
 2. **Quatre couches, quatre outils** : node → `node-exporter`, orchestrateur → `kube-state-metrics`, container → `cAdvisor`, app → ton instrumentation. Ne jamais les confondre.
 3. **cAdvisor = consommation** par container (intégré au kubelet, `/metrics/cadvisor`) ; `container_memory_working_set_bytes` est la mémoire qui compte pour l'OOM, pas `..._usage_bytes`.
-4. **kube-state-metrics = état/santé** des objets K8s : `kube_pod_status_phase`, `..._restarts_total`, `..._waiting_reason{reason}`, `..._terminated_reason{reason="OOMKilled"}`, `kube_node_status_condition`.
+4. **kube-state-metrics = état/santé** des objets K8s : `kube_pod_status_phase`, `..._restarts_total`, `..._waiting_reason{reason}`, `..._last_terminated_reason{reason="OOMKilled"}` (persiste après restart, contrairement à `..._terminated_reason`), `kube_node_status_condition`.
 5. **kube-prometheus-stack** (Helm, `prometheus-community`) installe Operator + Prometheus + Grafana + exporters ; on configure via des **CRDs**, pas `prometheus.yml`.
 6. **ServiceMonitor** (`monitoring.coreos.com/v1`) : `port` = **nom** du port du Service, et le ServiceMonitor doit porter le **label sélectionné** par l'instance Prometheus (`release:`), sinon ignoré.
 7. **Logs de pods** : `kubectl logs [--previous]` = debug volatil ; l'historique durable exige un agrégateur en DaemonSet → Loki/ELK.
@@ -396,7 +401,7 @@ tribuzen/
 
 ```
 Quelles sont les couches à observer dans un cluster K8s, et l'outil de chacune ?|Node (node-exporter), Orchestrateur/K8s (kube-state-metrics), Container (cAdvisor, intégré au kubelet), Application (ton instrumentation prom-client/OTel). Quatre couches complémentaires : voir la conso container sans les métriques app = surveiller la tuyauterie sans savoir si l'eau est potable.
-cAdvisor vs kube-state-metrics : que donne chacun ?|cAdvisor = CONSOMMATION par container (CPU, mémoire, réseau ; ex. container_cpu_usage_seconds_total, container_memory_working_set_bytes), intégré au kubelet sur /metrics/cadvisor. kube-state-metrics = ÉTAT/SANTÉ des objets K8s (kube_pod_status_phase, restarts, OOMKilled, node Ready). Un pod peu gourmand peut être en CrashLoopBackOff : cAdvisor calme, KSM qui hurle.
+cAdvisor vs kube-state-metrics : que donne chacun ?|cAdvisor = CONSOMMATION par container (CPU, mémoire, réseau ; ex. container_cpu_usage_seconds_total, container_memory_working_set_bytes), intégré au kubelet sur /metrics/cadvisor. kube-state-metrics = ÉTAT/SANTÉ des objets K8s (kube_pod_status_phase, restarts, OOM via kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} qui persiste après restart, node Ready). Un pod peu gourmand peut être en CrashLoopBackOff : cAdvisor calme, KSM qui hurle.
 Quelle métrique mémoire compare-t-on à la limit pour l'OOM, et pourquoi pas l'autre ?|container_memory_working_set_bytes (mémoire active). container_memory_usage_bytes inclut le cache filesystem, libérable par le kernel → valeur haute trompeuse. C'est working_set qui déclenche l'OOM kill.
 Deux pièges qui font qu'un ServiceMonitor ne scrape rien ?|1) le champ endpoints[].port attend le NOM du port du Service (ex. "metrics"), pas son numéro. 2) le ServiceMonitor doit porter le label sélectionné par l'instance Prometheus (souvent release: <nom>), sinon il est silencieusement ignoré. apiVersion = monitoring.coreos.com/v1.
 Pourquoi kubectl logs ne suffit-il pas en prod K8s ?|Les pods sont éphémères : kubectl logs lit un buffer local au node, effacé à la suppression/recréation du pod. --previous montre l'instance d'avant le dernier restart, mais tout part une fois le pod supprimé. Il faut un agrégateur en DaemonSet (Fluent Bit/Promtail → Loki/ELK) pour un historique durable.
