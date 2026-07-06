@@ -13,8 +13,10 @@ export default defineConfig({
     }
   },
 
-  // Docs statiques : neutralise l'interpolation Vue `{{ }}` en prose (et le templating
-  // Prometheus/Grafana `{{ $value }}`) pour ne pas casser le build SSR.
+  // ⚠️ DETTE CONNUE : cet override neutralise les moustaches Prometheus `{{ $value }}`
+  // en prose/inline-code MAIS casse aussi le `{{ }}` du thème par défaut (menu/outline
+  // affichés littéralement). Fix propre à faire : retirer l'override + v-pre/escape les
+  // `{{ $value }}`/`{{ $labels.x }}` du contenu (cf. docs/curriculum/DETTE-vitepress-delimiters.md).
   vue: {
     template: {
       compilerOptions: {

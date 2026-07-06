@@ -20,7 +20,7 @@ last-reviewed: 2026-07
      - express/ (setupExpressErrorHandler après routes) ✓
      - configuration/releases/ (release "name@version") ✓
      - node/sourcemaps/ (Debug IDs, wizard -i sourcemaps) ✓
-     - node/usage/sdk-fingerprinting/ (setFingerprint, {{ default }}) ✓ -->
+     - node/usage/sdk-fingerprinting/ (setFingerprint, default) ✓ -->
 
 # Error tracking avec Sentry
 
