@@ -165,7 +165,7 @@ Points vérifiés :
 
 Par défaut, Sentry regroupe les events par **stack trace + type d'erreur** en une **issue**. Ce regroupement automatique suffit dans 90% des cas. Deux situations le mettent en défaut, et on **personnalise** alors le **fingerprint** (tableau de chaînes).
 
-Vérifié docs (*SDK Fingerprinting*). Le placeholder spécial `{{ default }}` (inline `` `{{ default }}` ``) représente le hash calculé par défaut :
+Vérifié docs (*SDK Fingerprinting*). Le placeholder spécial <code v-pre>{{ default }}</code> (inline <code v-pre>{{ default }}</code>) représente le hash calculé par défaut :
 
 - **regrouper trop peu** (une seule vraie cause éclatée en 50 issues, ex. un message contenant un ID variable) → on **remplace** par une clé stable :
 
@@ -187,7 +187,7 @@ Sentry.withScope((scope) => {
 });
 ```
 
-Règle : **inclure `` `{{ default }}` ``** = affiner le grouping natif ; **l'omettre** = tout remplacer par ta clé (regroupement agressif). Une issue a un cycle de vie — *unresolved* → *resolved* → et si elle réapparaît dans une release ultérieure, Sentry lève une **régression** (l'alerte la plus précieuse).
+Règle : **inclure <code v-pre>{{ default }}</code>** = affiner le grouping natif ; **l'omettre** = tout remplacer par ta clé (regroupement agressif). Une issue a un cycle de vie — *unresolved* → *resolved* → et si elle réapparaît dans une release ultérieure, Sentry lève une **régression** (l'alerte la plus précieuse).
 
 ### 2.7 Breadcrumbs : le fil d'Ariane avant le crash
 
@@ -399,7 +399,7 @@ Le `feature_flag` en tag illustre le pont avec le module 05 : quand une régress
 3. `@sentry/node` s'initialise dans `instrument`, chargé **EN PREMIER** (CommonJS `require` d'abord, ESM `--import`), sinon l'auto-instrumentation ne patche rien.
 4. Express : `Sentry.setupExpressErrorHandler(app)` **après les routes**, **avant** tes middlewares d'erreur.
 5. Une **release** (`nom@version`) rattache les events à une version et **lie les source maps** (Debug IDs) pour désobfusquer la stack ; source maps uploadées au **build de prod** via `SENTRY_AUTH_TOKEN`, jamais servies publiquement.
-6. Le **fingerprint** contrôle le grouping : `` `{{ default }}` `` + discriminant = affiner ; l'omettre = regrouper agressivement.
+6. Le **fingerprint** contrôle le grouping : <code v-pre>{{ default }}</code> + discriminant = affiner ; l'omettre = regrouper agressivement.
 7. **Breadcrumbs** = fil des actions avant le crash (auto + métier) ; souvent la clé de la cause.
 8. Contexte utilisateur = **`id` pseudonyme uniquement**, jamais email/nom ; `tags` filtrables, `context` riche non indexé ; `beforeSend` = filet anti-PII (RGPD complet → module 19).
 9. `sampleRate` (erreurs) reste à `1.0` ; `tracesSampleRate` (perf) à 0.1–0.2 — deux réglages à ne pas confondre.

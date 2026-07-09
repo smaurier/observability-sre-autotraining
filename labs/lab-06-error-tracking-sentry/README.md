@@ -77,7 +77,7 @@ try {
 3. **Charge Sentry en premier** : lance l'app avec `NODE_ENV=production RELEASE=tribuzen-api@1.0.0 npx tsx --import ./instrument.ts src/index.ts`.
 4. **Branche Express** : ajoute `Sentry.setupExpressErrorHandler(app)` **après** les routes et **avant** le middleware d'erreur applicatif. Vérifie l'ordre.
 5. **Ajoute une route de test** `GET /debug-sentry` qui `throw new Error('Test Sentry TribuZen')`, appelle-la → l'event doit apparaître dans l'UI Sentry (auto-capture).
-6. **Instrumente `/orders`** : `setUser({ id })` pseudonyme, breadcrumb métier `data: { itemCount }` (pas de nom/email), et dans le `catch` un `withScope` + `setFingerprint(['{{ default }}', 'orders'])` + `captureException` + `next(err)`.
+6. **Instrumente `/orders`** : `setUser({ id })` pseudonyme, breadcrumb métier `data: { itemCount }` (pas de nom/email), et dans le `catch` un `withScope` + <code v-pre>setFingerprint(['{{ default }}', 'orders'])</code> + `captureException` + `next(err)`.
 7. **Provoque une vraie erreur métier** (ex. POST `/orders` avec un payload qui fait échouer `createOrder`) → vérifie l'issue : grouping, breadcrumbs, `user.id`, tag `route`.
 8. **Vérifie l'absence de PII** : ouvre l'event dans l'UI → aucun email/nom, pas de cookie ni header `authorization`.
 9. **Release + source maps** : configure l'upload via `npx @sentry/wizard@latest -i sourcemaps` (ou le plugin bundler), rebuild avec `SENTRY_AUTH_TOKEN` (env), et confirme que la stack est **désobfusquée** et l'issue taggée `release: tribuzen-api@1.0.0`.
@@ -191,7 +191,7 @@ ordersRouter.post('/', async (req, res, next) => {
 - `instrument` est le **tout premier import** de `src/index.ts` → l'auto-instrumentation patche `http`/Express avant leur chargement (piège #2 du module).
 - `setupExpressErrorHandler` est **après les routes et avant** le middleware applicatif : Sentry voit l'exception avant qu'elle soit transformée en réponse 500 (piège #3).
 - `setUser({ id })` + breadcrumb `data: { itemCount }` → **aucune PII** ; `beforeSend` coupe cookies/`authorization` en filet (piège #5).
-- `setFingerprint(['{{ default }}', 'orders'])` affine le grouping natif sans tout remplacer (§2.6 du module).
+- <code v-pre>setFingerprint(['{{ default }}', 'orders'])</code> affine le grouping natif sans tout remplacer (§2.6 du module).
 - `next(err)` ne **avale pas** l'erreur : le client reçoit une 500 propre et l'event part.
 - `sampleRate: 1.0` / `tracesSampleRate: 0.2` : erreurs complètes, perf échantillonnée (piège #7).
 
@@ -203,8 +203,8 @@ ordersRouter.post('/', async (req, res, next) => {
 
 **Même objectif, contraintes ajoutées, sans rouvrir ce corrigé ni le module :**
 
-1. **En 25 minutes**, instrumente une **deuxième** route (`/products`) avec son propre fingerprint (`['{{ default }}', 'products']`) et un breadcrumb `data: { query }` (sans PII) — prouve que les erreurs `/products` et `/orders` forment **deux issues distinctes**.
-2. **Regroupe agressivement** toutes les erreurs de timeout (peu importe la route) en **une seule** issue : dans leur `catch`, `setFingerprint(['timeout'])` **sans** `{{ default }}`. Vérifie qu'un timeout sur `/orders` et un sur `/products` tombent dans la **même** issue.
+1. **En 25 minutes**, instrumente une **deuxième** route (`/products`) avec son propre fingerprint (<code v-pre>['{{ default }}', 'products']</code>) et un breadcrumb `data: { query }` (sans PII) — prouve que les erreurs `/products` et `/orders` forment **deux issues distinctes**.
+2. **Regroupe agressivement** toutes les erreurs de timeout (peu importe la route) en **une seule** issue : dans leur `catch`, `setFingerprint(['timeout'])` **sans** <code v-pre>{{ default }}</code>. Vérifie qu'un timeout sur `/orders` et un sur `/products` tombent dans la **même** issue.
 3. **Filtre le bruit** : ajoute au `beforeSend` une règle qui **ne remonte pas** les erreurs de validation (`err.status === 400`) — vérifie qu'un POST invalide **n'apparaît plus** dans Sentry.
 
 **Critère de réussite :** deux issues séparées pour les erreurs normales `/products` vs `/orders`, une issue unique pour les timeouts, et zéro event pour les 400 — tout vérifié dans l'UI Sentry.

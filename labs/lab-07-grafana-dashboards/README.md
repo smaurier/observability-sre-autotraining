@@ -54,7 +54,7 @@ for i in $(seq 1 40); do curl -s -X POST localhost:3000/api/events/42/rsvp > /de
 1. **Connecte la datasource.** Grafana → *Connections → Data sources → Add → Prometheus*. URL : `http://prometheus:9090` (nom de service Docker, **pas** `localhost`). *Save & test* → « Data source is working ».
 2. **Vérifie dans Explore.** Onglet *Explore*, tape `http_requests_total`, exécute. Si rien ne sort, le problème est en amont (cible `up=0`) — corrige avant de continuer.
 3. **Crée le dashboard.** *Dashboards → New → New dashboard*.
-4. **Panel R (Rate).** *Add panel* → type **Time series**. Requête : débit par route (voir corrigé), `[$__rate_interval]`. Legend : `{{route}}`. Titre : « Rate — req/s par route ».
+4. **Panel R (Rate).** *Add panel* → type **Time series**. Requête : débit par route (voir corrigé), `[$__rate_interval]`. Legend : <code v-pre>{{route}}</code>. Titre : « Rate — req/s par route ».
 5. **Panel E (Errors).** Time series. Requête : proportion 5xx `* 100`. Unité axe Y : *percent (0-100)*. Ajoute un **seuil** à 1 (rouge au-dessus). Titre : « Error rate (%) ».
 6. **Panel D (Duration).** Time series, **3 requêtes** (A/B/C = p50/p95/p99), `le` dans le `by`. Unité axe Y : *seconds (s)*. Legends : `p50` / `p95` / `p99`.
 7. **Ajoute la variable `$service`.** *Dashboard settings → Variables → Add variable* : type **Query**, datasource Prometheus, requête `label_values(http_requests_total, service)`. Nom : `service`.

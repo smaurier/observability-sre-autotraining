@@ -87,7 +87,7 @@ Les champs (tous vérifiés docs) :
 - **`labels`** : labels **ajoutés** à l'alerte (typiquement `severity`) — ce sont eux qu'Alertmanager utilise pour router.
 - **`annotations`** : texte humain (résumé, description, lien runbook). Non utilisées pour le routing.
 
-**Templating** : dans `annotations` et `labels`, `{{ $value }}` (inline code — voir docs) rend la valeur évaluée de l'alerte, et `{{ $labels.<nom> }}` rend un label de la série. C'est ce qui rend un message d'alerte concret (« p99 à 3.2s sur /rsvp ») plutôt que générique.
+**Templating** : dans `annotations` et `labels`, <code v-pre>{{ $value }}</code> (inline code — voir docs) rend la valeur évaluée de l'alerte, et <code v-pre>{{ $labels.&lt;nom&gt; }}</code> rend un label de la série. C'est ce qui rend un message d'alerte concret (« p99 à 3.2s sur /rsvp ») plutôt que générique.
 
 > **Recording rules & alerting.** Une bonne pratique (module 02) : pré-calculer les ratios coûteux dans des **recording rules** (`record:`), puis écrire des `expr` d'alerte courtes qui **lisent** ces séries. Indispensable pour le multi-window (§2.5) : on ne veut pas répéter un `sum(rate(...))/sum(rate(...))` sur 5 fenêtres dans chaque alerte.
 
@@ -495,7 +495,7 @@ alerting:
 
 1. **Symptôme, pas cause** : une page signale une douleur utilisateur (SLO), pas une métrique interne (CPU). Les causes vont au dashboard de diagnostic.
 2. Une alerting rule Prometheus = `alert`, `expr`, `for` (absorbe les pics), `keep_firing_for` (anti-flapping), `labels` (routing), `annotations` (humain + runbook).
-3. `{{ $value }}` et `{{ $labels.x }}` (dans les annotations) rendent le message concret ; les recording rules pré-calculent les ratios coûteux.
+3. <code v-pre>{{ $value }}</code> et <code v-pre>{{ $labels.x }}</code> (dans les annotations) rendent le message concret ; les recording rules pré-calculent les ratios coûteux.
 4. **Burn rate** = taux d'erreur / error budget ; 1× = pile au budget, 14.4× = budget mensuel cramé en ~2 jours.
 5. **Multi-window multi-burn-rate** (SRE workbook) : fenêtre longue (tendance) `and` fenêtre courte (encore actif) → précision + reset en ~5 min.
 6. Seuils du workbook : **14.4× (1h/5m, page)**, **6× (6h/30m, page)**, **1× (3d/6h, ticket)** pour un SLO 30 jours.

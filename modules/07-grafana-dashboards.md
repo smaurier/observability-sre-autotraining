@@ -277,7 +277,7 @@ histogram_quantile(0.99,
 ```
 
 3. **Unité de l'axe Y** : *seconds (s)* — sinon Grafana affiche `0.24` sans savoir que ce sont des secondes.
-4. **Legend** : `p50` / `p95` / `p99` en dur (une valeur par requête, pas besoin de `{{ }}`).
+4. **Legend** : `p50` / `p95` / `p99` en dur (une valeur par requête, pas besoin de <code v-pre>{{ }}</code>).
 
 Résultat : trois courbes empilées, l'écart p50↔p99 saute aux yeux — une longue traîne (p99 loin du p50) signale que *certaines* requêtes souffrent, invisible sur une moyenne.
 

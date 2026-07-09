@@ -17,13 +17,9 @@ export default defineConfig({
   // en prose/inline-code MAIS casse aussi le `{{ }}` du thème par défaut (menu/outline
   // affichés littéralement). Fix propre à faire : retirer l'override + v-pre/escape les
   // `{{ $value }}`/`{{ $labels.x }}` du contenu (cf. docs/curriculum/DETTE-vitepress-delimiters.md).
-  vue: {
-    template: {
-      compilerOptions: {
-        delimiters: ['(%(', ')%)']
-      }
-    }
-  },
+  // NB : override `delimiters` retiré (il cassait le {{ }} du thème par défaut).
+  // cf docs/curriculum/DETTE-vitepress-delimiters.md
+
 
   ignoreDeadLinks: true,
 
