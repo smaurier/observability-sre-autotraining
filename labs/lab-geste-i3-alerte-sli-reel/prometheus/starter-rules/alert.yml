@@ -1,0 +1,20 @@
+# À COMPLÉTER (page blanche) : l'alerte doit se déclencher quand le taux d'ERREUR de
+# POST /sorties dépasse 10% pendant au moins 15s. Lis le README avant de modifier.
+#
+# Cette version compile et charge dans Prometheus, mais ne se déclenchera JAMAIS
+# correctement : regarde bien quel `status` elle filtre.
+groups:
+  - name: tribuzen_sorties_sli
+    rules:
+      - alert: TauxErreurSortiesEleve
+        expr: |
+          (
+            sum(rate(http_requests_total{route="/sorties",status="200"}[15s]))
+            /
+            sum(rate(http_requests_total{route="/sorties"}[15s]))
+          ) > 0.10
+        for: 15s
+        labels:
+          severity: page
+        annotations:
+          summary: "Taux d'erreur élevé sur la création de sortie"

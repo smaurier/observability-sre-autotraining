@@ -7,15 +7,18 @@
 Formation complete Observabilité & SRE : logging, metriques, tracing, SLOs, incidents, chaos engineering (débutant vers expert).
 
 <!-- labs-gestes:start -->
-## Labs — refonte du 22/09/2026 : un lab = un geste métier complet
+## Labs — geste transverse sur 12-AWS / 15-CI-CD / 16-Observabilité
 
-> Règle qualité 5 du parcours : chaque lab est **un geste métier complet**, sous deux formes — **Zéro** (construire de zéro un artefact réel et entier) ou **Intervention** (modifier de l'existant avec consommateurs, findings avant code, non-régression). Un lab n'entre en file qu'avec un **oracle exécutable** (`src/` starter · `test/` · `solution/` séparée). Les labs historiques de ce cours (un concept par lab, sans oracle) restent dans `labs/` jusqu'à remplacement et **ne sont plus la file**. Cible détaillée : [`docs/gestes-complets.md`](../docs/gestes-complets.md). État : **0/3 avec oracle**.
+> **Un seul geste transverse sur les trois cours** (cible détaillée :
+> [`docs/gestes-complets.md`](../docs/gestes-complets.md)) — le Z vit dans
+> [`12-aws-cloud/labs/lab-01-deployer-tribuzen`](../12-aws-cloud/labs/lab-01-deployer-tribuzen/README.md)
+> (Pino + Sentry y sont déjà). Ce cours porte l'intervention "alerte sur un SLI réel" — la
+> seule des 4 I qui tourne sur de VRAIS conteneurs Docker (Prometheus réel, pas de mock).
+> État au 10/10/2026 : écrit, vérification du run complet en cours (voir README du lab).
 
-| # | Lab | Forme | Geste | Oracle |
-|---|-----|-------|-------|--------|
-| 01 | `lab-01-observer-tribuzen` | Zéro | Pino, Sentry, dashboard — geste transverse avec 12 et 15 | · à écrire |
-| 02 | `lab-02-alerte-sur-un-sli` | Intervention | réel | · à écrire |
-| 03 | `lab-03-incident-a-remonter` | Intervention | traces, logs, cause | · à écrire |
+| Lab | Forme | Geste | Oracle |
+|-----|-------|-------|--------|
+| [`lab-geste-i3-alerte-sli-reel`](labs/lab-geste-i3-alerte-sli-reel/README.md) | Intervention | alerte Prometheus réelle sur un taux d'erreur injecté | ⏳ voir README du lab pour le statut exact |
 
 <!-- labs-gestes:end -->
 

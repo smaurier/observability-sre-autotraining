@@ -1,0 +1,15 @@
+groups:
+  - name: tribuzen_sorties_sli
+    rules:
+      - alert: TauxErreurSortiesEleve
+        expr: |
+          (
+            sum(rate(http_requests_total{route="/sorties",status="500"}[15s]))
+            /
+            sum(rate(http_requests_total{route="/sorties"}[15s]))
+          ) > 0.10
+        for: 15s
+        labels:
+          severity: page
+        annotations:
+          summary: "Taux d'erreur élevé sur la création de sortie"
